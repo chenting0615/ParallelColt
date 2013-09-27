@@ -123,7 +123,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
    *             <tt>rows<0 || columns<0 || (double)columns*rows > Integer.MAX_VALUE</tt>
    *             .
    */
-  def this(rows: Int, columns: Int) {
+  def this(rows: Int, columns: Int)(implicit factory: FastUtilMap[Long, T], m: Manifest[T]) {
     this(rows, columns, rows * columns / 1000, 0.35)
   }
 
