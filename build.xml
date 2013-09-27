@@ -26,8 +26,8 @@ See the target "usage" further below for instructions on how to build the softwa
 	<property name="proj.title" value="ParallelColt" />
 
 	<!-- The directories where *.java files are stored. -->
-	<property name="javac.src" value="src" />
-	<property name="javac.test" value="test" />
+	<property name="javac.src" value="src/main/java" />
+	<property name="javac.test" value="src/test/java" />
 	<property name="javac.benchmark" value="benchmark" />
 	
 	<!-- Destination for *.class files -->
@@ -189,7 +189,7 @@ Further individual targets used internally by above targets:
 	</target>
 	
 	<target name="test" depends="jar">
-		<junit printsummary="yes" fork="yes" haltonfailure="yes" showoutput="yes">
+		<junit printsummary="yes" fork="yes" haltonfailure="no" showoutput="yes">
 			<classpath path="${classpath}:${jar.dir}/${jar.filename}"/>
 		  <formatter type="plain"/>
 		  <test name="cern.colt.AllTests"/>
