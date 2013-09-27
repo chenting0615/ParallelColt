@@ -12,7 +12,9 @@ import cern.colt.matrix.Matrix2D
  */
 @specialized
 @SerialVersionUID(1L)
-class DiagonalMatrix2D[T: Manifest](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
+class DiagonalMatrix2D[T <: AnyVal: Manifest](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
+
+  val x = FastUtilMap
 
   if (dindex < -rows + 1 || dindex > columns - 1)
     throw new IllegalArgumentException("index is out of bounds")
