@@ -1,9 +1,8 @@
 package cern.colt.matrix.impl
 
-import it.unimi.dsi.fastutil.longs.{LongSet, Long2DoubleOpenHashMap}
+import it.unimi.dsi.fastutil.longs.LongSet
 import cern.colt.matrix.{Matrix1D, Matrix2D}
 import scala.util.Sorting
-import java.util
 
 /**
  * Sparse hashed 2-d matrix holding <tt>double</tt> elements. First see the <a
@@ -75,29 +74,6 @@ import java.util
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
-trait FastUtilMap[IN <: AnyVal, OUT <: AnyVal] {
-  type MapType <: util.Map[IN, OUT]
-
-  def createMap(initialCapacity: Int, loadFactor: Float): MapType
-
-  def trim(map: MapType)
-}
-
-object FastUtilMap {
-
-  implicit object LongDouble extends FastUtilMap[Long, Double] {
-    type MapType = Long2DoubleOpenHashMap
-
-    def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2DoubleOpenHashMap(initialCapacity, loadFactor)
-    }
-
-    def trim(map: MapType) {
-      map.trim()
-    }
-  }
-}
-
 @specialized
 @SerialVersionUID(1L)
 class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadFactor: Double)(implicit factory: FastUtilMap[Long, T], m: Manifest[T]) extends StrideMatrix2D[T] {
@@ -331,7 +307,9 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
     elementsVar.get(toRawIndex(row, column))
   }
 
-  def like2D(rows: Int, columns: Int): StrideMatrix2D[T] = new SparseHashMatrix2D[T](rows, columns)
+  def like2D(rows: Int, columns: Int): StrideMatrix2D[T] = {
+    new SparseHashMatrix2D[T](rows, columns)
+  }
 
   def like1D(size: Int): StrideMatrix1D[T] = new SparseMatrix1D[T](size)
 
