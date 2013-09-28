@@ -3,6 +3,7 @@ package cern.colt.matrix.impl
 import it.unimi.dsi.fastutil.longs.LongSet
 import cern.colt.matrix.{Matrix1D, Matrix2D}
 import scala.util.Sorting
+//import scala.math.Numeric.Implicits._
 
 /**
  * Sparse hashed 2-d matrix holding <tt>double</tt> elements. First see the <a
@@ -76,7 +77,9 @@ import scala.util.Sorting
  */
 @specialized
 @SerialVersionUID(1L)
-class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadFactor: Double)(implicit factory: FastUtilMap[Long, T], m: Manifest[T]) extends StrideMatrix2D[T] {
+class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadFactor: Double)(implicit factory: FastUtilLongMap[T], m: Manifest[T]) extends StrideMatrix2D[T] {
+
+  //import n._
 
   private var elementsVar = factory.createMap(initialCapacity, loadFactor.toFloat)
 
@@ -118,7 +121,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
    *             <tt>for any 1 &lt;= row &lt; values.length: values[row].length != values[row-1].length</tt>
    *             .
    */
-  def this(values: Array[Array[T]]) {
+  def this(values: Array[Array[T]])(implicit factory: FastUtilMap[Long, T], m: Manifest[T]) {
     this(values.length, if (values.length == 0) 0 else values(0).length)
     assign(values)
   }
@@ -137,7 +140,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
    * @param values
    *            numerical values
    */
-  def this(rows: Int, columns: Int, rowIndexes: Array[Int], columnIndexes: Array[Int], values: Array[T]) {
+  def this(rows: Int, columns: Int, rowIndexes: Array[Int], columnIndexes: Array[Int], values: Array[T])(implicit factory: FastUtilMap[Long, T], m: Manifest[T]) {
     this(rows, columns)
     insert(rowIndexes, columnIndexes, values)
   }
@@ -158,7 +161,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
         case other: SparseHashMatrix2D[T] => {
           if (this.isNoView && other.isNoView) {
             this.elementsVar.clear()
-            this.elementsVar.putAll(other.elementsVar)
+            this.elementsVar.putAll(other.elementsVar)    //TODO fix and uncomment
             doFallBackAssign = false
           }
         }
@@ -203,7 +206,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
     val iter = keys.iterator()
     var k = 0
     while(iter.hasNext) {
-      val key = iter.next()
+      val key = iter.next().asInstanceOf[Long]
       rowIndexes(k) = (key / columns).toInt
       columnIndexes(k) = (key % columns).toInt
       values(k) = elementsVar.get(key)
@@ -342,7 +345,8 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
   }
 
   override def trimToSize() {
-    factory.trim(this.elementsVar)
+//    factory.trim(this.elementsVar)
+    this.elementsVar.trim()
   }
 
   private def insert(rowIndexes: Array[Int], columnIndexes: Array[Int], values: Array[T]) {
@@ -354,7 +358,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
       if (row >= rows || column >= columns) {
         throw new IndexOutOfBoundsException("row: " + row + ", column: " + column + "rows()xcolumns()=" + rows + "x" + columns)
       }
-      val index = toRawIndex(row, column)
+      val index = toRawIndex(row, column).toLong
       if (value != 0) {
         elementsVar.put(index, value)
       }

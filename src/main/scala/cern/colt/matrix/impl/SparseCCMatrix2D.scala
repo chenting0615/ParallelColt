@@ -138,7 +138,7 @@ object SparseCCMatrix2D {
  */
 @specialized(Double)
 @SerialVersionUID(1L)
-class SparseCCMatrix2D[T: Manifest](rows: Int, columns: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
+class SparseCCMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
 
   protected var rowIndexesSorted: Boolean = false
 
