@@ -80,7 +80,7 @@ import scala.util.Sorting
 class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadFactor: Double)(implicit factory: FastUtilLongMap[T], m: Manifest[T]) extends StrideMatrix2D[T] {
 
   //import n._
-
+  import factory.Implicits._
   private var elementsVar = factory.createMap(initialCapacity, loadFactor.toFloat)
 
   try {
@@ -161,7 +161,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
         case other: SparseHashMatrix2D[T] => {
           if (this.isNoView && other.isNoView) {
             this.elementsVar.clear()
-            this.elementsVar.putAll(other.elementsVar)    //TODO fix and uncomment
+            this.elementsVar.putAll(other.elementsVar.asInstanceOf[factory.MapType])    //TODO check this works as intended
             doFallBackAssign = false
           }
         }
@@ -322,7 +322,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
       if (value == 0)
         this.elementsVar.remove(index)
       else
-        this.elementsVar.put(index, value)
+         this.elementsVar.put(index, value)
     }
   }
 
@@ -345,8 +345,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
   }
 
   override def trimToSize() {
-//    factory.trim(this.elementsVar)
-    this.elementsVar.trim()
+    this.elementsVar.trim() // TODO check this works
   }
 
   private def insert(rowIndexes: Array[Int], columnIndexes: Array[Int], values: Array[T]) {
@@ -360,7 +359,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
       }
       val index = toRawIndex(row, column).toLong
       if (value != 0) {
-        elementsVar.put(index, value)
+        elementsVar.put(index, value)  //TODO fix & uncomment
       }
       else {
         val elem = elementsVar.get(index)
