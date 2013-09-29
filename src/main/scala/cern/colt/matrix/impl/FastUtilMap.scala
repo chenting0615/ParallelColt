@@ -4,14 +4,15 @@ import java.{lang => jl}
 import java.{util => ju}
 import it.unimi.dsi.fastutil.longs._
 
-trait Box[Raw] {
+trait Box[R] {
+  type Raw = R
   type Wrap
   type SetType <: ju.Set[Wrap]
   implicit def box(x: Raw) : Wrap
   implicit def unbox(x: Wrap) : Raw
 }
 
-abstract class Boxed[Raw, W](implicit val bx: Raw => W, val ubx: W => Raw) extends Box[Raw]  {
+abstract class Boxed[R, W](implicit val bx: R => W, val ubx: W => R) extends Box[R]  {
   //type Raw = R
   type Wrap = W
   implicit def box(x: Raw) : Wrap = bx(x)
@@ -26,14 +27,13 @@ object Box {
   implicit case object ref extends Boxed[AnyRef, jl.Object]
 }
 
-abstract class FastUtilMap[K, V]/*(implicit val bk: Box[Key], val bv: Box[Value])*/ {
+abstract class FastUtilMap[K, V](implicit val bk: Box[K], val bv: Box[V]) {
   type Key = K
   type Value = V
   type BK // = bk.Wrap
   type BV // = bv.Wrap
 
-  type Trim = {def trim() : Boolean}
-  type MapType <: Trim  with ju.Map[BK, BV]
+  type MapType <: ju.Map[BK, BV]{def trim() : Boolean}
 
   def createMap(initialCapacity: Int, loadFactor: Float): MapType
 
