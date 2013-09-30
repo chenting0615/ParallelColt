@@ -4,6 +4,16 @@ import cern.colt.matrix.impl._
 
 object MatrixTypes {
   type DoubleMatrix1D = Matrix1D[Double]
+  type DoubleMatrix2D = Matrix2D[Double]
+  type FloatMatrix1D = Matrix1D[Float]
+  type FloatMatrix2D = Matrix2D[Float]
+  type LongMatrix1D = Matrix1D[Long]
+  type LongMatrix2D = Matrix2D[Long]
+  type IntMatrix1D = Matrix1D[Int]
+  type IntMatrix2D = Matrix2D[Int]
+  type ObjectMatrix1D = Matrix1D[Object]
+  type ObjectMatrix2D = Matrix2D[Object]
+
   type DenseColumnDoubleMatrix2D = DenseColumnMatrix2D[Double]
   type DenseDoubleMatrix1D = DenseMatrix1D[Double]
   type DenseDoubleMatrix2D = DenseMatrix2D[Double]

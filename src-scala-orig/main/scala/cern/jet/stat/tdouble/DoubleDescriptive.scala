@@ -1,19 +1,17 @@
 package cern.jet.stat.tdouble
 
-import cern.colt.list.tdouble.DoubleArrayList
-import cern.colt.list.tint.IntArrayList
-import DoubleDescriptive._
-//remove if not needed
-import scala.collection.JavaConversions._
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList
+import it.unimi.dsi.fastutil.ints.IntArrayList
+import java.util
 
 object DoubleDescriptive {
 
   /**
    * Returns the auto-correlation of a data sequence.
    */
-  def autoCorrelation(data: DoubleArrayList, 
-      lag: Int, 
-      mean: Double, 
+  def autoCorrelation(data: DoubleArrayList,
+      lag: Int,
+      mean: Double,
       variance: Double): Double = {
     val N = data.size
     if (lag >= N) throw new IllegalArgumentException("Lag is too large")
@@ -40,9 +38,9 @@ object DoubleDescriptive {
    * Returns the correlation of two data sequences. That is
    * <tt>covariance(data1,data2)/(standardDev1*standardDev2)</tt>.
    */
-  def correlation(data1: DoubleArrayList, 
-      standardDev1: Double, 
-      data2: DoubleArrayList, 
+  def correlation(data1: DoubleArrayList,
+      standardDev1: Double,
+      data2: DoubleArrayList,
       standardDev2: Double): Double = {
     covariance(data1, data2) / (standardDev1 * standardDev2)
   }
@@ -72,19 +70,6 @@ object DoubleDescriptive {
     Sxy / (size - 1)
   }
 
-  private def covariance2(data1: DoubleArrayList, data2: DoubleArrayList): Double = {
-    val size = data1.size
-    val mean1 = DoubleDescriptive.mean(data1)
-    val mean2 = DoubleDescriptive.mean(data2)
-    var covariance = 0.0D
-    for (i <- 0 until size) {
-      val x = data1.get(i)
-      val y = data2.get(i)
-      covariance += (x - mean1) * (y - mean2)
-    }
-    covariance / (size - 1)
-  }
-
   /**
    * Durbin-Watson computation.
    */
@@ -93,8 +78,7 @@ object DoubleDescriptive {
     if (size < 2) throw new IllegalArgumentException("data sequence must contain at least two values.")
     val elements = data.elements()
     var run = 0
-    var run_sq = 0
-    run_sq = elements(0) * elements(0)
+    var run_sq = elements(0) * elements(0)
     for (i <- 1 until size) {
       val x = elements(i) - elements(i - 1)
       run += x * x
@@ -139,10 +123,11 @@ object DoubleDescriptive {
     while (i < size) {
       val element = sortedElements(i)
       val cursor = i
-      while (i < size && sortedElements(i) == element) 
+      while (i < size && sortedElements(i) == element) i += 1
       val runLength = i - cursor
       distinctValues.add(element)
       if (frequencies != null) frequencies.add(runLength)
+      i += 1
     }
   }
 
@@ -201,7 +186,7 @@ object DoubleDescriptive {
    *
    * @param data
    *            the additional elements to be incorporated into min, max, etc.
-   * @param from
+   * @param from_p
    *            the index of the first element within <tt>data</tt> to
    *            consider.
    * @param to
@@ -225,10 +210,11 @@ object DoubleDescriptive {
    *            </ul>
    *
    */
-  def incrementalUpdate(data: DoubleArrayList, 
-      from: Int, 
-      to: Int, 
+  def incrementalUpdate(data: DoubleArrayList,
+      from_p: Int,
+      to: Int,
       inOut: Array[Double]) {
+    var from = from_p
     checkRangeFromTo(from, to, data.size)
     var min = inOut(0)
     var max = inOut(1)
@@ -275,8 +261,8 @@ object DoubleDescriptive {
    * <tt>m(k,c) = Sum( -1<sup>i</sup> * b(k,i) * c<sup>i</sup> * sumOfPowers(k-i))</tt>
    * for <tt>i = 0 .. k</tt> and <br>
    * <tt>b(k,i) = </tt>
-   * {@link cern.jet.math.tdouble.DoubleArithmetic#binomial(long,long)
-   * binomial(k,i)} and <br>
+   * cern.jet.math.tdouble.DoubleArithmetic.binomial(long,long)
+   * binomial(k,i) and <br>
    * <tt>sumOfPowers(k) = Sum( data[i]<sup>k</sup> )</tt>.
    * <p>
    *
@@ -305,11 +291,11 @@ object DoubleDescriptive {
    *
    *
    */
-  def incrementalUpdateSumsOfPowers(data: DoubleArrayList, 
-      from: Int, 
-      to: Int, 
-      fromSumIndex: Int, 
-      toSumIndex: Int, 
+  def incrementalUpdateSumsOfPowers(data: DoubleArrayList,
+      from: Int,
+      to: Int,
+      fromSumIndex: Int,
+      toSumIndex: Int,
       sumOfPowers: Array[Double]) {
     val size = data.size
     val lastIndex = toSumIndex - fromSumIndex
@@ -319,8 +305,7 @@ object DoubleDescriptive {
         val elements = data.elements()
         var sum = sumOfPowers(0)
         var sumSquares = sumOfPowers(1)
-        var i = from - 1
-        while (i <= to) {
+        for(i <- from until to+1) {
           val element = elements(i)
           sum += element
           sumSquares += element * element
@@ -328,13 +313,13 @@ object DoubleDescriptive {
         sumOfPowers(0) += sum
         sumOfPowers(1) += sumSquares
         return
-      } else if (toSumIndex == 3) {
+      }
+      else if (toSumIndex == 3) {
         val elements = data.elements()
         var sum = sumOfPowers(0)
         var sumSquares = sumOfPowers(1)
         var sum_xxx = sumOfPowers(2)
-        var i = from - 1
-        while (i <= to) {
+        for(i <- from until to+1) {
           val element = elements(i)
           sum += element
           sumSquares += element * element
@@ -344,14 +329,14 @@ object DoubleDescriptive {
         sumOfPowers(1) += sumSquares
         sumOfPowers(2) += sum_xxx
         return
-      } else if (toSumIndex == 4) {
+      }
+      else if (toSumIndex == 4) {
         val elements = data.elements()
         var sum = sumOfPowers(0)
         var sumSquares = sumOfPowers(1)
         var sum_xxx = sumOfPowers(2)
         var sum_xxxx = sumOfPowers(3)
-        var i = from - 1
-        while (i <= to) {
+        for(i <- from until to+1) {
           val element = elements(i)
           sum += element
           sumSquares += element * element
@@ -374,17 +359,20 @@ object DoubleDescriptive {
       return
     }
     val elements = data.elements()
-    var i = from - 1
+    var i = from
     while (i <= to) {
       val element = elements(i)
       var pow = Math.pow(element, fromSumIndex)
-      val j = 0
+      var j = 0
       var m = lastIndex
       while (m >= 0) {
-        sumOfPowers(j += 1) += pow
+        sumOfPowers(j) += pow
+        j += 1
         pow *= element
+        m -= 1
       }
       sumOfPowers(j) += pow
+      i += 1
     }
   }
 
@@ -433,22 +421,20 @@ object DoubleDescriptive {
    *            </ul>
    *
    */
-  def incrementalWeightedUpdate(data: DoubleArrayList, 
-      weights: DoubleArrayList, 
-      from: Int, 
-      to: Int, 
+  def incrementalWeightedUpdate(data: DoubleArrayList,
+      weights: DoubleArrayList,
+      from: Int,
+      to: Int,
       inOut: Array[Double]) {
     val dataSize = data.size
     checkRangeFromTo(from, to, dataSize)
-    if (dataSize != weights.size) throw new IllegalArgumentException("from=" + from + ", to=" + to + ", data.size()=" + dataSize + 
-      ", weights.size()=" + 
-      weights.size)
+    if (dataSize != weights.size)
+      throw new IllegalArgumentException("from=" + from + ", to=" + to + ", data.size()=" + dataSize + ", weights.size()=" + weights.size)
     var sum = inOut(0)
     var sumOfSquares = inOut(1)
     val elements = data.elements()
     val w = weights.elements()
-    var i = from - 1
-    while (i <= to) {
+    for(i <- from until to+1) {
       val element = elements(i)
       val weight = w(i)
       val prod = element * weight
@@ -469,9 +455,9 @@ object DoubleDescriptive {
    *            the standardDeviation.
    */
   def kurtosis(moment4: Double, standardDeviation: Double): Double = {
-    -3 + 
-      moment4 / 
-      (standardDeviation * standardDeviation * standardDeviation * 
+    -3 +
+      moment4 /
+      (standardDeviation * standardDeviation * standardDeviation *
       standardDeviation)
   }
 
@@ -494,8 +480,8 @@ object DoubleDescriptive {
     var q = 0
     var v = (elements(0) - mean) * (elements(0) - mean)
     for (i <- 1 until size) {
-      val delta0 = (elements(i - 1) - mean)
-      val delta1 = (elements(i) - mean)
+      val delta0 = elements(i - 1) - mean
+      val delta1 = elements(i) - mean
       q += (delta0 * delta1 - q) / (i + 1)
       v += (delta1 * delta1 - v) / (i + 1)
     }
@@ -507,12 +493,10 @@ object DoubleDescriptive {
    * Returns the largest member of a data sequence.
    */
   def max(data: DoubleArrayList): Double = {
-    val size = data.size
-    if (size == 0) throw new IllegalArgumentException()
+    if (data.size == 0) throw new IllegalArgumentException()
     val elements = data.elements()
-    var max = elements(size - 1)
-    var i = size - 1
-    while (i >= 0) {
+    var max = Double.NegativeInfinity
+    for(i <- 0 until data.size) {
       if (elements(i) > max) max = elements(i)
     }
     max
@@ -530,11 +514,9 @@ object DoubleDescriptive {
    */
   def meanDeviation(data: DoubleArrayList, mean: Double): Double = {
     val elements = data.elements()
-    val size = data.size
     var sum = 0
-    var i = size
-    while (i >= 0) sum += Math.abs(elements(i) - mean)
-    sum / size
+    for(i <- 0 until data.size) sum += Math.abs(elements(i) - mean)
+    sum / data.size
   }
 
   /**
@@ -568,26 +550,26 @@ object DoubleDescriptive {
    * @param sumOfPowers
    *            <tt>sumOfPowers[m] == Sum( data[i]<sup>m</sup>) )</tt> for
    *            <tt>m = 0,1,..,k</tt> as returned by method
-   *            {@link #incrementalUpdateSumsOfPowers(DoubleArrayList,int,int,int,int,double[])}
+   *            incrementalUpdateSumsOfPowers(DoubleArrayList,int,int,int,int,double[])
    *            . In particular there must hold
    *            <tt>sumOfPowers.length == k+1</tt>.
    * @param size
    *            the number of elements of the data sequence.
    */
-  def moment(k: Int, 
-      c: Double, 
-      size: Int, 
+  def moment(k: Int,
+      c: Double,
+      size: Int,
       sumOfPowers: Array[Double]): Double = {
     var sum = 0
     var sign = 1
     var i = 0
     while (i <= k) {
       var y: Double = 0.0
-      y = if (i == 0) 1 else if (i == 1) c else if (i == 2) c * c else if (i == 3) c * c * c else Math.pow(c, 
+      y = if (i == 0) 1 else if (i == 1) c else if (i == 2) c * c else if (i == 3) c * c * c else Math.pow(c,
         i)
-      sum += sign * 
-        cern.jet.math.tdouble.DoubleArithmetic.binomial(k, i) * 
-        y * 
+      sum += sign *
+        cern.jet.math.tdouble.DoubleArithmetic.binomial(k, i) *
+        y *
         sumOfPowers(k - i)
       sign = -sign
       i += 1
@@ -617,9 +599,9 @@ object DoubleDescriptive {
    * @param mean2
    *            the mean of data sequence 2.
    */
-  def pooledMean(size1: Int, 
-      mean1: Double, 
-      size2: Int, 
+  def pooledMean(size1: Int,
+      mean1: Double,
+      size2: Int,
       mean2: Double): Double = {
     (size1 * mean1 + size2 * mean2) / (size1 + size2)
   }
@@ -637,9 +619,9 @@ object DoubleDescriptive {
    * @param variance2
    *            the variance of data sequence 2.
    */
-  def pooledVariance(size1: Int, 
-      variance1: Double, 
-      size2: Int, 
+  def pooledVariance(size1: Int,
+      variance1: Double,
+      size2: Int,
       variance2: Double): Double = {
     (size1 * variance1 + size2 * variance2) / (size1 + size2)
   }
@@ -660,11 +642,9 @@ object DoubleDescriptive {
    * that you may easily get numeric overflows.
    */
   def product(data: DoubleArrayList): Double = {
-    val size = data.size
     val elements = data.elements()
     var product = 1
-    var i = size
-    while (i >= 0) product *= elements(i)
+   for(i <- 0 until data.size) product *= elements(i)
     product
   }
 
@@ -743,7 +723,8 @@ object DoubleDescriptive {
    * @return the rank of the element.
    */
   def rankInterpolated(sortedList: DoubleArrayList, element: Double): Double = {
-    val index = sortedList.binarySearch(element)
+    val values = sortedList.elements()
+    val index = util.Arrays.binarySearch(values, element)
     if (index >= 0) {
       var to = index + 1
       val s = sortedList.size
@@ -792,7 +773,7 @@ object DoubleDescriptive {
     val n = size
     val s2 = sampleVariance
     val m4 = moment4 * n
-    m4 * n * (n + 1) / ((n - 1) * (n - 2) * (n - 3) * s2 * s2) - 
+    m4 * n * (n + 1) / ((n - 1) * (n - 2) * (n - 3) * s2 * s2) -
       3.0 * (n - 1) * (n - 1) / ((n - 2) * (n - 3))
   }
 
@@ -879,7 +860,7 @@ object DoubleDescriptive {
     var Cn: Double = 0.0
     val n = size
     s = Math.sqrt(sampleVariance)
-    Cn = if (n > 30) 1 + 1.0 / (4 * (n - 1)) else Math.sqrt((n - 1) * 0.5) * Gamma.gamma((n - 1) * 0.5) / 
+    Cn = if (n > 30) 1 + 1.0 / (4 * (n - 1)) else Math.sqrt((n - 1) * 0.5) * Gamma.gamma((n - 1) * 0.5) /
       Gamma.gamma(n * 0.5)
     Cn * s
   }
@@ -903,7 +884,7 @@ object DoubleDescriptive {
 
   /**
    * Returns the sample variance of a data sequence. That is
-   * <tt>Sum ( (data[i]-mean)^2 ) / (data.size()-1)</tt>.
+   * <tt>Sum ( (data[i]-mean)**2 ) / (data.size()-1)</tt>.
    */
   def sampleVariance(data: DoubleArrayList, mean: Double): Double = {
     val elements = data.elements()
@@ -913,6 +894,7 @@ object DoubleDescriptive {
     while (i >= 0) {
       val delta = elements(i) - mean
       sum += delta * delta
+      i -= 1
     }
     sum / (size - 1)
   }
@@ -931,7 +913,7 @@ object DoubleDescriptive {
    *            <tt>== Sum( data[i] * data[i] * weights[i] )</tt>.
    */
   def sampleWeightedVariance(sumOfWeights: Double, sumOfProducts: Double, sumOfSquaredProducts: Double): Double = {
-    (sumOfSquaredProducts - sumOfProducts * sumOfProducts / sumOfWeights) / 
+    (sumOfSquaredProducts - sumOfProducts * sumOfProducts / sumOfWeights) /
       (sumOfWeights - 1)
   }
 
@@ -945,7 +927,7 @@ object DoubleDescriptive {
    *            the standardDeviation.
    */
   def skew(moment3: Double, standardDeviation: Double): Double = {
-    moment3 / 
+    moment3 /
       (standardDeviation * standardDeviation * standardDeviation)
   }
 
@@ -955,6 +937,12 @@ object DoubleDescriptive {
    */
   def skew(data: DoubleArrayList, mean: Double, standardDeviation: Double): Double = {
     skew(moment(data, 3, mean), standardDeviation)
+  }
+
+  def addAllFromTo(dest: DoubleArrayList, src: DoubleArrayList, from: Int, to: Int) {
+    for(idx <- from until to) {
+      dest.add(src.getDouble(idx))
+    }
   }
 
   /**
@@ -984,30 +972,31 @@ object DoubleDescriptive {
    *         sorted ascending.
    */
   def split(sortedList: DoubleArrayList, splitters: DoubleArrayList): Array[DoubleArrayList] = {
+    sortedList.trim()
+    val values = sortedList.elements()
     val noOfBins = splitters.size + 1
     val bins = Array.ofDim[DoubleArrayList](noOfBins)
-    var i = noOfBins
-    while (i >= 0) bins(i) = new DoubleArrayList()
+    for( i <- 0 until noOfBins) bins(i) = new DoubleArrayList()
     val listSize = sortedList.size
     var nextStart = 0
     var i = 0
     while (nextStart < listSize && i < noOfBins - 1) {
       val splitValue = splitters.get(i)
-      var index = sortedList.binarySearch(splitValue)
+      var index = util.Arrays.binarySearch(values, splitValue)
       if (index < 0) {
         val insertionPosition = -index - 1
-        bins(i).addAllOfFromTo(sortedList, nextStart, insertionPosition - 1)
+        addAllFromTo(bins(i), sortedList, nextStart, insertionPosition - 1)
         nextStart = insertionPosition
       } else {
         do {
           index -= 1
-        } while (index >= 0 && sortedList.get(index) == splitValue);
-        bins(i).addAllOfFromTo(sortedList, nextStart, index)
+        } while (index >= 0 && sortedList.get(index) == splitValue)
+        addAllFromTo(bins(i), sortedList, nextStart, index)
         nextStart = index + 1
       }
       i += 1
     }
-    bins(noOfBins - 1).addAllOfFromTo(sortedList, nextStart, sortedList.size - 1)
+    addAllFromTo(bins(noOfBins - 1), sortedList, nextStart, sortedList.size - 1)
     bins
   }
 
@@ -1034,8 +1023,7 @@ object DoubleDescriptive {
    */
   def standardize(data: DoubleArrayList, mean: Double, standardDeviation: Double) {
     val elements = data.elements()
-    var i = data.size
-    while (i >= 0) elements(i) = (elements(i) - mean) / standardDeviation
+    for(i <- 0 until data.size()) elements(i) = (elements(i) - mean) / standardDeviation
   }
 
   /**
@@ -1072,8 +1060,7 @@ object DoubleDescriptive {
   def sumOfLogarithms(data: DoubleArrayList, from: Int, to: Int): Double = {
     val elements = data.elements()
     var logsum = 0
-    var i = from - 1
-    while (i <= to) logsum += Math.log(elements(i))
+    for(i <- 0 until to+1) logsum += Math.log(elements(i))
     logsum
   }
 
@@ -1090,70 +1077,113 @@ object DoubleDescriptive {
    * <tt>i = from .. to</tt>; optimized for common parameters like
    * <tt>c == 0.0</tt> and/or <tt>k == -2 .. 5</tt>.
    */
-  def sumOfPowerDeviations(data: DoubleArrayList, 
-      k: Int, 
-      c: Double, 
-      from: Int, 
+  def sumOfPowerDeviations(data: DoubleArrayList,
+      k: Int,
+      c: Double,
+      from: Int,
       to: Int): Double = {
     val elements = data.elements()
     var sum = 0
-    var v: Double = 0.0
-    var i: Int = 0
     k match {
-      case -2 => if (c == 0.0) i = from - 1
-      while (i <= to) {
-        v = elements(i)
-        sum += 1 / (v * v)
-      } else i = from - 1
-      while (i <= to) {
-        v = elements(i) - c
-        sum += 1 / (v * v)
+      case -2 => {
+        if (c == 0.0) {
+          for(i <- from until to+1) {
+            val v = elements(i)
+            sum += 1 / (v * v)
+          }
+        }
+         else {
+          for(i <- from until to+1) {
+            val v = elements(i) - c
+            sum += 1 / (v * v)
+          }
+        }
       }
-      case -1 => if (c == 0.0) i = from - 1
-      while (i <= to) sum += 1 / (elements(i)) else i = from - 1
-      while (i <= to) sum += 1 / (elements(i) - c)
-      case 0 => sum += to - from + 1
-      case 1 => if (c == 0.0) i = from - 1
-      while (i <= to) sum += elements(i) else i = from - 1
-      while (i <= to) sum += elements(i) - c
-      case 2 => if (c == 0.0) i = from - 1
-      while (i <= to) {
-        v = elements(i)
-        sum += v * v
-      } else i = from - 1
-      while (i <= to) {
-        v = elements(i) - c
-        sum += v * v
+      case -1 => {
+        if (c == 0.0) {
+          for(i <- from until to+1)
+            sum += 1 / elements(i)
+        }
+        else {
+          for(i <- from until to+1)
+            sum += 1 / (elements(i) - c)
+        }
       }
-      case 3 => if (c == 0.0) i = from - 1
-      while (i <= to) {
-        v = elements(i)
-        sum += v * v * v
-      } else i = from - 1
-      while (i <= to) {
-        v = elements(i) - c
-        sum += v * v * v
+      case 0 => {
+        sum += to - from + 1
       }
-      case 4 => if (c == 0.0) i = from - 1
-      while (i <= to) {
-        v = elements(i)
-        sum += v * v * v * v
-      } else i = from - 1
-      while (i <= to) {
-        v = elements(i) - c
-        sum += v * v * v * v
+      case 1 => {
+        if (c == 0.0) {
+          for(i <- from until to+1) {
+            sum += elements(i)
+          }
+        }
+        else {
+          for(i <- from until to+1) {
+            sum += elements(i) - c
+          }
+        }
       }
-      case 5 => if (c == 0.0) i = from - 1
-      while (i <= to) {
-        v = elements(i)
-        sum += v * v * v * v * v
-      } else i = from - 1
-      while (i <= to) {
-        v = elements(i) - c
-        sum += v * v * v * v * v
+      case 2 => {
+        if (c == 0.0) {
+          for(i <- from until to+1) {
+            val v = elements(i)
+            sum += v * v
+          }
+        }
+        else {
+          for(i <- from until to+1) {
+            val v = elements(i) - c
+            sum += v * v
+          }
+        }
       }
-      case _ => i = from - 1
-      while (i <= to) sum += Math.pow(elements(i) - c, k)
+      case 3 => {
+        if (c == 0.0) {
+          for(i <- from until to+1) {
+            val v = elements(i)
+            sum += v * v * v
+          }
+        }
+        else {
+          for(i <- from until to+1) {
+            val v = elements(i) - c
+            sum += v * v * v
+          }
+        }
+      }
+      case 4 => {
+        if (c == 0.0) {
+          for(i <- from until to+1) {
+            val v = elements(i)
+            sum += v * v * v * v
+          }
+        }
+        else {
+          for(i <- from until to+1) {
+            val v = elements(i) - c
+            sum += v * v * v * v
+          }
+        }
+      }
+      case 5 => {
+        if (c == 0.0) {
+          for(i <- from until to+1) {
+            val v = elements(i)
+            sum += v * v * v * v * v
+          }
+        }
+        else {
+          for(i <- from until to+1) {
+            val v = elements(i) - c
+            sum += v * v * v * v * v
+          }
+        }
+      }
+      case _ => {
+        for(i <- from until to+1)
+          sum += Math.pow(elements(i) - c, k)
+      }
     }
     sum
   }
@@ -1166,7 +1196,7 @@ object DoubleDescriptive {
 
   /**
    * Returns the sum of squared mean deviation of of a data sequence. That is
-   * <tt>variance * (size-1) == Sum( (data[i] - mean)^2 )</tt>.
+   * <tt>variance * (size-1) == Sum( (data[i] - mean)**2 )</tt>.
    *
    * @param size
    *            the number of elements of the data sequence.
@@ -1186,24 +1216,25 @@ object DoubleDescriptive {
    *
    * @param sortedData
    *            the data sequence; <b>must be sorted ascending</b>.
-   * @param mean
+   * @param mean_p
    *            the mean of the (full) sorted data sequence.
    * @param left
    *            the number of leading elements to trim.
    * @param right
    *            the number of trailing elements to trim.
    */
-  def trimmedMean(sortedData: DoubleArrayList, 
-      mean: Double, 
-      left: Int, 
+  def trimmedMean(sortedData: DoubleArrayList,
+      mean_p: Double,
+      left: Int,
       right: Int): Double = {
+    var mean = mean_p
     val N = sortedData.size
     if (N == 0) throw new IllegalArgumentException("Empty data.")
     if (left + right >= N) throw new IllegalArgumentException("Not enough data.")
     val sortedElements = sortedData.elements()
     val N0 = N
-    for (i <- 0 until left) mean += (mean - sortedElements(i)) / (N)
-    for (i <- 0 until right) mean += (mean - sortedElements(N0 - 1 - i)) / (N)
+    for (i <- 0 until left) mean += (mean - sortedElements(i)) / N
+    for (i <- 0 until right) mean += (mean - sortedElements(N0 - 1 - i)) / N
     mean
   }
 
@@ -1239,8 +1270,7 @@ object DoubleDescriptive {
     val theWeights = weights.elements()
     var sum = 0.0
     var weightsSum = 0.0
-    var i = size
-    while (i >= 0) {
+    for(i <- 0 until size) {
       val w = theWeights(i)
       sum += elements(i) * w
       weightsSum += w
@@ -1265,17 +1295,18 @@ object DoubleDescriptive {
    *
    * @param sortedData
    *            the data sequence; <b>must be sorted ascending</b>.
-   * @param mean
+   * @param mean_p
    *            the mean of the (full) sorted data sequence.
    * @param left
    *            the number of leading elements to trim.
    * @param right
    *            the number of trailing elements to trim.
    */
-  def winsorizedMean(sortedData: DoubleArrayList, 
-      mean: Double, 
-      left: Int, 
+  def winsorizedMean(sortedData: DoubleArrayList,
+      mean_p: Double,
+      left: Int,
       right: Int): Double = {
+    var mean = mean_p
     val N = sortedData.size
     if (N == 0) throw new IllegalArgumentException("Empty data.")
     if (left + right >= N) throw new IllegalArgumentException("Not enough data.")

@@ -3,7 +3,7 @@ package cern.colt.matrix.impl
 import cern.colt.matrix._
 
 /**
- * 1-d matrix holding <tt>double</tt> elements; a view wrapping another 2-d
+ * 1-d matrix holding typed elements; a view wrapping a row another 2-d
  * matrix and therefore delegating calls to it.
  *
  * @author wolfgang.hoschek@cern.ch

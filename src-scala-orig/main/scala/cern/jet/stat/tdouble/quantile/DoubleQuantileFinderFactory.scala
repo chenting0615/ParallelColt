@@ -2,9 +2,6 @@ package cern.jet.stat.tdouble.quantile
 
 import cern.jet.math.tdouble.DoubleArithmetic
 import cern.jet.random.tdouble.engine.DoubleRandomEngine
-import DoubleQuantileFinderFactory._
-//remove if not needed
-import scala.collection.JavaConversions._
 
 object DoubleQuantileFinderFactory {
 
@@ -20,7 +17,7 @@ object DoubleQuantileFinderFactory {
    *
    * @param N
    *            the number of values over which quantiles shall be computed
-   *            (e.g <tt>10^6</tt>).
+   *            (e.g <tt>10**6</tt>).
    * @param epsilon
    *            the approximation error which is guaranteed not to be exceeded
    *            (e.g. <tt>0.001</tt>) (<tt>0 &lt;= epsilon &lt;= 1</tt>). To
@@ -40,10 +37,10 @@ object DoubleQuantileFinderFactory {
    *         <tt>long[1]</tt>=the number of elements per buffer,
    *         <tt>returnSamplingRate[0]</tt>=the required sampling rate.
    */
-  def known_N_compute_B_and_K(N: Long, 
-      epsilon: Double, 
-      delta: Double, 
-      quantiles: Int, 
+  def known_N_compute_B_and_K(N: Long,
+      epsilon: Double,
+      delta: Double,
+      quantiles: Int,
       returnSamplingRate: Array[Double]): Array[Long] = {
     returnSamplingRate(0) = 1.0
     if (epsilon <= 0.0) {
@@ -89,54 +86,51 @@ object DoubleQuantileFinderFactory {
     var b = 2
     while (b <= maxBuffers) {
       var h = 3
-      while (h <= maxHeight && 
-        (h - 2) * (DoubleArithmetic.binomial(b + h - 2, h - 1)) - 
-        (DoubleArithmetic.binomial(b + h - 3, h - 3)) + 
-        (DoubleArithmetic.binomial(b + h - 3, h - 2)) - 
-        c > 
-        0.0) {
+      while (h <= maxHeight &&
+          (h - 2) * DoubleArithmetic.binomial(b + h - 2, h - 1) -
+          DoubleArithmetic.binomial(b + h - 3, h - 3) +
+          DoubleArithmetic.binomial(b + h - 3, h - 2) -
+          c > 0.0) {
         h += 1
       }
-      while (h <= maxHeight && 
-        (h - 2) * (DoubleArithmetic.binomial(b + h - 2, h - 1)) - 
-        (DoubleArithmetic.binomial(b + h - 3, h - 3)) + 
-        (DoubleArithmetic.binomial(b + h - 3, h - 2)) - 
-        c <= 
-        0.0) {
+      while (h <= maxHeight &&
+          (h - 2) * DoubleArithmetic.binomial(b + h - 2, h - 1) -
+          DoubleArithmetic.binomial(b + h - 3, h - 3) +
+          DoubleArithmetic.binomial(b + h - 3, h - 2) -
+          c <= 0.0) {
         h += 1
       }
       h -= 1
       var hMax: Int = 0
-      hMax = if (h >= maxHeight && 
-        (h - 2) * (DoubleArithmetic.binomial(b + h - 2, h - 1)) - 
-        (DoubleArithmetic.binomial(b + h - 3, h - 3)) + 
-        (DoubleArithmetic.binomial(b + h - 3, h - 2)) - 
-        c > 
-        0.0) Integer.MIN_VALUE else h
+      hMax = if (h >= maxHeight && (h - 2) * DoubleArithmetic.binomial(b + h - 2, h - 1) -
+                  DoubleArithmetic.binomial(b + h - 3, h - 3) + DoubleArithmetic.binomial(b + h - 3, h - 2) - c > 0.0)
+                Integer.MIN_VALUE
+            else
+                h
       heightMaximums(b - 2) = hMax
       b += 1
     }
     val kMinimums = Array.ofDim[Long](maxBuffers - 1)
-    var b = 2
+    b = 2
     while (b <= maxBuffers) {
       val h = heightMaximums(b - 2)
-      var kMin = Long.MAX_VALUE
+      var kMin = Long.MaxValue
       if (h > Integer.MIN_VALUE) {
-        val value = (DoubleArithmetic.binomial(b + h - 2, h - 1))
-        val tmpK = (Math.ceil(N_double / value)).toLong
-        if (tmpK <= Long.MAX_VALUE) {
+        val value = DoubleArithmetic.binomial(b + h - 2, h - 1)
+        val tmpK = Math.ceil(N_double / value).toLong
+        if (tmpK <= Long.MaxValue) {
           kMin = tmpK
         }
       }
       kMinimums(b - 2) = kMin
       b += 1
     }
-    var multMin = Long.MAX_VALUE
+    var multMin = Long.MaxValue
     var minB = -1
-    var b = 2
+    b = 2
     while (b <= maxBuffers) {
-      if (kMinimums(b - 2) < Long.MAX_VALUE) {
-        val mult = (b) * (kMinimums(b - 2))
+      if (kMinimums(b - 2) < Long.MaxValue) {
+        val mult = b * kMinimums(b - 2)
         if (mult < multMin) {
           multMin = mult
           minB = b
@@ -144,17 +138,17 @@ object DoubleQuantileFinderFactory {
       }
       b += 1
     }
-    var b: Long = 0l
+    var bl: Long = 0l
     var k: Long = 0l
     if (minB != -1) {
-      b = minB
+      bl = minB
       k = kMinimums(minB - 2)
     } else {
-      b = 1
+      bl = 1
       k = N
     }
     val result = Array.ofDim[Long](2)
-    result(0) = b
+    result(0) = bl
     result(1) = k
     result
   }
@@ -169,7 +163,7 @@ object DoubleQuantileFinderFactory {
    *
    * @param N
    *            the anticipated number of values over which quantiles shall be
-   *            computed (e.g 10^6).
+   *            computed (e.g 10**6).
    * @param epsilon
    *            the approximation error which is guaranteed not to be exceeded
    *            (e.g. <tt>0.001</tt>) (<tt>0 &lt;= epsilon &lt;= 1</tt>). To
@@ -182,17 +176,17 @@ object DoubleQuantileFinderFactory {
    *            the number of quantiles to be computed (e.g. <tt>100</tt>) (
    *            <tt>quantiles &gt;= 1</tt>). If unknown in advance, set this
    *            number large, e.g. <tt>quantiles &gt;= 10000</tt>.
-   * @param samplingRate
+   * @param returnSamplingRate
    *            a <tt>double[1]</tt> where the sampling rate is to be filled
    *            in.
    * @return <tt>long[2]</tt> - <tt>long[0]</tt>=the number of buffers,
    *         <tt>long[1]</tt>=the number of elements per buffer,
    *         <tt>returnSamplingRate[0]</tt>=the required sampling rate.
    */
-  protected def known_N_compute_B_and_K_slow(N: Long, 
-      epsilon: Double, 
-      delta: Double, 
-      quantiles: Int, 
+  protected def known_N_compute_B_and_K_slow(N: Long,
+      epsilon: Double,
+      delta: Double,
+      quantiles: Int,
       returnSamplingRate: Array[Double]): Array[Long] = {
     val maxBuffers = 50
     val maxHeight = 50
@@ -206,9 +200,9 @@ object DoubleQuantileFinderFactory {
     for (b <- 2 until maxBuffers; h <- 3 until maxHeight) {
       val binomial = DoubleArithmetic.binomial(b + h - 2, h - 1)
       val tmp = Math.ceil(N_double / binomial).toLong
-      if ((b * tmp < memory) && 
-        ((h - 2) * binomial - DoubleArithmetic.binomial(b + h - 3, h - 3) + 
-        DoubleArithmetic.binomial(b + h - 3, h - 2) <= 
+      if ((b * tmp < memory) &&
+        ((h - 2) * binomial - DoubleArithmetic.binomial(b + h - 3, h - 3) +
+        DoubleArithmetic.binomial(b + h - 3, h - 2) <=
         c)) {
         ret_k = tmp
         ret_b = b
@@ -216,8 +210,8 @@ object DoubleQuantileFinderFactory {
         sampling_rate = 1.0
       }
       if (delta > 0.0) {
-        val t = (h - 2) * DoubleArithmetic.binomial(b + h - 2, h - 1) - 
-          DoubleArithmetic.binomial(b + h - 3, h - 3) + 
+        val t = (h - 2) * DoubleArithmetic.binomial(b + h - 2, h - 1) -
+          DoubleArithmetic.binomial(b + h - 3, h - 3) +
           DoubleArithmetic.binomial(b + h - 3, h - 2)
         val u = logarithm / epsilon
         val v = DoubleArithmetic.binomial(b + h - 2, h - 1)
@@ -278,12 +272,13 @@ object DoubleQuantileFinderFactory {
    * @return the quantile finder minimizing memory requirements under the
    *         given constraints.
    */
-  def newDoubleQuantileFinder(known_N: Boolean, 
-      N: Long, 
-      epsilon: Double, 
-      delta: Double, 
-      quantiles: Int, 
+  def newDoubleQuantileFinder(known_N: Boolean,
+      N: Long,
+      epsilon: Double,
+      delta: Double,
+      quantiles: Int,
       generator: DoubleRandomEngine): DoubleQuantileFinder = {
+
     if (epsilon <= 0.0 || N < 1000) return new ExactDoubleQuantileFinder()
     if (epsilon > 1) epsilon = 1
     if (delta < 0) delta = 0

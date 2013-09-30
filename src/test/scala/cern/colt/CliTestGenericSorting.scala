@@ -1,6 +1,8 @@
 package cern.colt
 
 import cern.colt.function.tint.IntComparator
+import it.unimi.dsi.fastutil.ints.IntComparator
+
 //remove if not needed
 import scala.collection.JavaConversions._
 

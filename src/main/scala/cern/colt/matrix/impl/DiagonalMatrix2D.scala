@@ -1,6 +1,6 @@
 package cern.colt.matrix.impl
 
-import cern.colt.matrix.Matrix2D
+import cern.colt.matrix.{impl, Matrix2D}
 
 /**
  * Diagonal 2-d matrix holding <tt>double</tt> elements. First see the <a
@@ -12,9 +12,7 @@ import cern.colt.matrix.Matrix2D
  */
 @specialized
 @SerialVersionUID(1L)
-class DiagonalMatrix2D[T <: AnyVal: Manifest](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
-
-  val x = FastUtilMap
+class DiagonalMatrix2D[T: Manifest](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
 
   if (dindex < -rows + 1 || dindex > columns - 1)
     throw new IllegalArgumentException("index is out of bounds")
@@ -210,7 +208,10 @@ class DiagonalMatrix2D[T <: AnyVal: Manifest](rows: Int, columns: Int, protected
       elementsVar(column) = value
   }
 
-  override def like2D(rows: Int, columns: Int) = new SparseHashMatrix2D[T](rows, columns)
+  override def like2D(rows: Int, columns: Int) = {
+    implicit val f: impl.FastUtilMap[Long,T] = null
+    new SparseHashMatrix2D[T](rows, columns)
+  }
 
   override def like1D(size: Int) = new SparseMatrix1D[T](size)
 }

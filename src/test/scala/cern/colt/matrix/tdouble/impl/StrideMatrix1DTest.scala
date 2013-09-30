@@ -1,31 +1,31 @@
-package cern.colt.matrix.impl
+package cern.colt.matrix.tdouble.impl
 
 import junit.framework.TestCase
-import org.junit.Test
+import org.junit.{Assert, Test}
 import cern.jet.math.tdouble.DoubleFunctions
 import edu.emory.mathcs.utils.ConcurrencyUtils
 import cern.colt.matrix.impl.StrideMatrix1D
-
-//remove if not needed
-import scala.collection.JavaConversions._
+import it.unimi.dsi.fastutil.ints.IntArrayList
+import cern.colt.function.Procedure1
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList
 
 abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
 
   /**
    * Matrix to test
    */
-  protected var A: StrideMatrix1D = _
+  protected var A: StrideMatrix1D[Double] = _
 
   /**
    * Matrix of the same size as a
    */
-  protected var B: StrideMatrix1D = _
+  protected var B: StrideMatrix1D[Double] = _
 
   protected var SIZE: Int = 2 * 17 * 5
 
   protected var TOL: Double = 1e-10
 
-  protected def setUp() {
+  override protected def setUp() {
     createMatrices()
     populateMatrices()
   }
@@ -42,8 +42,9 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     }
   }
 
-  protected def tearDown() {
-    A = B = null
+  override protected def tearDown() {
+    A = null
+    B = null
   }
 
   def testAggregateDoubleDoubleFunctionDoubleFunction() {
@@ -53,7 +54,7 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
       expected += elem * elem
     }
     val result = A.aggregate(DoubleFunctions.plus, DoubleFunctions.square)
-    assertEquals(expected, result, TOL)
+    Assert.assertEquals(expected, result, TOL)
   }
 
   def testAggregateDoubleDoubleFunctionDoubleFunctionIntArrayList() {
@@ -67,7 +68,7 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
       expected += elem * elem
     }
     val result = A.aggregate(DoubleFunctions.plus, DoubleFunctions.square, indexList)
-    assertEquals(expected, result, TOL)
+    Assert.assertEquals(expected, result, TOL)
   }
 
   def testAggregateDoubleMatrix2DDoubleDoubleFunctionDoubleDoubleFunction() {
@@ -78,14 +79,14 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
       expected += elemA * elemB
     }
     val result = A.aggregate(B, DoubleFunctions.plus, DoubleFunctions.mult)
-    assertEquals(expected, result, TOL)
+    Assert.assertEquals(expected, result, TOL)
   }
 
   def testAssignDouble() {
     val value = Math.random()
     A.assignConstant(value)
     for (i <- 0 until A.size.toInt) {
-      assertEquals(value, A.getQuick(i), TOL)
+      Assert.assertEquals(value, A.getQuick(i), TOL)
     }
   }
 
@@ -94,100 +95,92 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     for (i <- 0 until A.size.toInt) {
       expected(i) = Math.random()
     }
-    A.assignConstant(expected)
+    A.assign(expected)
     for (i <- 0 until A.size.toInt) {
-      assertEquals(expected(i), A.getQuick(i), TOL)
+      Assert.assertEquals(expected(i), A.getQuick(i), TOL)
     }
   }
 
   def testAssignDoubleFunction() {
     val Acopy = A.copy()
-    A.assignConstant(DoubleFunctions.acos)
+    A.assign(DoubleFunctions.acos)
     for (i <- 0 until A.size.toInt) {
       val expected = Math.acos(Acopy.getQuick(i))
-      assertEquals(expected, A.getQuick(i), TOL)
+      Assert.assertEquals(expected, A.getQuick(i), TOL)
     }
   }
 
   def testAssignDoubleMatrix1D() {
     A.assign(B)
-    assertTrue(A.size == B.size)
+    Assert.assertTrue(A.size == B.size)
     for (i <- 0 until A.size.toInt) {
-      assertEquals(B.getQuick(i), A.getQuick(i), TOL)
+      Assert.assertEquals(B.getQuick(i), A.getQuick(i), TOL)
     }
   }
 
   def testAssignDoubleMatrix1DDoubleDoubleFunction() {
     val Acopy = A.copy()
-    A.assignConstant(B, DoubleFunctions.div)
+    A.assign(B, DoubleFunctions.div)
     for (i <- 0 until A.size.toInt) {
-      assertEquals(Acopy.getQuick(i) / B.getQuick(i), A.getQuick(i), TOL)
+      Assert.assertEquals(Acopy.getQuick(i) / B.getQuick(i), A.getQuick(i), TOL)
     }
   }
 
   def testAssignDoubleProcedureDouble() {
-    val procedure = new Procedure1() {
+    val procedure = new Procedure1[Double]() {
 
       def apply(element: Double): Boolean = {
-        if (Math.abs(element) > 0.1) {
-          return true
-        } else {
-          return false
-        }
+        Math.abs(element) > 0.1
       }
     }
     val Acopy = A.copy()
-    A.assignConstant(procedure, -1.0)
+    A.assign(procedure, -1.0)
     for (i <- 0 until A.size.toInt) {
       if (Math.abs(Acopy.getQuick(i)) > 0.1) {
-        assertEquals(-1.0, A.getQuick(i), TOL)
+        Assert.assertEquals(-1.0, A.getQuick(i), TOL)
       } else {
-        assertEquals(Acopy.getQuick(i), A.getQuick(i), TOL)
+        Assert.assertEquals(Acopy.getQuick(i), A.getQuick(i), TOL)
       }
     }
   }
 
   def testAssignDoubleProcedureDoubleFunction() {
-    val procedure = new Procedure1() {
+    val procedure = new Procedure1[Double]() {
 
       def apply(element: Double): Boolean = {
-        if (Math.abs(element) > 0.1) {
-          return true
-        } else {
-          return false
-        }
+        Math.abs(element) > 0.1
       }
     }
     val Acopy = A.copy()
-    A.assignConstant(procedure, DoubleFunctions.tan)
+    A.assign(procedure, DoubleFunctions.tan)
     for (i <- 0 until A.size.toInt) {
       if (Math.abs(Acopy.getQuick(i)) > 0.1) {
-        assertEquals(Math.tan(Acopy.getQuick(i)), A.getQuick(i), TOL)
+        Assert.assertEquals(Math.tan(Acopy.getQuick(i)), A.getQuick(i), TOL)
       } else {
-        assertEquals(Acopy.getQuick(i), A.getQuick(i), TOL)
+        Asert.assertEquals(Acopy.getQuick(i), A.getQuick(i), TOL)
       }
     }
   }
 
   def testCardinality() {
     val card = A.numNonZero()
-    assertEquals(A.size.toInt, card)
+    Assert.assertEquals(A.size.toInt, card)
   }
 
   def testEqualsDouble() {
     val value = 1
     A.assignConstant(value)
     var eq = A == value
-    assertTrue(eq)
+    Assert.assertTrue(eq)
     eq = A == 2
-    assertFalse(eq)
+    Assert.assertFalse(eq)
   }
 
   def testEqualsObject() {
     var eq = A == A
-    assertTrue(eq)
+    Assert.assertTrue(eq)
     eq = A == B
-    assertFalse(eq)
+    Assert.assertFalse(eq)
   }
 
   def testMaxLocation() {
@@ -195,8 +188,8 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     A.setQuick(A.size.toInt / 3, 0.7)
     A.setQuick(A.size.toInt / 2, 0.1)
     val maxAndLoc = A.getMaxLocation
-    assertEquals(0.7, maxAndLoc(0), TOL)
-    assertEquals(A.size.toInt / 3, maxAndLoc(1).toInt)
+    Assert.assertEquals(0.7, maxAndLoc(0), TOL)
+    Assert.assertEquals(A.size.toInt / 3, maxAndLoc(1).toInt)
   }
 
   def testMinLocation() {
@@ -204,8 +197,8 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     A.setQuick(A.size.toInt / 3, -0.7)
     A.setQuick(A.size.toInt / 2, -0.1)
     val minAndLoc = A.getMinLocation
-    assertEquals(-0.7, minAndLoc(0), TOL)
-    assertEquals(A.size.toInt / 3, minAndLoc(1).toInt)
+    Assert.assertEquals(-0.7, minAndLoc(0), TOL)
+    Assert.assertEquals(A.size.toInt / 3, minAndLoc(1).toInt)
   }
 
   def testGetNegativeValuesIntArrayListDoubleArrayList() {
@@ -215,12 +208,12 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     val indexList = new IntArrayList()
     val valueList = new DoubleArrayList()
     A.getNegativeValues(indexList, valueList)
-    assertEquals(2, indexList.size)
-    assertEquals(2, valueList.size)
-    assertTrue(indexList.contains(A.size.toInt / 3))
-    assertTrue(indexList.contains(A.size.toInt / 2))
-    assertTrue(valueList.contains(-0.7))
-    assertTrue(valueList.contains(-0.1))
+    Assert.assertEquals(2, indexList.size)
+    Assert.assertEquals(2, valueList.size)
+    Assert.assertTrue(indexList.contains(A.size.toInt / 3))
+    Assert.assertTrue(indexList.contains(A.size.toInt / 2))
+    Assert.assertTrue(valueList.contains(-0.7))
+    Assert.assertTrue(valueList.contains(-0.1))
   }
 
   def testGetNonZerosIntArrayListDoubleArrayList() {
@@ -230,12 +223,12 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     val indexList = new IntArrayList()
     val valueList = new DoubleArrayList()
     A.getNonZeros(indexList, valueList)
-    assertEquals(2, indexList.size)
-    assertEquals(2, valueList.size)
-    assertTrue(indexList.contains(A.size.toInt / 3))
-    assertTrue(indexList.contains(A.size.toInt / 2))
-    assertTrue(valueList.contains(0.7))
-    assertTrue(valueList.contains(0.1))
+    Assert.assertEquals(2, indexList.size)
+    Assert.assertEquals(2, valueList.size)
+    Assert.assertTrue(indexList.contains(A.size.toInt / 3))
+    Assert.assertTrue(indexList.contains(A.size.toInt / 2))
+    Assert.assertTrue(valueList.contains(0.7))
+    Assert.assertTrue(valueList.contains(0.1))
   }
 
   def testGetPositiveValuesIntArrayListDoubleArrayList() {
@@ -245,19 +238,19 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     val indexList = new IntArrayList()
     val valueList = new DoubleArrayList()
     A.getPositiveValues(indexList, valueList)
-    assertEquals(2, indexList.size)
-    assertEquals(2, valueList.size)
-    assertTrue(indexList.contains(A.size.toInt / 3))
-    assertTrue(indexList.contains(A.size.toInt / 2))
-    assertTrue(valueList.contains(0.7))
-    assertTrue(valueList.contains(0.1))
+    Assert.assertEquals(2, indexList.size)
+    Assert.assertEquals(2, valueList.size)
+    Assert.assertTrue(indexList.contains(A.size.toInt / 3))
+    Assert.assertTrue(indexList.contains(A.size.toInt / 2))
+    Assert.assertTrue(valueList.contains(0.7))
+    Assert.assertTrue(valueList.contains(0.1))
   }
 
   def testToArray() {
-    val array = A.toArray()
-    assertTrue(A.size.toInt == array.length)
+    val array = A.toArray
+    Assert.assertTrue(A.size.toInt == array.length)
     for (i <- 0 until A.size.toInt) {
-      assertEquals(array(i), A.getQuick(i), TOL)
+      Assert.assertEquals(array(i), A.getQuick(i), TOL)
     }
   }
 
@@ -265,7 +258,7 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     val array = Array.ofDim[Double](A.size.toInt)
     A.toArray(array)
     for (i <- 0 until A.size.toInt) {
-      assertEquals(A.getQuick(i), array(i), TOL)
+      Assert.assertEquals(A.getQuick(i), array(i), TOL)
     }
   }
 
@@ -275,10 +268,12 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     val B = A.reshape(rows, columns)
     var idx = 0
     for (c <- 0 until columns; r <- 0 until rows) {
-      assertEquals(A.getQuick(idx += 1), B.getQuick(r, c), TOL)
+      Assert.assertEquals(A.getQuick(idx), B.getQuick(r, c), TOL)
+      idx += 1
     }
   }
 
+/* 3D
   def testReshapeIntIntInt() {
     val slices = 2
     val rows = 5
@@ -286,44 +281,46 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     val B = A.reshape(slices, rows, columns)
     var idx = 0
     for (s <- 0 until slices; c <- 0 until columns; r <- 0 until rows) {
-      assertEquals(A.getQuick(idx += 1), B.getQuick(s, r, c), TOL)
+      Assert.assertEquals(A.getQuick(idx), B.getQuick(s, r, c), TOL)
+      idx += 1
     }
   }
+*/
 
   def testSwap() {
     val Acopy = A.copy()
     val Bcopy = B.copy()
     A.swap(B)
     for (i <- 0 until A.size.toInt) {
-      assertEquals(Bcopy.getQuick(i), A.getQuick(i), TOL)
-      assertEquals(Acopy.getQuick(i), B.getQuick(i), TOL)
+      Assert.assertEquals(Bcopy.getQuick(i), A.getQuick(i), TOL)
+      Assert.assertEquals(Acopy.getQuick(i), B.getQuick(i), TOL)
     }
   }
 
   def testViewFlip() {
     val b = A.viewFlip()
-    assertEquals(A.size.toInt, b.size)
+    Assert.assertEquals(A.size.toInt, b.size)
     for (i <- 0 until A.size.toInt) {
-      assertEquals(A.getQuick(i), b.getQuick(A.size.toInt - 1 - i), TOL)
+      Assert.assertEquals(A.getQuick(i), b.getQuick(A.size.toInt - 1 - i), TOL)
     }
   }
 
   def testViewPart() {
     val b = A.viewPart(15, 11)
     for (i <- 0 until 11) {
-      assertEquals(A.getQuick(15 + i), b.getQuick(i), TOL)
+      Assert.assertEquals(A.getQuick(15 + i), b.getQuick(i), TOL)
     }
   }
 
   def testViewSelectionDoubleProcedure() {
-    val b = A.viewSelection(new Procedure1() {
+    val b = A.viewSelection(new Procedure1[Double]() {
 
-      def apply(element: Double): Boolean = return element % 2 == 0
+      def apply(element: Double): Boolean = element % 2 == 0
     })
-    for (i <- 0 until b.size) {
+    for (i <- 0 until b.size.toInt) {
       val el = b.getQuick(i)
       if (el % 2 != 0) {
-        fail()
+        Assert.fail()
       }
     }
   }
@@ -332,22 +329,24 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     val indexes = Array(5, 11, 22, 37, 101)
     val b = A.viewSelection(indexes)
     for (i <- 0 until indexes.length) {
-      assertEquals(A.getQuick(indexes(i)), b.getQuick(i), TOL)
+      Assert.assertEquals(A.getQuick(indexes(i)), b.getQuick(i), TOL)
     }
   }
 
+/*
   def testViewSorted() {
     val b = A.viewSorted()
     for (i <- 0 until A.size.toInt - 1) {
-      assertTrue(b.getQuick(i + 1) >= b.getQuick(i))
+      Assert.assertTrue(b.getQuick(i + 1) >= b.getQuick(i))
     }
   }
+*/
 
   def testViewStrides() {
     val stride = 3
     val b = A.viewStrides(stride)
     for (i <- 0 until b.size) {
-      assertEquals(A.getQuick(i * stride), b.getQuick(i), TOL)
+      Assert.assertEquals(A.getQuick(i * stride), b.getQuick(i), TOL)
     }
   }
 
@@ -357,7 +356,7 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     for (i <- 0 until A.size.toInt) {
       expected += A.getQuick(i) * B.getQuick(i)
     }
-    assertEquals(expected, product, TOL)
+    Assert.assertEquals(expected, product, TOL)
   }
 
   def testZDotProductDoubleMatrix1DIntInt() {
@@ -366,7 +365,7 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     for (i <- 5 until A.size.toInt - 5) {
       expected += A.getQuick(i) * B.getQuick(i)
     }
-    assertEquals(expected, product, TOL)
+    Assert.assertEquals(expected, product, TOL)
   }
 
   @Test
@@ -379,7 +378,7 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     for (i <- 5 until A.size.toInt - 5) {
       expected += A.getQuick(i) * B.getQuick(i)
     }
-    assertEquals(expected, product, TOL)
+    Assert.assertEquals(expected, product, TOL)
   }
 
   def testZSum() {
@@ -388,6 +387,6 @@ abstract class StrideMatrix1DTest(arg0: String) extends TestCase(arg0) {
     for (i <- 0 until A.size.toInt) {
       expected += A.getQuick(i)
     }
-    assertEquals(expected, sum, TOL)
+    Assert.assertEquals(expected, sum, TOL)
   }
 }

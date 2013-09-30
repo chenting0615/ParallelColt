@@ -255,7 +255,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
   def viewSelection(condition: Procedure1[T]): Matrix1D[T] = {
     val matches = new IntArrayList()
     for (i <- 0 until size.toInt) if (condition.apply(getQuick(i))) matches.add(i)
-    viewSelection(matches.toIntArray())
+    viewSelection(matches.toIntArray)
   }
 
   /**
@@ -291,7 +291,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
   def viewSelection(condition: Procedure2[Int, T]): Matrix1D[T] = {
     val matches = new IntArrayList()
     for (i <- 0 until size.toInt) if (condition.apply(i, getQuick(i))) matches.add(i)
-    viewSelection(matches.toIntArray())
+    viewSelection(matches.toIntArray)
   }
 
   override def forEachNonZero(function: Function2[Int, T, T]) = {

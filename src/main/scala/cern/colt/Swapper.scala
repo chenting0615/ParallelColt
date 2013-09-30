@@ -1,11 +1,7 @@
 package cern.colt
 
-//remove if not needed
-import scala.collection.JavaConversions._
-
 /**
- * Interface for an object that knows how to swap elements at two positions
- * (a,b).
+ * Interface for an object that knows how to swap elements at two positions (a,b).
  *
  * @see cern.colt.GenericSorting
  *

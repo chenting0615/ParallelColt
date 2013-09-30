@@ -667,7 +667,7 @@ import scala.collection.JavaConversions._
  * @version 0.9, 03-Jul-99
  */
 @SerialVersionUID(1L)
-class QuantileDoubleBin1D protected () extends MightyStaticDoubleBin1D(false, false, 2) {
+class QuantileDoubleBin1D protected () extends MightyStaticBin1D(false, false, 2) {
 
   protected var finder: DoubleQuantileFinder = null
 
@@ -685,11 +685,11 @@ class QuantileDoubleBin1D protected () extends MightyStaticDoubleBin1D(false, fa
    * <tt>new QuantileBin1D(known_N, N, epsilon, delta, quantiles, randomGenerator, false, false, 2)</tt>
    * .
    */
-  def this(known_N: Boolean, 
-      N: Long, 
-      epsilon: Double, 
-      delta: Double, 
-      quantiles: Int, 
+  def this(known_N: Boolean,
+      N: Long,
+      epsilon: Double,
+      delta: Double,
+      quantiles: Int,
       randomGenerator: DoubleRandomEngine) {
     this(known_N, N, epsilon, delta, quantiles, randomGenerator, false, false, 2)
   }
@@ -775,17 +775,17 @@ class QuantileDoubleBin1D protected () extends MightyStaticDoubleBin1D(false, fa
    *            passed in. Thus, <tt>sumOfPowers(0..2)</tt> always returns
    *            meaningful results.
    */
-  def this(known_N: Boolean, 
-      N: Long, 
-      epsilon: Double, 
-      delta: Double, 
-      quantiles: Int, 
-      randomGenerator: DoubleRandomEngine, 
-      hasSumOfLogarithms: Boolean, 
-      hasSumOfInversions: Boolean, 
+  def this(known_N: Boolean,
+      N: Long,
+      epsilon: Double,
+      delta: Double,
+      quantiles: Int,
+      randomGenerator: DoubleRandomEngine,
+      hasSumOfLogarithms: Boolean,
+      hasSumOfInversions: Boolean,
       maxOrderForSumOfPowers: Int) {
     super(hasSumOfLogarithms, hasSumOfInversions, maxOrderForSumOfPowers)
-    this.finder = DoubleQuantileFinderFactory.newDoubleQuantileFinder(known_N, N, epsilon, delta, quantiles, 
+    this.finder = DoubleQuantileFinderFactory.newDoubleQuantileFinder(known_N, N, epsilon, delta, quantiles,
       randomGenerator)
     this.clear()
   }
@@ -848,13 +848,13 @@ class QuantileDoubleBin1D protected () extends MightyStaticDoubleBin1D(false, fa
     val buf = new StringBuffer(super.compareWith(other))
     if (other.isInstanceOf[QuantileDoubleBin1D]) {
       val q = other.asInstanceOf[QuantileDoubleBin1D]
-      buf.append("25%, 50% and 75% Quantiles: " + relError(quantile(0.25), q.quantile(0.25)) + 
-        ", " + 
-        relError(quantile(0.5), q.quantile(0.5)) + 
-        ", " + 
+      buf.append("25%, 50% and 75% Quantiles: " + relError(quantile(0.25), q.quantile(0.25)) +
+        ", " +
+        relError(quantile(0.5), q.quantile(0.5)) +
+        ", " +
         relError(quantile(0.75), q.quantile(0.75)))
-      buf.append("\nquantileInverse(mean): " + 
-        relError(quantileInverse(mean()), q.quantileInverse(q.mean())) + 
+      buf.append("\nquantileInverse(mean): " +
+        relError(quantileInverse(mean()), q.quantileInverse(q.mean())) +
         " %")
       buf.append("\n")
     }
@@ -925,7 +925,7 @@ class QuantileDoubleBin1D protected () extends MightyStaticDoubleBin1D(false, fa
    * @return the number of elements in the range.
    */
   def sizeOfRange(minElement: Double, maxElement: Double): Int = {
-    Math.round(size * 
+    Math.round(size *
       (quantileInverse(maxElement) - quantileInverse(minElement))).toInt
   }
 
@@ -1073,7 +1073,7 @@ class QuantileDoubleBin1D protected () extends MightyStaticDoubleBin1D(false, fa
    * @param k
    *            the desired number of subintervals per interval.
    */
-  def splitApproximately(percentages: DoubleArrayList, k: Int): Array[MightyStaticDoubleBin1D] = {
+  def splitApproximately(percentages: DoubleArrayList, k: Int): Array[MightyStaticBin1D] = {
     synchronized {
       val percentSize = percentages.size
       if (k < 1 || percentSize < 2) throw new IllegalArgumentException()
@@ -1092,7 +1092,7 @@ class QuantileDoubleBin1D protected () extends MightyStaticDoubleBin1D(false, fa
         }
       }
       val quantiles = quantiles(new DoubleArrayList(subBins)).elements()
-      val splitBins = Array.ofDim[MightyStaticDoubleBin1D](noOfBins)
+      val splitBins = Array.ofDim[MightyStaticBin1D](noOfBins)
       var maxOrderForSumOfPowers = getMaxOrderForSumOfPowers
       maxOrderForSumOfPowers = Math.min(10, maxOrderForSumOfPowers)
       val dataSize = this.size
@@ -1138,7 +1138,7 @@ class QuantileDoubleBin1D protected () extends MightyStaticDoubleBin1D(false, fa
         val binSize = Math.round((percent(i + 1) - percent(i)) * dataSize).toInt
         val binMax = binMin
         binMin = safe_min
-        splitBins(i) = new MightyStaticDoubleBin1D(this.hasSumOfLogarithms, this.hasSumOfInversions, 
+        splitBins(i) = new MightyStaticBin1D(this.hasSumOfLogarithms, this.hasSumOfInversions,
           maxOrderForSumOfPowers)
         if (binSize > 0) {
           splitBins(i).size = binSize
@@ -1170,7 +1170,7 @@ class QuantileDoubleBin1D protected () extends MightyStaticDoubleBin1D(false, fa
    * @param k
    *            the desired number of subintervals per interval.
    */
-  def splitApproximately(axis: hep.aida.tdouble.DoubleIAxis, k: Int): Array[MightyStaticDoubleBin1D] = {
+  def splitApproximately(axis: hep.aida.tdouble.DoubleIAxis, k: Int): Array[MightyStaticBin1D] = {
     synchronized {
       val percentages = new DoubleArrayList(new hep.aida.tdouble.ref.DoubleConverter().edges(axis))
       percentages.beforeInsert(0, Double.NEGATIVE_INFINITY)
@@ -1189,9 +1189,9 @@ class QuantileDoubleBin1D protected () extends MightyStaticDoubleBin1D(false, fa
   override def toString(): String = {
     synchronized {
       val buf = new StringBuffer(super.toString)
-      buf.append("25%, 50%, 75% Quantiles: " + quantile(0.25) + ", " + 
-        quantile(0.5) + 
-        ", " + 
+      buf.append("25%, 50%, 75% Quantiles: " + quantile(0.25) + ", " +
+        quantile(0.5) +
+        ", " +
         quantile(0.75))
       buf.append("\nquantileInverse(median): " + quantileInverse(median()))
       buf.append("\n")

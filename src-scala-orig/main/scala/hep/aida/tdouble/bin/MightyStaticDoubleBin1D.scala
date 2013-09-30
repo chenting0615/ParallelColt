@@ -58,7 +58,7 @@ class MightyStaticDoubleBin1D(protected var hasSumOfLogarithms: Boolean, protect
     synchronized {
       super.addAllOfFromTo(list, from, to)
       if (this.sumOfPowers != null) {
-        DoubleDescriptive.incrementalUpdateSumsOfPowers(list, from, to, 3, getMaxOrderForSumOfPowers, 
+        DoubleDescriptive.incrementalUpdateSumsOfPowers(list, from, to, 3, getMaxOrderForSumOfPowers,
           this.sumOfPowers)
       }
       if (this.hasSumOfInversions) {
@@ -92,7 +92,7 @@ class MightyStaticDoubleBin1D(protected var hasSumOfLogarithms: Boolean, protect
    */
   def clone(): AnyRef = {
     synchronized {
-      val clone = super.clone().asInstanceOf[MightyStaticDoubleBin1D]
+      val clone = super.clone().asInstanceOf[MightyStaticBin1D]
       if (this.sumOfPowers != null) clone.sumOfPowers = clone.sumOfPowers.clone()
       clone
     }
@@ -108,13 +108,13 @@ class MightyStaticDoubleBin1D(protected var hasSumOfLogarithms: Boolean, protect
    */
   def compareWith(other: AbstractDoubleBin1D): String = {
     val buf = new StringBuffer(super.compareWith(other))
-    if (other.isInstanceOf[MightyStaticDoubleBin1D]) {
-      val m = other.asInstanceOf[MightyStaticDoubleBin1D]
-      if (hasSumOfLogarithms() && m.hasSumOfLogarithms()) buf.append("geometric mean: " + relError(geometricMean(), 
-        m.geometricMean()) + 
+    if (other.isInstanceOf[MightyStaticBin1D]) {
+      val m = other.asInstanceOf[MightyStaticBin1D]
+      if (hasSumOfLogarithms() && m.hasSumOfLogarithms()) buf.append("geometric mean: " + relError(geometricMean(),
+        m.geometricMean()) +
         " %\n")
-      if (hasSumOfInversions() && m.hasSumOfInversions()) buf.append("harmonic mean: " + relError(harmonicMean(), 
-        m.harmonicMean()) + 
+      if (hasSumOfInversions() && m.hasSumOfInversions()) buf.append("harmonic mean: " + relError(harmonicMean(),
+        m.harmonicMean()) +
         " %\n")
       if (hasSumOfPowers(3) && m.hasSumOfPowers(3)) buf.append("skew: " + relError(skew(), m.skew()) + " %\n")
       if (hasSumOfPowers(4) && m.hasSumOfPowers(4)) buf.append("kurtosis: " + relError(kurtosis(), m.kurtosis()) + " %\n")
@@ -411,9 +411,9 @@ class MightyStaticDoubleBin1D(protected var hasSumOfLogarithms: Boolean, protect
    * sumOfLogarithms.
    */
   protected def xequals(`object`: AnyRef): Boolean = {
-    if (!(`object`.isInstanceOf[MightyStaticDoubleBin1D])) return false
-    val other = `object`.asInstanceOf[MightyStaticDoubleBin1D]
-    super == other && sumOfInversions() == other.sumOfInversions() && 
+    if (!(`object`.isInstanceOf[MightyStaticBin1D])) return false
+    val other = `object`.asInstanceOf[MightyStaticBin1D]
+    super == other && sumOfInversions() == other.sumOfInversions() &&
       sumOfLogarithms() == other.sumOfLogarithms()
   }
 

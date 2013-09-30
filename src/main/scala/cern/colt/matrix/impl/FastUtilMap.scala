@@ -13,7 +13,7 @@ trait FastUtilMap[IN, OUT] {
 
 object FastUtilMap {
 
-  implicit object LongDouble extends FastUtilMap[Long, Double] {
+  implicit object LongDouble extends FastUtilMap[java.lang.Long, java.lang.Double] {
     type MapType = Long2DoubleOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
@@ -25,7 +25,7 @@ object FastUtilMap {
     }
   }
 
-  implicit object LongFloat extends FastUtilMap[Long, Float] {
+  implicit object LongFloat extends FastUtilMap[java.lang.Long, java.lang.Float] {
     type MapType = Long2FloatOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
@@ -37,7 +37,7 @@ object FastUtilMap {
     }
   }
 
-  implicit object LongLong extends FastUtilMap[Long, Long] {
+  implicit object LongLong extends FastUtilMap[java.lang.Long, java.lang.Long] {
     type MapType = Long2LongOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
@@ -49,7 +49,7 @@ object FastUtilMap {
     }
   }
 
-  implicit object LongInt extends FastUtilMap[Long, Int] {
+  implicit object LongInt extends FastUtilMap[java.lang.Long, java.lang.Integer] {
     type MapType = Long2IntOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
@@ -61,7 +61,7 @@ object FastUtilMap {
     }
   }
 
-  implicit object LongObject extends FastUtilMap[Long, AnyRef] {
+  implicit object LongObject extends FastUtilMap[java.lang.Long, AnyRef] {
     type MapType = Long2ObjectOpenHashMap[AnyRef]
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {

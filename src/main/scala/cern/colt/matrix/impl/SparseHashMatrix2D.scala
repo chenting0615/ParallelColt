@@ -1,6 +1,6 @@
 package cern.colt.matrix.impl
 
-import it.unimi.dsi.fastutil.longs.LongSet
+import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap
 import cern.colt.matrix.{Matrix1D, Matrix2D}
 import scala.util.Sorting
 
@@ -76,9 +76,9 @@ import scala.util.Sorting
  */
 @specialized
 @SerialVersionUID(1L)
-class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadFactor: Double)(implicit factory: FastUtilMap[Long, T], m: Manifest[T]) extends StrideMatrix2D[T] {
+class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: Int, loadFactor: Double) extends StrideMatrix2D[T] {
 
-  private var elementsVar = factory.createMap(initialCapacity, loadFactor.toFloat)
+  private var elementsVar = new Long2DoubleOpenHashMap(initialCapacity, loadFactor.toFloat)
 
   try {
     setUp(rows, columns)
@@ -206,7 +206,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
       val key = iter.next()
       rowIndexes(k) = (key / columns).toInt
       columnIndexes(k) = (key % columns).toInt
-      values(k) = elementsVar.get(key)
+      values(k) = elementsVar.get(key).asInstanceOf[T]
       k += 1
     }
     new SparseCCMatrix2D[T](rows, columns, rowIndexes, columnIndexes, values, false, false, sortRowIndexes)
@@ -222,12 +222,12 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
    */
   def getColumnCompressedModified: SparseCCMMatrix2D[T] = {
     val A = new SparseCCMMatrix2D[T](rows, columns)
-    val keys = elementsVar.keySet().asInstanceOf[LongSet].toLongArray
+    val keys = elementsVar.keySet().toLongArray
     Sorting.quickSort(keys)
     for(key <- keys) {
       val row = (key / columns).toInt
       val column = (key % columns).toInt
-      A.setQuick(row, column, elementsVar.get(key))
+      A.setQuick(row, column, elementsVar.get(key).asInstanceOf[T])
     }
     A
   }
@@ -248,13 +248,13 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
     val rowIndexes = Array.ofDim[Int](nnz)
     val columnIndexes = Array.ofDim[Int](nnz)
     val values = Array.ofDim[T](nnz)
-    val keys = elementsVar.keySet().asInstanceOf[LongSet].toLongArray
+    val keys = elementsVar.keySet().toLongArray
     Sorting.quickSort(keys)
     var k = 0
     for (key <- keys) {
       rowIndexes(k) = (key / columns).toInt
       columnIndexes(k) = (key % columns).toInt
-      values(k) = elementsVar.get(key)
+      values(k) = elementsVar.get(key).asInstanceOf[T]
       k += 1
     }
     new SparseRCMatrix2D[T](rows, columns, rowIndexes, columnIndexes, values, sortColumnIndexes)
@@ -270,12 +270,12 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
    */
   def getRowCompressedModified: SparseRCMMatrix2D[T] = {
     val A = new SparseRCMMatrix2D[T](rows, columns)
-    val keys = elementsVar.keySet().asInstanceOf[LongSet].toLongArray
+    val keys = elementsVar.keySet().toLongArray
     Sorting.quickSort(keys)
     for(key <- keys) {
       val row = (key / columns).toInt
       val column = (key % columns).toInt
-      A.setQuick(row, column, elementsVar.get(key))
+      A.setQuick(row, column, elementsVar.get(key).asInstanceOf[T])
     }
     A
   }
@@ -288,10 +288,10 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
 
   override def forEachNonZero(function: Function3[Int, Int, T, T]): StrideMatrix2D[T] = {
     if (this.isNoView) {
-      for(key <- elementsVar.keySet().asInstanceOf[LongSet].toLongArray) {
+      for(key <- elementsVar.keySet().toLongArray) {
         val row = (key / columns).toInt
         val column = (key % columns).toInt
-        val oldValue = elementsVar.get(key)
+        val oldValue = elementsVar.get(key).asInstanceOf[T]
         val newValue = function.apply(row, column, oldValue)
         if (oldValue != newValue)
           setQuick(row, column, newValue)
@@ -304,7 +304,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
   }
 
   def getQuick(row: Int, column: Int): T = {
-    elementsVar.get(toRawIndex(row, column))
+    elementsVar.get(toRawIndex(row, column)).asInstanceOf[T]
   }
 
   def like2D(rows: Int, columns: Int): StrideMatrix2D[T] = {
@@ -319,7 +319,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
       if (value == 0)
         this.elementsVar.remove(index)
       else
-        this.elementsVar.put(index, value)
+        this.elementsVar.put(index, value.asInstanceOf[Double])
     }
   }
 
@@ -342,7 +342,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
   }
 
   override def trimToSize() {
-    factory.trim(this.elementsVar)
+    elementsVar.trim()
   }
 
   private def insert(rowIndexes: Array[Int], columnIndexes: Array[Int], values: Array[T]) {
@@ -356,7 +356,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
       }
       val index = toRawIndex(row, column)
       if (value != 0) {
-        elementsVar.put(index, value)
+        elementsVar.put(index, value.asInstanceOf[Double])
       }
       else {
         val elem = elementsVar.get(index)
