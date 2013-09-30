@@ -53,7 +53,7 @@ import cern.colt.matrix.Matrix2D
  */
 @specialized(Double)
 @SerialVersionUID(1L)
-class SparseMatrix1D[T: Manifest](size_p: Int, initialCapacity: Int, loadFactor: Double) extends StrideMatrix1D[T] {
+class SparseMatrix1D[T: Manifest: FastUtilLongMap](size_p: Int, initialCapacity: Int, loadFactor: Double) extends StrideMatrix1D[T] {
 
   protected var elements = new Long2DoubleOpenHashMap(initialCapacity, loadFactor.toFloat)
 

@@ -1,76 +1,97 @@
 package cern.colt.matrix.impl
 
-import java.util
+import java.{lang => jl}
+import java.{util => ju}
 import it.unimi.dsi.fastutil.longs._
 
-trait FastUtilMap[IN, OUT] {
-  type MapType <: util.Map[IN, OUT]
+abstract class FastUtilMap[K, V] {
+  type Key = K
+  type Value = V
+  type BoxedKey
+  type BoxedValue
+
+  type MapType <: ju.Map[BoxedKey, BoxedValue]{def trim() : Boolean}
 
   def createMap(initialCapacity: Int, loadFactor: Float): MapType
+  @inline def get(map: MapType, key: Key) : Value
+  @inline def put(map: MapType, key: Key, value: Value) : Value
+  // TODO put & get are the minimum needed to compile but other specialized methods should also be handled here
 
-  def trim(map: MapType)
 }
 
 object FastUtilMap {
 
-  implicit object LongDouble extends FastUtilMap[java.lang.Long, java.lang.Double] {
+  val m: ju.Map[java.lang.Long, java.lang.Double]  =  new Long2DoubleOpenHashMap()
+
+  implicit object LongDouble extends FastUtilMap[Long, Double] {
+    type BoxedKey = jl.Long
+    type BoxedValue = jl.Double
+
     type MapType = Long2DoubleOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
       new Long2DoubleOpenHashMap(initialCapacity, loadFactor)
     }
 
-    def trim(map: MapType) {
-      map.trim()
-    }
+    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
+    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
+
   }
 
-  implicit object LongFloat extends FastUtilMap[java.lang.Long, java.lang.Float] {
+  implicit object LongFloat extends FastUtilMap[Long, Float] {
+    type BoxedKey = jl.Long
+    type BoxedValue = jl.Float
+
     type MapType = Long2FloatOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
       new Long2FloatOpenHashMap(initialCapacity, loadFactor)
     }
 
-    def trim(map: MapType) {
-      map.trim()
-    }
+    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
+    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
   }
 
-  implicit object LongLong extends FastUtilMap[java.lang.Long, java.lang.Long] {
+  implicit object LongLong extends FastUtilMap[Long, Long] {
+    type BoxedKey = jl.Long
+    type BoxedValue = jl.Long
+
     type MapType = Long2LongOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
       new Long2LongOpenHashMap(initialCapacity, loadFactor)
     }
 
-    def trim(map: MapType) {
-      map.trim()
-    }
+    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
+    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
   }
 
-  implicit object LongInt extends FastUtilMap[java.lang.Long, java.lang.Integer] {
+  implicit object LongInt extends FastUtilMap[Long, Int] {
+    type BoxedKey = jl.Long
+    type BoxedValue = jl.Integer
+
     type MapType = Long2IntOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
       new Long2IntOpenHashMap(initialCapacity, loadFactor)
     }
 
-    def trim(map: MapType) {
-      map.trim()
-    }
+    def get(map: MapType, key: Key) : Value  = map.get(key)
+    def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
   }
 
-  implicit object LongObject extends FastUtilMap[java.lang.Long, AnyRef] {
+  implicit object LongObject extends FastUtilMap[Long, AnyRef] {
+    type BoxedKey = jl.Long
+    type BoxedValue = jl.Object
+
     type MapType = Long2ObjectOpenHashMap[AnyRef]
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
       new Long2ObjectOpenHashMap[AnyRef](initialCapacity, loadFactor)
     }
 
-    def trim(map: MapType) {
-      map.trim()
-    }
+    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
+    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
   }
 
 }

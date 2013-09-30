@@ -74,9 +74,10 @@ import scala.util.Sorting
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
+
 @specialized
 @SerialVersionUID(1L)
-class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: Int, loadFactor: Double) extends StrideMatrix2D[T] {
+class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadFactor: Double)(implicit factory: FastUtilLongMap[T], m: Manifest[T]) extends StrideMatrix2D[T] {
 
   private var elementsVar = new Long2DoubleOpenHashMap(initialCapacity, loadFactor.toFloat)
 
@@ -99,7 +100,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
    *             <tt>rows<0 || columns<0 || (double)columns*rows > Integer.MAX_VALUE</tt>
    *             .
    */
-  def this(rows: Int, columns: Int) {
+  def this(rows: Int, columns: Int)(implicit factory: FastUtilMap[Long, T], m: Manifest[T]) {
     this(rows, columns, rows * columns / 1000, 0.35)
   }
 
@@ -118,7 +119,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
    *             <tt>for any 1 &lt;= row &lt; values.length: values[row].length != values[row-1].length</tt>
    *             .
    */
-  def this(values: Array[Array[T]]) {
+  def this(values: Array[Array[T]])(implicit factory: FastUtilMap[Long, T], m: Manifest[T]) {
     this(values.length, if (values.length == 0) 0 else values(0).length)
     assign(values)
   }
@@ -137,7 +138,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
    * @param values
    *            numerical values
    */
-  def this(rows: Int, columns: Int, rowIndexes: Array[Int], columnIndexes: Array[Int], values: Array[T]) {
+  def this(rows: Int, columns: Int, rowIndexes: Array[Int], columnIndexes: Array[Int], values: Array[T])(implicit factory: FastUtilMap[Long, T], m: Manifest[T]) {
     this(rows, columns)
     insert(rowIndexes, columnIndexes, values)
   }
@@ -158,7 +159,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
         case other: SparseHashMatrix2D[T] => {
           if (this.isNoView && other.isNoView) {
             this.elementsVar.clear()
-            this.elementsVar.putAll(other.elementsVar)
+            this.elementsVar.putAll(other.elementsVar.asInstanceOf[factory.MapType])    //TODO check this works as intended
             doFallBackAssign = false
           }
         }
@@ -203,10 +204,10 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
     val iter = keys.iterator()
     var k = 0
     while(iter.hasNext) {
-      val key = iter.next()
+      val key = iter.next().asInstanceOf[Long]
       rowIndexes(k) = (key / columns).toInt
       columnIndexes(k) = (key % columns).toInt
-      values(k) = elementsVar.get(key).asInstanceOf[T]
+      values(k) = factory.get(elementsVar, key)
       k += 1
     }
     new SparseCCMatrix2D[T](rows, columns, rowIndexes, columnIndexes, values, false, false, sortRowIndexes)
@@ -227,7 +228,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
     for(key <- keys) {
       val row = (key / columns).toInt
       val column = (key % columns).toInt
-      A.setQuick(row, column, elementsVar.get(key).asInstanceOf[T])
+      A.setQuick(row, column, factory.get(elementsVar, key))
     }
     A
   }
@@ -254,7 +255,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
     for (key <- keys) {
       rowIndexes(k) = (key / columns).toInt
       columnIndexes(k) = (key % columns).toInt
-      values(k) = elementsVar.get(key).asInstanceOf[T]
+      values(k) = factory.get(elementsVar, key)
       k += 1
     }
     new SparseRCMatrix2D[T](rows, columns, rowIndexes, columnIndexes, values, sortColumnIndexes)
@@ -275,7 +276,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
     for(key <- keys) {
       val row = (key / columns).toInt
       val column = (key % columns).toInt
-      A.setQuick(row, column, elementsVar.get(key).asInstanceOf[T])
+      A.setQuick(row, column, factory.get(elementsVar, key))
     }
     A
   }
@@ -291,7 +292,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
       for(key <- elementsVar.keySet().toLongArray) {
         val row = (key / columns).toInt
         val column = (key % columns).toInt
-        val oldValue = elementsVar.get(key).asInstanceOf[T]
+        val oldValue = factory.get(elementsVar, key)
         val newValue = function.apply(row, column, oldValue)
         if (oldValue != newValue)
           setQuick(row, column, newValue)
@@ -304,7 +305,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
   }
 
   def getQuick(row: Int, column: Int): T = {
-    elementsVar.get(toRawIndex(row, column)).asInstanceOf[T]
+    factory.get(elementsVar, toRawIndex(row, column))
   }
 
   def like2D(rows: Int, columns: Int): StrideMatrix2D[T] = {
@@ -317,9 +318,9 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
     synchronized {
       val index = toRawIndex(row, column).toLong
       if (value == 0)
-        this.elementsVar.remove(index)
+        elementsVar.remove(index)
       else
-        this.elementsVar.put(index, value.asInstanceOf[Double])
+         factory.put(elementsVar, index, value)
     }
   }
 
@@ -342,7 +343,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
   }
 
   override def trimToSize() {
-    elementsVar.trim()
+    this.elementsVar.trim() // TODO check this works
   }
 
   private def insert(rowIndexes: Array[Int], columnIndexes: Array[Int], values: Array[T]) {
@@ -354,9 +355,9 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
       if (row >= rows || column >= columns) {
         throw new IndexOutOfBoundsException("row: " + row + ", column: " + column + "rows()xcolumns()=" + rows + "x" + columns)
       }
-      val index = toRawIndex(row, column)
+      val index = toRawIndex(row, column).toLong
       if (value != 0) {
-        elementsVar.put(index, value.asInstanceOf[Double])
+        factory.put(elementsVar, index, value)  //TODO fix & uncomment
       }
       else {
         val elem = elementsVar.get(index)

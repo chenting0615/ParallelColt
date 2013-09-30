@@ -9,7 +9,7 @@ package cern.colt.matrix.impl
  */
 @specialized
 @SerialVersionUID(1L)
-class SparseRCMMatrix2D[T: Manifest](rows: Int, columns: Int) extends RemappedMatrix2D[T] {
+class SparseRCMMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int) extends RemappedMatrix2D[T] {
 
   var elements = new Array[SparseMatrix1D[T]](rows)
 

@@ -132,7 +132,7 @@ object SparseRCMatrix2D {
  */
 @specialized(Double)
 @SerialVersionUID(1L)
-class SparseRCMatrix2D[T: Manifest](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
+class SparseRCMatrix2D[T: Manifest: FastUtilLongMap](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
 
   protected var rowPointers: Array[Int] = new Array[Int](rows_p + 1)
 
