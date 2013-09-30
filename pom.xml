@@ -3,6 +3,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>cern.colt</groupId>
+    <artifactId>parallelcolt</artifactId>
+    <version>0.9.9-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
     <parent>
         <groupId>com.bazaarvoice.commons</groupId>
         <artifactId>bv-super-pom</artifactId>
@@ -10,10 +15,10 @@
         <relativePath />
     </parent>
 
-    <groupId>cern.colt</groupId>
-    <artifactId>parallelcolt</artifactId>
-    <version>0.9.9-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <modules>
+      <module>macros</module>
+      <module>code</module>
+    </modules>
 
     <scm>
         <connection>scm:git:git@github.com:bazaarvoice/parallelcolt.git</connection>
@@ -32,7 +37,7 @@
         <scala.plugin.version>3.1.5</scala.plugin.version>
         <!-- <scala.plugin.version>3.1.6-SNAPSHOT</scala.plugin.version> -->
     </properties>
-
+ <dependencyManagement>
     <dependencies>
         <!-- Scala -->
         <dependency>
@@ -95,6 +100,17 @@
             <!--<scope>test</scope>-->
         </dependency>
     </dependencies>
+ </dependencyManagement>
+
+
+  <repositories>
+    <repository>
+      <id>oss.sonatype.org</id>
+      <name>sonatype sapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
+
 
     <build>
         <pluginManagement>
@@ -149,6 +165,15 @@
               <configuration>
                 <recompileMode>incremental</recompileMode>
                 <useZincServer>false</useZincServer>
+
+                    <compilerPlugins>
+                        <compilerPlugin>
+                            <groupId>org.scala-lang.plugins</groupId>
+                            <artifactId>macro-paradise_${scala.minor.version}</artifactId>
+                            <version>2.0.0-SNAPSHOT</version>
+                        </compilerPlugin>
+                    </compilerPlugins>
+
               </configuration>
 
               <executions>
