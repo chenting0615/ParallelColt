@@ -14,23 +14,6 @@
     <version>0.9.9-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <!-- <scm> -->
-    <!--     <connection>scm:git:git@github.com:bazaarvoice/parallelcolt.git</connection> -->
-    <!-- </scm> -->
-
-    <dependencies>
-        <dependency>
-            <groupId>${scala.group}</groupId>
-            <artifactId>scala-library</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>${scala.group}</groupId>
-            <artifactId>scala-reflect</artifactId>
-        </dependency>
-
-    </dependencies>
-
     <build>
         <plugins>
             <plugin>

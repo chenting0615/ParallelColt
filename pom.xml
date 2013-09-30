@@ -37,7 +37,7 @@
         <scala.plugin.version>3.1.5</scala.plugin.version>
         <!-- <scala.plugin.version>3.1.6-SNAPSHOT</scala.plugin.version> -->
     </properties>
- <dependencyManagement>
+ <!--<dependencyManagement>-->
     <dependencies>
         <!-- Scala -->
         <dependency>
@@ -100,7 +100,7 @@
             <!--<scope>test</scope>-->
         </dependency>
     </dependencies>
- </dependencyManagement>
+ <!--</dependencyManagement>-->
 
 
   <repositories>

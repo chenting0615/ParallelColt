@@ -24,54 +24,6 @@
     <artifactId>parallelcolt-macros</artifactId>
     <version>0.9.9-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>${scala.group}</groupId>
-            <artifactId>scala-library</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${scala.group}</groupId>
-            <artifactId>scala-reflect</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cern.colt</groupId>
-            <artifactId>arpack-combo</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cern.colt</groupId>
-            <artifactId>csparsej</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cern.colt</groupId>
-            <artifactId>jplasma</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cern.colt</groupId>
-            <artifactId>netlib-java</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cern.colt</groupId>
-            <artifactId>optimization</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cern.colt</groupId>
-            <artifactId>jtransforms</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>it.unimi.dsi</groupId>
-            <artifactId>fastutil</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
