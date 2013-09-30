@@ -40,6 +40,11 @@
             <artifactId>scala-library</artifactId>
             <version>${scala.minor.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${scala.group}</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>${scala.minor.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>cern.colt</groupId>
