@@ -3,7 +3,6 @@ package cern.colt.matrix.impl
 import it.unimi.dsi.fastutil.longs.LongSet
 import cern.colt.matrix.{Matrix1D, Matrix2D}
 import scala.util.Sorting
-//import scala.math.Numeric.Implicits._
 
 /**
  * Sparse hashed 2-d matrix holding <tt>double</tt> elements. First see the <a
@@ -75,12 +74,11 @@ import scala.util.Sorting
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
+
 @specialized
 @SerialVersionUID(1L)
 class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadFactor: Double)(implicit factory: FastUtilLongMap[T], m: Manifest[T]) extends StrideMatrix2D[T] {
 
-  //import n._
-  import factory.Implicits._
   private var elementsVar = factory.createMap(initialCapacity, loadFactor.toFloat)
 
   try {
@@ -209,7 +207,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
       val key = iter.next().asInstanceOf[Long]
       rowIndexes(k) = (key / columns).toInt
       columnIndexes(k) = (key % columns).toInt
-      values(k) = elementsVar.get(key)
+      values(k) = factory.get(elementsVar, key)
       k += 1
     }
     new SparseCCMatrix2D[T](rows, columns, rowIndexes, columnIndexes, values, false, false, sortRowIndexes)
@@ -230,7 +228,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
     for(key <- keys) {
       val row = (key / columns).toInt
       val column = (key % columns).toInt
-      A.setQuick(row, column, elementsVar.get(key))
+      A.setQuick(row, column, factory.get(elementsVar, key))
     }
     A
   }
@@ -257,7 +255,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
     for (key <- keys) {
       rowIndexes(k) = (key / columns).toInt
       columnIndexes(k) = (key % columns).toInt
-      values(k) = elementsVar.get(key)
+      values(k) = factory.get(elementsVar, key)
       k += 1
     }
     new SparseRCMatrix2D[T](rows, columns, rowIndexes, columnIndexes, values, sortColumnIndexes)
@@ -278,7 +276,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
     for(key <- keys) {
       val row = (key / columns).toInt
       val column = (key % columns).toInt
-      A.setQuick(row, column, elementsVar.get(key))
+      A.setQuick(row, column, factory.get(elementsVar, key))
     }
     A
   }
@@ -294,7 +292,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
       for(key <- elementsVar.keySet().asInstanceOf[LongSet].toLongArray) {
         val row = (key / columns).toInt
         val column = (key % columns).toInt
-        val oldValue = elementsVar.get(key)
+        val oldValue = factory.get(elementsVar, key)
         val newValue = function.apply(row, column, oldValue)
         if (oldValue != newValue)
           setQuick(row, column, newValue)
@@ -307,7 +305,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
   }
 
   def getQuick(row: Int, column: Int): T = {
-    elementsVar.get(toRawIndex(row, column))
+    factory.get(elementsVar, toRawIndex(row, column))
   }
 
   def like2D(rows: Int, columns: Int): StrideMatrix2D[T] = {
@@ -320,9 +318,9 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
     synchronized {
       val index = toRawIndex(row, column).toLong
       if (value == 0)
-        this.elementsVar.remove(index)
+        elementsVar.remove(index)
       else
-         this.elementsVar.put(index, value)
+         factory.put(elementsVar, index, value)
     }
   }
 
@@ -359,7 +357,7 @@ class SparseHashMatrix2D[T](rows: Int, columns: Int, initialCapacity: Int, loadF
       }
       val index = toRawIndex(row, column).toLong
       if (value != 0) {
-        elementsVar.put(index, value)  //TODO fix & uncomment
+        factory.put(elementsVar, index, value)  //TODO fix & uncomment
       }
       else {
         val elem = elementsVar.get(index)

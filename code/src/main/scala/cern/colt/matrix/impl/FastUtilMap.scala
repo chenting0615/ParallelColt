@@ -4,24 +4,19 @@ import java.{lang => jl}
 import java.{util => ju}
 import it.unimi.dsi.fastutil.longs._
 
-abstract class FastUtilMap[K, V]/*(implicit val bk: Box[K], val bv: Box[V]) */{
+abstract class FastUtilMap[K, V] {
   type Key = K
   type Value = V
-  type BK // = bk.Wrap
-  type BV // = bv.Wrap
+  type BoxedKey
+  type BoxedValue
 
-  type MapType <: ju.Map[BK, BV]{def trim() : Boolean}
+  type MapType <: ju.Map[BoxedKey, BoxedValue]{def trim() : Boolean}
 
   def createMap(initialCapacity: Int, loadFactor: Float): MapType
+  @inline def get(map: MapType, key: Key) : Value
+  @inline def put(map: MapType, key: Key, value: Value) : Value
+  // TODO put & get are the minimum needed to compile but other specialized methods should also be handled here
 
-  trait ImpBase {
-    implicit def boxKey(key: Key) : BK
-//    implicit def unboxKey(key: BK) : Key // = bk.unbox(key)
-    implicit def boxValue(value: Value) : BV
-    implicit def unboxValue(value: BV) : Value
-  }
-
-  val Implicits : ImpBase
 }
 
 object FastUtilMap {
@@ -29,84 +24,74 @@ object FastUtilMap {
   val m: ju.Map[java.lang.Long, java.lang.Double]  =  new Long2DoubleOpenHashMap()
 
   implicit object LongDouble extends FastUtilMap[Long, Double] {
-    type BK = jl.Long
-    type BV = jl.Double
+    type BoxedKey = jl.Long
+    type BoxedValue = jl.Double
 
     type MapType = Long2DoubleOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
       new Long2DoubleOpenHashMap(initialCapacity, loadFactor)
     }
-    object Implicits extends ImpBase {
-      implicit def boxKey(key: Key) : BK = long2Long(key)
-      implicit def boxValue(value: Value) : BV = double2Double(value)
-      implicit def unboxValue(value: BV) : Value = Double2double(value)
-    }
+
+    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
+    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
 
   }
 
   implicit object LongFloat extends FastUtilMap[Long, Float] {
-    type BK = jl.Long
-    type BV = jl.Float
+    type BoxedKey = jl.Long
+    type BoxedValue = jl.Float
 
     type MapType = Long2FloatOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
       new Long2FloatOpenHashMap(initialCapacity, loadFactor)
     }
-    object Implicits extends ImpBase {
-      implicit def boxKey(key: Key) : BK = long2Long(key)
-      implicit def boxValue(value: Value) : BV = float2Float(value)
-      implicit def unboxValue(value: BV) : Value = Float2float(value)
-    }
+
+    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
+    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
   }
 
   implicit object LongLong extends FastUtilMap[Long, Long] {
-    type BK = jl.Long
-    type BV = jl.Long
+    type BoxedKey = jl.Long
+    type BoxedValue = jl.Long
 
     type MapType = Long2LongOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
       new Long2LongOpenHashMap(initialCapacity, loadFactor)
     }
-    object Implicits extends ImpBase {
-      implicit def boxKey(key: Key) : BK = long2Long(key)
-      implicit def boxValue(value: Value) : BV = long2Long(value)
-      implicit def unboxValue(value: BV) : Value = Long2long(value)
-    }
+
+    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
+    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
   }
 
   implicit object LongInt extends FastUtilMap[Long, Int] {
-    type BK = jl.Long
-    type BV = jl.Integer
+    type BoxedKey = jl.Long
+    type BoxedValue = jl.Integer
 
     type MapType = Long2IntOpenHashMap
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
       new Long2IntOpenHashMap(initialCapacity, loadFactor)
     }
-    object Implicits extends ImpBase {
-      implicit def boxKey(key: Key) : BK = long2Long(key)
-      implicit def boxValue(value: Value) : BV = int2Integer(value)
-      implicit def unboxValue(value: BV) : Value = Integer2int(value)
-    }
+
+    def get(map: MapType, key: Key) : Value  = map.get(key)
+    def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
   }
 
   implicit object LongObject extends FastUtilMap[Long, AnyRef] {
-    type BK = jl.Long
-    type BV = jl.Object
+    type BoxedKey = jl.Long
+    type BoxedValue = jl.Object
 
     type MapType = Long2ObjectOpenHashMap[AnyRef]
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
       new Long2ObjectOpenHashMap[AnyRef](initialCapacity, loadFactor)
     }
-    object Implicits extends ImpBase {
-      implicit def boxKey(key: Key) : BK = long2Long(key)
-      implicit def boxValue(value: Value) : BV = value
-      implicit def unboxValue(value: BV) : Value = value
-    }
+
+    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
+    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
   }
 
 }
