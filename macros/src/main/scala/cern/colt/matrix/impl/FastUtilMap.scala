@@ -1,5 +1,8 @@
 package cern.colt.matrix.impl
 
+import language.experimental.macros
+import scala.reflect.macros.Context
+
 import java.{lang => jl}
 import java.{util => ju}
 import it.unimi.dsi.fastutil.longs._
@@ -21,7 +24,12 @@ abstract class FastUtilMap[K, V] {
 
 object FastUtilMap {
 
-  val m: ju.Map[java.lang.Long, java.lang.Double]  =  new Long2DoubleOpenHashMap()
+  implicit def fastUtilMap[K, V] = macro fastUtilMap_impl[K, V]
+
+  def fastUtilMap_impl[K, V](c: Context)(k: c.WeakTypeTag[K], v: c.WeakTypeTag[V]): c.Expr[Int] = {
+    import c.universe._
+    c.Expr[Int](q"1")
+  }
 
   implicit object LongDouble extends FastUtilMap[Long, Double] {
     type BoxedKey = jl.Long
