@@ -4,19 +4,32 @@ import java.{lang => jl}
 import java.{util => ju}
 import it.unimi.dsi.fastutil.longs._
 
-abstract class FastUtilMap[K, V] {
+
+trait MapWrap[@specialized Key, @specialized Value, BoxedKey <: AnyRef, BoxedValue <: AnyRef] /*extends Any*/ {
+  //type MapTrim = java.util.Map[BoxedKey, BoxedValue] {def trim() : Boolean}
+  @inline def m: MapTrim [BoxedKey, BoxedValue]
+  def trim() = m.trim()
+  def clear() = m.clear()
+  def putAll(m2: MapWrap[Key, Value, BoxedKey, BoxedValue]) = m.putAll(m2.m)
+  def size() = m.size()
+  def keySet() = m.keySet()
+  @inline def get(k: Key) : Value
+  @inline def put(k: Key, v: Value): Value
+  def remove(k: Key) : Value
+}
+
+abstract class FastUtilMap[@specialized K, @specialized V] {
   type Key = K
   type Value = V
-  type BoxedKey
-  type BoxedValue
+  type BoxedKey <: AnyRef
+  type BoxedValue <: AnyRef
 
-  type MapType <: ju.Map[BoxedKey, BoxedValue]{def trim() : Boolean}
+  //type MapTrim = java.util.Map[BoxedKey, BoxedValue] {def trim() : Boolean}
+  type Wrap = MapWrap[Key, Value, BoxedKey, BoxedValue]
+  type FUMapType <: MapTrim[BoxedKey, BoxedValue]
+  type MapType <: Wrap
 
   def createMap(initialCapacity: Int, loadFactor: Float): MapType
-  @inline def get(map: MapType, key: Key) : Value
-  @inline def put(map: MapType, key: Key, value: Value) : Value
-  // TODO put & get are the minimum needed to compile but other specialized methods should also be handled here
-
 }
 
 object FastUtilMap {
@@ -26,72 +39,82 @@ object FastUtilMap {
   implicit object LongDouble extends FastUtilMap[Long, Double] {
     type BoxedKey = jl.Long
     type BoxedValue = jl.Double
+    type FUMapType = Long2DoubleOpenHashMap
 
-    type MapType = Long2DoubleOpenHashMap
-
-    def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2DoubleOpenHashMap(initialCapacity, loadFactor)
+    final class MapType(val m: FUMapType) extends /*AnyVal with*/ Wrap {
+      def get(k: Key) : Value = m.get(k)
+      def put(k: Key, v: Value): Value = m.put(k, v)
+      def remove(k: Key) : Value = m.remove()
     }
 
-    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
-    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
-
+    def createMap(initialCapacity: Int, loadFactor: Float) = {
+      new MapType(new Long2DoubleOpenHashMap(initialCapacity, loadFactor))
+    }
   }
 
   implicit object LongFloat extends FastUtilMap[Long, Float] {
     type BoxedKey = jl.Long
     type BoxedValue = jl.Float
+    type FUMapType = Long2FloatOpenHashMap
 
-    type MapType = Long2FloatOpenHashMap
-
-    def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2FloatOpenHashMap(initialCapacity, loadFactor)
+    final class MapType(val m: FUMapType) extends /*AnyVal with*/ Wrap {
+      def get(k: Key) : Value = m.get(k)
+      def put(k: Key, v: Value): Value = m.put(k, v)
+      def remove(k: Key) : Value = m.remove()
     }
 
-    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
-    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
+    def createMap(initialCapacity: Int, loadFactor: Float) = {
+      new MapType(new Long2FloatOpenHashMap(initialCapacity, loadFactor))
+    }
   }
 
   implicit object LongLong extends FastUtilMap[Long, Long] {
     type BoxedKey = jl.Long
     type BoxedValue = jl.Long
+    type FUMapType = Long2LongOpenHashMap
 
-    type MapType = Long2LongOpenHashMap
-
-    def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2LongOpenHashMap(initialCapacity, loadFactor)
+    final class MapType(val m: FUMapType) extends /*AnyVal with*/ Wrap {
+      def get(k: Key) : Value = m.get(k)
+      def put(k: Key, v: Value): Value = m.put(k, v)
+      def remove(k: Key) : Value = m.remove()
     }
 
-    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
-    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
+    def createMap(initialCapacity: Int, loadFactor: Float) = {
+      new MapType(new Long2LongOpenHashMap(initialCapacity, loadFactor))
+    }
   }
 
   implicit object LongInt extends FastUtilMap[Long, Int] {
     type BoxedKey = jl.Long
     type BoxedValue = jl.Integer
+    type FUMapType = Long2IntOpenHashMap
 
-    type MapType = Long2IntOpenHashMap
-
-    def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2IntOpenHashMap(initialCapacity, loadFactor)
+    final class MapType(val m: FUMapType) extends /*AnyVal with*/ Wrap {
+      def get(k: Key) : Value = m.get(k)
+      def put(k: Key, v: Value): Value = m.put(k, v)
+      def remove(k: Key) : Value = m.remove()
     }
 
-    def get(map: MapType, key: Key) : Value  = map.get(key)
-    def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
+    def createMap(initialCapacity: Int, loadFactor: Float) = {
+      new MapType(new Long2IntOpenHashMap(initialCapacity, loadFactor))
+    }
   }
 
-  implicit object LongObject extends FastUtilMap[Long, AnyRef] {
+  trait LongObject[V<: AnyRef] extends FastUtilMap[Long, V] {
     type BoxedKey = jl.Long
-    type BoxedValue = jl.Object
+    type BoxedValue = Value
+    type FUMapType = Long2ObjectOpenHashMap[Value]
 
-    type MapType = Long2ObjectOpenHashMap[AnyRef]
-
-    def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2ObjectOpenHashMap[AnyRef](initialCapacity, loadFactor)
+    final class MapType(val m: FUMapType) extends Wrap {
+      def get(k: Key) : Value = m.get(k)
+      def put(k: Key, v: Value): Value = m.put(k, v)
+      def remove(k: Key) : Value = m.remove()
     }
 
-    @inline def get(map: MapType, key: Key) : Value  = map.get(key)
-    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
+    def createMap(initialCapacity: Int, loadFactor: Float) = {
+      new MapType(new Long2ObjectOpenHashMap[Value](initialCapacity, loadFactor))
+    }
   }
 
+  implicit def LongObject[V<: AnyRef] = new LongObject[V]{}
 }

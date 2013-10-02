@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scala.group>org.scala-lang</scala.group>
         <scala.major.version>2.10</scala.major.version>
-        <scala.minor.version>${scala.major.version}.2</scala.minor.version>
+        <scala.minor.version>${scala.major.version}.3-RC2</scala.minor.version>
         <!-- <scala.plugin>maven-scala-plugin</scala.plugin> -->
         <!-- <scala.plugin.group>org.scala-tools</scala.plugin.group> -->
         <!-- <scala.plugin.version>2.15.2</scala.plugin.version> -->
