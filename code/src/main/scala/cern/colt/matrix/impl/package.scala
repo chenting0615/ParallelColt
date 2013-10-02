@@ -9,5 +9,5 @@ package cern.colt.matrix
  */
 package object impl {
   type FastUtilLongMap[T] = FastUtilMap[Long, T]
-
+  //type MapTrim[BoxedKey/* <: AnyRef*/, BoxedValue /*<: AnyRef*/] = java.util.Map[BoxedKey, BoxedValue] {def trim() : Boolean}
 }

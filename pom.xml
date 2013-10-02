@@ -165,7 +165,6 @@
               <configuration>
                 <recompileMode>incremental</recompileMode>
                 <useZincServer>false</useZincServer>
-
                     <compilerPlugins>
                         <compilerPlugin>
                             <groupId>org.scala-lang.plugins</groupId>
@@ -173,7 +172,10 @@
                             <version>2.0.0-SNAPSHOT</version>
                         </compilerPlugin>
                     </compilerPlugins>
-
+                      <!--<args>-->
+                          <!--<arg>-deprecation</arg>-->
+                          <!--<args>-feature</args>-->
+                      <!--</args>-->
               </configuration>
 
               <executions>
