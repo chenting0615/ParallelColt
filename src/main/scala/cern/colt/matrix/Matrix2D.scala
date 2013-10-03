@@ -1,6 +1,6 @@
 package cern.colt.matrix
 
-import cern.colt.function.Procedure3
+import cern.colt.function.{Matrix1DProcedure, Procedure3}
 
 /**
  * Trait for 2-d matrices holding objects or primitive data types
@@ -36,7 +36,7 @@ trait Matrix2D[T] extends Matrix[T] {
   def rows: Int
 
   /**
-   * Returns the number of cells in the matrix, i.e. <tt>rows()*columns()</tt>.
+   * Returns the number of cells in the matrix, i.e. <tt>rows*columns</tt>.
    */
   def size: Long = rows * columns
 
@@ -57,7 +57,7 @@ trait Matrix2D[T] extends Matrix[T] {
    * @return the value of the specified cell.
    * @throws IndexOutOfBoundsException
    *             if
-   *             <tt>column&lt;0 || column&gt;=columns() || row&lt;0 || row&gt;=rows()</tt>
+   *             <tt>column&lt;0 || column&gt;=columns || row&lt;0 || row&gt;=rows</tt>
    */
   def get(row: Int, column: Int): T = {
     checkColumn(column)
@@ -73,7 +73,7 @@ trait Matrix2D[T] extends Matrix[T] {
    * without throwing any exception. <b>You should only use this method when
    * you are absolutely sure that the coordinate is within bounds.</b>
    * Precondition (unchecked):
-   * <tt>0 &lt;= column &lt; columns() && 0 &lt;= row &lt; rows()</tt>.
+   * <tt>0 &lt;= column &lt; columns && 0 &lt;= row &lt; rows</tt>.
    *
    * @param row
    *            the index of the row-coordinate.
@@ -95,7 +95,7 @@ trait Matrix2D[T] extends Matrix[T] {
    *            the value to be filled into the specified cell.
    * @throws IndexOutOfBoundsException
    *             if
-   *             <tt>column&lt;0 || column&gt;=columns() || row&lt;0 || row&gt;=rows()</tt>
+   *             <tt>column&lt;0 || column&gt;=columns || row&lt;0 || row&gt;=rows</tt>
    */
   def set(row: Int, column: Int, value: T) {
     checkColumn(column)
@@ -112,7 +112,7 @@ trait Matrix2D[T] extends Matrix[T] {
    * without throwing any exception. <b>You should only use this method when
    * you are absolutely sure that the coordinate is within bounds.</b>
    * Precondition (unchecked):
-   * <tt>0 &lt;= column &lt; columns() && 0 &lt;= row &lt; rows()</tt>.
+   * <tt>0 &lt;= column &lt; columns && 0 &lt;= row &lt; rows</tt>.
    *
    * @param row
    *            the index of the row-coordinate.
@@ -133,6 +133,35 @@ trait Matrix2D[T] extends Matrix[T] {
   def assignConstant(value: T): Matrix2D[T]
 
   /**
+   * Sets all cells to the state specified by <tt>values</tt>. <tt>values</tt>
+   * is required to have the form <tt>values[row*column]</tt> and elements
+   * have to be stored in a row-wise order.
+   * <p>
+   * The values are copied. So subsequent changes in <tt>values</tt> are not
+   * reflected in the matrix, and vice-versa.
+   *
+   * @param values
+   *            the values to be filled into the cells.
+   * @return <tt>this</tt> (for convenience only).
+   * @throws IllegalArgumentException
+   *             if <tt>values.length != rows*columns</tt>.
+   */
+  def assign(values: Array[T]): Matrix2D[T]
+
+  /**
+   * Replaces all cell values of the receiver with the values of an array.
+   * The array and the matrix must have the same dimensions.
+   *
+   * @param other
+   *            the source array to copy from.
+   * @return <tt>this</tt> (for convenience only).
+   * @throws IllegalArgumentException
+   *             if
+   *             <tt>columns != other(0).length || rows != other.length</tt>
+   */
+  def assign(other: Array[Array[T]]): Matrix2D[T]
+
+  /**
    * Replaces all cell values of the receiver with the values of another
    * matrix. Both matrices must have the same number of rows and columns. If
    * both matrices share the same cells (as is the case if they are views
@@ -146,20 +175,30 @@ trait Matrix2D[T] extends Matrix[T] {
    * @return <tt>this</tt> (for convenience only).
    * @throws IllegalArgumentException
    *             if
-   *             <tt>columns() != other.columns() || rows() != other.rows()</tt>
+   *             <tt>columns != other.columns || rows != other.rows</tt>
    */
   def assign(other: Matrix2D[T]): Matrix2D[T]
 
   /**
    * Returns an iterator that can traverse all non-zero values in the matrix.
    */
-  def iteratorNonZeros: IndexIterator2D[T]
+  def iteratorNonZeros(byRows: Boolean): IndexIterator2D[T]
+
+  /**
+   * Returns an iterator that can traverse all non-zero values in the given row of the matrix.
+   */
+  def iteratorNonZerosInRow(row: Int): IndexIterator2D[T]
+
+  /**
+   * Returns an iterator that can traverse all non-zero values in the given column of the matrix.
+   */
+  def iteratorNonZerosInColumn(column: Int): IndexIterator2D[T]
 
   /**
    * Returns an iterator that can traverse all non-zero values in the matrix
    * which return true from the given condition.
    */
-  def iteratorNonZeros(condition: Procedure3[Int, Int, T]): IndexIterator2D[T]
+  def iteratorNonZeros(byRows: Boolean, condition: Procedure3[Int, Int, T]): IndexIterator2D[T]
 
   /**
    * Returns an iterator that can traverse all values in the matrix.
@@ -232,7 +271,7 @@ trait Matrix2D[T] extends Matrix[T] {
    * transposition, taking O(1), i.e. constant time. The returned view is
    * backed by this matrix, so changes in the returned view are reflected in
    * this matrix, and vice-versa. Use idioms like
-   * <tt>result = viewDice(A).copy()</tt> to generate an independent
+   * <tt>result = viewTranspose(A).copy()</tt> to generate an independent
    * transposed matrix.
    * <p>
    * <b>Example:</b>
@@ -280,7 +319,7 @@ trait Matrix2D[T] extends Matrix[T] {
    *            the column to fix.
    * @return a new slice view.
    * @throws IndexOutOfBoundsException
-   *             if <tt>column < 0 || column >= columns()</tt>.
+   *             if <tt>column < 0 || column >= columns</tt>.
    * @see #viewRow(int)
    */
   def viewColumn(column: Int): Matrix1D[T]
@@ -308,7 +347,7 @@ trait Matrix2D[T] extends Matrix[T] {
    *            the row to fix.
    * @return a new slice view.
    * @throws IndexOutOfBoundsException
-   *             if <tt>row < 0 || row >= rows()</tt>.
+   *             if <tt>row < 0 || row >= rows</tt>.
    * @see #viewColumn(int)
    */
   def viewRow(row: Int): Matrix1D[T]
@@ -327,12 +366,12 @@ trait Matrix2D[T] extends Matrix[T] {
    * <p>
    * The view contains the cells from <tt>[row,column]</tt> to
    * <tt>[row+height-1,column+width-1]</tt>, all inclusive. and has
-   * <tt>view.rows() == height; view.columns() == width;</tt>. A view's legal
+   * <tt>view.rows == height; view.columns == width;</tt>. A view's legal
    * coordinates are again zero based, as usual. In other words, legal
    * coordinates of the view range from <tt>[0,0]</tt> to
-   * <tt>[view.rows()-1==height-1,view.columns()-1==width-1]</tt>. As usual,
+   * <tt>[view.rows-1==height-1,view.columns-1==width-1]</tt>. As usual,
    * any attempt to access a cell at a coordinate
-   * <tt>column&lt;0 || column&gt;=view.columns() || row&lt;0 || row&gt;=view.rows()</tt>
+   * <tt>column&lt;0 || column&gt;=view.columns || row&lt;0 || row&gt;=view.rows</tt>
    * will throw an <tt>IndexOutOfBoundsException</tt>.
    *
    * @param row
@@ -345,7 +384,7 @@ trait Matrix2D[T] extends Matrix[T] {
    *            The width of the box.
    * @throws IndexOutOfBoundsException
    *             if
-   *             <tt>column<0 || width<0 || column+width>columns() || row<0 || height<0 || row+height>rows()</tt>
+   *             <tt>column<0 || width<0 || column+width>columns || row<0 || height<0 || row+height>rows</tt>
    * @return the new view.
    *
    */
@@ -353,8 +392,8 @@ trait Matrix2D[T] extends Matrix[T] {
 
   /**
    * Constructs and returns a new <i>flip view</i> along the column axis. What
-   * used to be column <tt>0</tt> is now column <tt>columns()-1</tt>, ...,
-   * what used to be column <tt>columns()-1</tt> is now column <tt>0</tt>. The
+   * used to be column <tt>0</tt> is now column <tt>columns-1</tt>, ...,
+   * what used to be column <tt>columns-1</tt> is now column <tt>0</tt>. The
    * returned view is backed by this matrix, so changes in the returned view
    * are reflected in this matrix, and vice-versa.
    * <p>
@@ -382,8 +421,8 @@ trait Matrix2D[T] extends Matrix[T] {
 
   /**
    * Constructs and returns a new <i>flip view</i> along the row axis. What
-   * used to be row <tt>0</tt> is now row <tt>rows()-1</tt>, ..., what used to
-   * be row <tt>rows()-1</tt> is now row <tt>0</tt>. The returned view is
+   * used to be row <tt>0</tt> is now row <tt>rows-1</tt>, ..., what used to
+   * be row <tt>rows-1</tt> is now row <tt>0</tt>. The returned view is
    * backed by this matrix, so changes in the returned view are reflected in
    * this matrix, and vice-versa.
    * <p>
@@ -414,10 +453,10 @@ trait Matrix2D[T] extends Matrix[T] {
    *
    * Constructs and returns a new <i>stride view</i> which is a sub matrix
    * consisting of every i-th cell. More specifically, the view has
-   * <tt>this.rows()/rowStride</tt> rows and
-   * <tt>this.columns()/columnStride</tt> columns holding cells
+   * <tt>this.rows/rowStride</tt> rows and
+   * <tt>this.columns/columnStride</tt> columns holding cells
    * <tt>this.get(i*rowStride,j*columnStride)</tt> for all
-   * <tt>i = 0..rows()/rowStride - 1, j = 0..columns()/columnStride - 1</tt>.
+   * <tt>i = 0..rows/rowStride - 1, j = 0..columns/columnStride - 1</tt>.
    * The returned view is backed by this matrix, so changes in the returned
    * view are reflected in this matrix, and vice-versa.
    *
@@ -514,7 +553,7 @@ trait Matrix2D[T] extends Matrix[T] {
   /**
    * Constructs and returns a new <i>selection view</i> that is a matrix
    * holding the intersection of the indicated rows and columns. It holds
-   * <tt>view.rows() == rowIndexes.length, view.columns() == columnIndexes.length</tt>
+   * <tt>view.rows == rowIndexes.length, view.columns == columnIndexes.length</tt>
    * and <tt>view.get(i,j) == this.get(rowIndexes[i],columnIndexes[j])</tt>.
    * Indexes can occur multiple times and can be in arbitrary order.
    * <p>
@@ -551,9 +590,9 @@ trait Matrix2D[T] extends Matrix[T] {
    *            simply set this parameter to <tt>null</tt>.
    * @return the new view.
    * @throws IndexOutOfBoundsException
-   *             if <tt>!(0 <= rowIndexes[i] < rows())</tt> for any
+   *             if <tt>!(0 <= rowIndexes[i] < rows)</tt> for any
    *             <tt>i=0..rowIndexes.length()-1</tt>.
-   *             if <tt>!(0 <= colIndexes[i] < columns())</tt> for any
+   *             if <tt>!(0 <= colIndexes[i] < columns)</tt> for any
    *             <tt>i=0..colIndexes.length()-1</tt>.
    */
   def viewSelection(rowIndexes: Array[Int], columnIndexes: Array[Int]): Matrix2D[T]
@@ -621,7 +660,7 @@ trait Matrix2D[T] extends Matrix[T] {
    * Sanity check for operations requiring a column index to be within bounds.
    *
    * @throws IndexOutOfBoundsException
-   *             if <tt>column < 0 || column >= columns()</tt>.
+   *             if <tt>column < 0 || column >= columns</tt>.
    */
   def checkColumn(column: Int)
 
@@ -629,7 +668,7 @@ trait Matrix2D[T] extends Matrix[T] {
    * Sanity check for operations requiring a row index to be within bounds.
    *
    * @throws IndexOutOfBoundsException
-   *             if <tt>row < 0 || row >= rows()</tt>.
+   *             if <tt>row < 0 || row >= rows</tt>.
    */
   def checkRow(row: Int)
 
@@ -637,7 +676,7 @@ trait Matrix2D[T] extends Matrix[T] {
    * Sanity check for row size to be within bounds.
    *
    * @throws IllegalArgumentException
-   *             if <tt>rowSize != rows()</tt>.
+   *             if <tt>rowSize != rows</tt>.
    */
   def checkRowShape(rowSize: Int)
 
@@ -645,7 +684,7 @@ trait Matrix2D[T] extends Matrix[T] {
    * Sanity check for column size to be within bounds.
    *
    * @throws IllegalArgumentException
-   *             if <tt>columnSize != columns()</tt>.
+   *             if <tt>columnSize != columns</tt>.
    */
   def checkColumnShape(columnSize: Int)
 
@@ -654,7 +693,7 @@ trait Matrix2D[T] extends Matrix[T] {
    * of columns and rows.
    *
    * @throws IllegalArgumentException
-   *             if <tt>columns() != B.columns() || rows() != B.rows()</tt>.
+   *             if <tt>columns != B.columns || rows != B.rows</tt>.
    */
   def checkShape(B: Matrix2D[T])
 
@@ -664,7 +703,7 @@ trait Matrix2D[T] extends Matrix[T] {
    *
    * @throws IllegalArgumentException
    *             if
-   *             <tt>columns() != B.columns() || rows() != B.rows() || columns() != C.columns() || rows() != C.rows()</tt>
+   *             <tt>columns != B.columns || rows != B.rows || columns != C.columns || rows != C.rows</tt>
    *             .
    */
   def checkShape(B: Matrix2D[T], C: Matrix2D[T])

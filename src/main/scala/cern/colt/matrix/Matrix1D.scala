@@ -23,7 +23,7 @@ trait Matrix1D[T] extends Matrix[T] {
    * @throws IndexOutOfBoundsException
    *             if <tt>index < 0 || index >= size()</tt>.
    */
-  protected def checkIndex(index: Int) {
+  def checkIndex(index: Int) {
     if (index < 0 || index >= size)
       throw new IndexOutOfBoundsException("Attempted to access " + toShapeString + " at index=" + index)
   }
@@ -35,7 +35,7 @@ trait Matrix1D[T] extends Matrix[T] {
    *             if <tt>! (0 <= indexes[i] < size())</tt> for any
    *             i=0..indexes.length()-1.
    */
-  protected def checkIndexes(indexes: Array[Int]) {
+  def checkIndexes(indexes: Array[Int]) {
     var i = indexes.length
     while (i >= 0) {
       val index = indexes(i)
@@ -52,7 +52,7 @@ trait Matrix1D[T] extends Matrix[T] {
    * @throws IndexOutOfBoundsException
    *             if <tt>index<0 || index+width>size()</tt>.
    */
-  protected def checkRange(index: Int, width: Int) {
+  def checkRange(index: Int, width: Int) {
     if (index < 0 || index + width > size)
       throw new IndexOutOfBoundsException("index: " + index + ", width: " + width + ", size=" + size)
   }

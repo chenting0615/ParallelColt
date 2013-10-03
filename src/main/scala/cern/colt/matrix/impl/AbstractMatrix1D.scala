@@ -1,8 +1,8 @@
 package cern.colt.matrix.impl
 
 import cern.colt.function.{Procedure2, Procedure1}
-import it.unimi.dsi.fastutil.ints.IntArrayList
 import cern.colt.matrix._
+import cern.colt.list.impl.ArrayList
 
 /**
  * Abstract base class for 1-d matrices (aka <i>vectors</i>) holding objects or
@@ -30,7 +30,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    * @throws IndexOutOfBoundsException
    *             if <tt>index < 0 || index >= size()</tt>.
    */
-  override protected def checkIndex(index: Int) {
+  override def checkIndex(index: Int) {
     if (index < 0 || index >= sizeVar)
       throw new IndexOutOfBoundsException("Attempted to access " + toShapeString + " at index=" + index)
   }
@@ -42,7 +42,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    *             if <tt>! (0 <= indexes[i] < size())</tt> for any
    *             i=0..indexes.length()-1.
    */
-  override protected def checkIndexes(indexes: Array[Int]) {
+  override def checkIndexes(indexes: Array[Int]) {
     var i = indexes.length
     while (i >= 0) {
       val index = indexes(i)
@@ -59,7 +59,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    * @throws IndexOutOfBoundsException
    *             if <tt>index<0 || index+width>size()</tt>.
    */
-  override protected def checkRange(index: Int, width: Int) {
+  override def checkRange(index: Int, width: Int) {
     if (index < 0 || index + width > sizeVar)
       throw new IndexOutOfBoundsException("index: " + index + ", width: " + width + ", size=" + sizeVar)
   }
@@ -169,6 +169,19 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
   }
 
   /**
+   * Returns whether all cells are equal to the given value.
+   *
+   * @param value
+   * the value to test against, within the given tolerance.
+   * @return <tt>true</tt> if all cells are equal to the given value,
+   *         <tt>false</tt> otherwise.
+   */
+  def everyCellEquals(value: T, tolerance: Double): Boolean = {
+    for (i <- 0 until size.toInt)
+      if (getQuick(i).asInstanceOf[Double] - value.asInstanceOf[Double] > tolerance) return false
+    true
+  }
+  /**
    * Compares this object against the specified object. The result is
    * <code>true</code> if and only if the argument is not <code>null</code>
    * and is at least a <code>AbstractMatrix1D</code> object that has the same
@@ -187,6 +200,37 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
     val other = obj.asInstanceOf[AbstractMatrix1D[T]]
     if (size != other.size) return false
     for (i <- 0 until size.toInt)  if (getQuick(i) != other.getQuick(i)) return false
+    true
+  }
+
+  /**
+   * Compares this object against the specified object. The result is
+   * <code>true</code> if and only if the argument is not <code>null</code>
+   * and is  a <code>Matrix</code> of the same dimensions (rows, columns, etc.)
+   * and type [T] as the receiver and has the same values at
+   * the same coordinates within the given tolerance.
+   *
+   * @param other
+   * the object to compare with.
+   * @return <code>true</code> if the objects are the same within the given tolerance <code>false</code>
+   *         otherwise.
+   */
+  def equals(other: Matrix[T], tolerance: Double): Boolean = {
+    if (tolerance == 0.0)
+      return equals(other)
+    if (other == null)
+      return false
+    if (other == this)
+      return true
+    if ( ! other.isInstanceOf[Matrix1D[T]])
+      return false
+
+    val other1D = other.asInstanceOf[Matrix1D[T]]
+    if (other1D.size != sizeVar)
+      return false
+    for(i <- 0 until sizeVar) {
+      if (getQuick(i).asInstanceOf[Double] - other1D.getQuick(i).asInstanceOf[Double] > tolerance) return false
+    }
     true
   }
 
@@ -253,9 +297,10 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    * @return the new view.
    */
   def viewSelection(condition: Procedure1[T]): Matrix1D[T] = {
-    val matches = new IntArrayList()
+    val matches = new ArrayList[Int](size.toInt)
     for (i <- 0 until size.toInt) if (condition.apply(getQuick(i))) matches.add(i)
-    viewSelection(matches.toIntArray)
+    matches.trimToSize()
+    viewSelection(matches.elements())
   }
 
   /**
@@ -289,9 +334,10 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    * @return the new view.
    */
   def viewSelection(condition: Procedure2[Int, T]): Matrix1D[T] = {
-    val matches = new IntArrayList()
+    val matches = new ArrayList[Int](size.toInt)
     for (i <- 0 until size.toInt) if (condition.apply(i, getQuick(i))) matches.add(i)
-    viewSelection(matches.toIntArray)
+    matches.trimToSize()
+    viewSelection(matches.elements())
   }
 
   override def forEachNonZero(function: Function2[Int, T, T]) = {
@@ -307,11 +353,15 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
   }
 
   abstract class AbstractIndexIterator1D extends IndexIterator1D[T] {
-    var indexVar = -1
+    var indexVar = 0
+    if ( ! checkIndex() )
+      increment()
 
-    def checkIndex(): Boolean
+    protected def checkIndex(): Boolean
 
-    def hasNext: Boolean = {
+    def hasValue: Boolean = checkIndex()
+
+    def increment(): Boolean = {
       while(indexVar < sizeVar-1) {
         indexVar += 1
         if (checkIndex())
@@ -322,7 +372,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
 
     def index: Int = indexVar
 
-    def next(): T = getQuick(indexVar)
+    def value: T = getQuick(indexVar)
   }
 
   /**
@@ -384,12 +434,4 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
   def getFactory: MatrixFactory = null
 
   protected def setFactory(f: MatrixFactory) {}
-
-  /**
-   * @return Return the algebra object with matrix operations for use with this
-   *         matrix.
-   */
-  def getAlgebra: MatrixAlgebra = null
-
-  def setAlgebra(m: MatrixAlgebra) {}
 }

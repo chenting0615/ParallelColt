@@ -46,12 +46,11 @@ object Arrays {
    *
    * @return a string representation of the specified array.
    */
-  def toString[T](array: Array[T]): String = {
+  def toString[T](array: Array[T], maxIndex: Int): String = {
     val buf = new StringBuffer()
     buf.append("[")
-    val maxIndex = array.length - 1
     var i = 0
-    while (i <= maxIndex) {
+    while (i < maxIndex) {
       buf.append(array(i))
       if (i < maxIndex) buf.append(", ")
       i += 1

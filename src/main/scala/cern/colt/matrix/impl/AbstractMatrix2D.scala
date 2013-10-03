@@ -1,8 +1,8 @@
 package cern.colt.matrix.impl
 
-import it.unimi.dsi.fastutil.ints.IntArrayList
-import cern.colt.function.Procedure3
+import cern.colt.function.{Matrix1DProcedure, Procedure3}
 import cern.colt.matrix._
+import cern.colt.list.impl.ArrayList
 
 /**
  * Abstract base class for 2-d matrices holding objects or primitive data types
@@ -42,7 +42,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
   def rows: Int = rowsVar
 
   /**
-   * Returns the number of cells which is <tt>rows()*columns()</tt>.
+   * Returns the number of cells which is <tt>rows*columns</tt>.
    */
   override def size: Long = rowsVar * columnsVar
 
@@ -52,7 +52,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    *
    * @throws IndexOutOfBoundsException
    *             if
-   *             <tt>column<0 || width<0 || column+width>columns() || row<0 || height<0 || row+height>rows()</tt>
+   *             <tt>column<0 || width<0 || column+width>columns || row<0 || height<0 || row+height>rows</tt>
    */
   def checkBox(row: Int, column: Int, height: Int, width: Int) {
     if (column < 0 || width < 0 || column + width > columnsVar ||
@@ -66,7 +66,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * Sanity check for operations requiring a column index to be within bounds.
    *
    * @throws IndexOutOfBoundsException
-   *             if <tt>column < 0 || column >= columns()</tt>.
+   *             if <tt>column < 0 || column >= columns</tt>.
    */
   def checkColumn(column: Int) {
     if (column < 0 || column >= columnsVar)
@@ -77,7 +77,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * Sanity check for row size to be within bounds.
    *
    * @throws IndexOutOfBoundsException
-   *             if <tt>rowIdx != rows()</tt>.
+   *             if <tt>rowIdx != rows</tt>.
    */
   def checkRowShape(rowIdx: Int) {
     if (rowIdx != rowsVar)
@@ -88,7 +88,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * Sanity check for column size to be within bounds.
    *
    * @throws IndexOutOfBoundsException
-   *             if <tt>colIdx != columns()</tt>.
+   *             if <tt>colIdx != columns</tt>.
    */
   def checkColumnShape(colIdx: Int) {
     if (colIdx != columnsVar)
@@ -99,7 +99,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * Sanity check for operations requiring a row index to be within bounds.
    *
    * @throws IndexOutOfBoundsException
-   *             if <tt>row < 0 || row >= rows()</tt>.
+   *             if <tt>row < 0 || row >= rows</tt>.
    */
   def checkRow(row: Int) {
     if (row < 0 || row >= rowsVar)
@@ -110,7 +110,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * Checks whether indexes are legal and throws an exception, if necessary.
    *
    * @throws IndexOutOfBoundsException
-   *             if <tt>! (0 <= indexes[i] < columns())</tt> for any
+   *             if <tt>! (0 <= indexes[i] < columns)</tt> for any
    *             i=0..indexes.length()-1.
    */
   protected def checkColumnIndexes(indexes: Array[Int]) {
@@ -124,7 +124,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * Checks whether indexes are legal and throws an exception, if necessary.
    *
    * @throws IndexOutOfBoundsException
-   *             if <tt>! (0 <= indexes[i] < rows())</tt> for any
+   *             if <tt>! (0 <= indexes[i] < rows)</tt> for any
    *             i=0..indexes.length()-1.
    */
   def checkRowIndexes(indexes: Array[Int]) {
@@ -139,7 +139,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * of columns and rows.
    *
    * @throws IllegalArgumentException
-   *             if <tt>columns() != B.columns() || rows() != B.rows()</tt>.
+   *             if <tt>columns != B.columns || rows != B.rows</tt>.
    */
   def checkShape(B: Matrix2D[T]) {
     if (columnsVar != B.columns || rowsVar != B.rows)
@@ -152,7 +152,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    *
    * @throws IllegalArgumentException
    *             if
-   *             <tt>columns() != B.columns() || rows() != B.rows() || columns() != C.columns() || rows() != C.rows()</tt>
+   *             <tt>columns != B.columns || rows != B.rows || columns != C.columns || rows != C.rows</tt>
    *             .
    */
   def checkShape(B: Matrix2D[T], C: Matrix2D[T]) {
@@ -186,11 +186,11 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    *            the values to be filled into the cells.
    * @return <tt>this</tt> (for convenience only).
    * @throws IllegalArgumentException
-   *             if <tt>values.length != rows()*columns()</tt>.
+   *             if <tt>values.length != rows*columns</tt>.
    */
   def assign(values: Array[T]) = {
     if (values.length < size)
-      throw new IllegalArgumentException("Must have same length: length=" + values.length + " rows()*columns()=" + rows * columns)
+      throw new IllegalArgumentException("Must have same length: length=" + values.length + " rows*columns=" + rows * columns)
     var idx = 0
     for (r <- 0 until rowsVar; c <- 0 until columnsVar) {
       setQuick(r, c, values(idx))
@@ -212,16 +212,16 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * @return <tt>this</tt> (for convenience only).
    * @throws IllegalArgumentException
    *             if
-   *             <tt>values.length != rows() || for any 0 &lt;= row &lt; rows(): values[row].length != columns()</tt>
+   *             <tt>values.length != rows || for any 0 &lt;= row &lt; rows: values[row].length != columns</tt>
    *             .
    */
   def assign(values: Array[Array[T]]) = {
     if (values.length < rowsVar)
-      throw new IllegalArgumentException("Must have same number of rows: rows=" + values.length + "rows()=" + rows)
+      throw new IllegalArgumentException("Must have same number of rows: rows=" + values.length + "rows=" + rows)
     for (r <- 0 until rowsVar) {
       val currentRow = values(r)
       if (currentRow.length < columnsVar)
-        throw new IllegalArgumentException("Must have same number of columns in every row: columns=" + currentRow.length + "columns()=" + columns)
+        throw new IllegalArgumentException("Must have same number of columns in every row: columns=" + currentRow.length + "columns=" + columns)
       for (c <- 0 until columnsVar) {
         setQuick(r, c, currentRow(c))
       }
@@ -243,7 +243,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * @return <tt>this</tt> (for convenience only).
    * @throws IllegalArgumentException
    *             if
-   *             <tt>columns() != other.columns() || rows() != other.rows()</tt>
+   *             <tt>columns != other.columns || rows != other.rows</tt>
    */
   def assign(other: Matrix2D[T]) = {
     if (other != this) {
@@ -283,6 +283,20 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
   }
 
   /**
+   * Returns whether all cells are equal to the given value.
+   *
+   * @param value
+   * the value to test against, within the given tolerance.
+   * @return <tt>true</tt> if all cells are equal to the given value,
+   *         <tt>false</tt> otherwise.
+   */
+  def everyCellEquals(value: T, tolerance: Double): Boolean = {
+    for (r <- 0 until rowsVar; c <- 0 until columnsVar)
+      if (getQuick(r, c).asInstanceOf[Double] - value.asInstanceOf[Double] > tolerance) return false
+    true
+  }
+
+  /**
    * Compares this object against the specified object. The result is
    * <code>true</code> if and only if the argument is not <code>null</code>
    * and is at least a <code>Matrix2D</code> object that has the same
@@ -303,6 +317,41 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
     for (r <- 0 until rowsVar; c <- 0 until columnsVar)
       if (getQuick(r, c) != other.getQuick(r, c)) return false
 
+    true
+  }
+
+  /**
+   * Compares this object against the specified object. The result is
+   * <code>true</code> if and only if the argument is not <code>null</code>
+   * and is  a <code>Matrix</code> of the same dimensions (rows, columns, etc.)
+   * and type [T] as the receiver and has the same values at
+   * the same coordinates within the given tolerance.
+   *
+   * @param other
+   * the object to compare with.
+   * @return <code>true</code> if the objects are the same within the given tolerance <code>false</code>
+   *         otherwise.
+   */
+  def equals(other: Matrix[T], tolerance: Double): Boolean = {
+    if (tolerance == 0.0)
+      return equals(other)
+    if (other == null)
+      return false
+    if (other == this)
+      return true
+    if ( ! other.isInstanceOf[Matrix2D[T]])
+      return false
+
+    val other2D = other.asInstanceOf[Matrix2D[T]]
+    if (other2D.rows != rowsVar)
+      return false
+    if (other2D.columns != columnsVar)
+      return false
+    for(row <- 0 until rowsVar) {
+      for(col <- 0 until columnsVar) {
+        if (getQuick(row, col).asInstanceOf[Double] - other2D.getQuick(row, col).asInstanceOf[Double] > tolerance) return false
+      }
+    }
     true
   }
 
@@ -440,9 +489,10 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * @return the new view.
    */
   def viewSelection(condition: Matrix1DProcedure[T]): Matrix2D[T] = {
-    val matches = new IntArrayList()
+    val matches = new ArrayList[Int](rows)
     for (i <- 0 until rows if condition.apply(viewRow(i))) matches.add(i)
-    viewSelection(matches.toIntArray, null)
+    matches.trimToSize()
+    viewSelection(matches.elements(), null)
   }
 
   /**
@@ -451,43 +501,66 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    */
   def isRowMajor: Boolean = true
 
-  abstract class AbstractIterator2D extends IndexIterator2D[T] {
-    var rowIdx = -1
-    var colIdx = columnsVar+1
+  abstract class AbstractIterator2D(byRows: Boolean) extends IndexIterator2D[T] {
+    var rowIdx = 0
+    var colIdx = 0
     var maxRowIdx = rowsVar
     var maxColumnIdx = columnsVar
+    if ( ! checkIndex() )
+      increment()
 
     protected def checkIndex(): Boolean
 
-    private def incrIndex() {
-      if (colIdx < maxColumnIdx-1)
-        colIdx += 1
-      else if (rowIdx < maxRowIdx-1) {
-        rowIdx += 1
-        colIdx = 0
+    def hasValue: Boolean = checkIndex()
+
+    private def incrIndex(): Boolean = {
+      if (byRows) {
+        if (colIdx < maxColumnIdx-1) {
+          colIdx += 1
+          true
+        }
+        else if (rowIdx < maxRowIdx-1) {
+          rowIdx += 1
+          colIdx = 0
+          true
+        }
+        else
+          false
+      }
+      else {
+        if (rowIdx < maxRowIdx-1) {
+          rowIdx += 1
+          true
+        }
+        else if (colIdx < maxColumnIdx-1) {
+          colIdx += 1
+          rowIdx = 0
+          true
+        }
+        else
+          false
       }
     }
 
-    def hasNext: Boolean = {
-      while(rowIdx < maxRowIdx-1 || (rowIdx == maxRowIdx-1 && colIdx < maxColumnIdx-1)) {
-        incrIndex()
+    def increment(): Boolean = {
+      while(incrIndex()) {
         if (checkIndex())
           return true
       }
       false
     }
 
-    def next(): T = getQuick(rowIdx, colIdx)
-
     def row: Int = rowIdx
 
     def column: Int = colIdx
+
+    def value: T = getQuick(rowIdx, colIdx)
   }
 
   /**
    * Returns an iterator that can traverse all non-zero values in the matrix.
    */
-  def iteratorNonZeros: IndexIterator2D[T] = new AbstractIterator2D {
+  def iteratorNonZeros(byRows: Boolean): IndexIterator2D[T] = new AbstractIterator2D(byRows) {
     protected def checkIndex(): Boolean = getQuick(rowIdx, colIdx) != 0
   }
 
@@ -495,7 +568,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * Returns an iterator that can traverse all non-zero values in the matrix
    * which return true from the given condition.
    */
-  def iteratorNonZeros(condition: Procedure3[Int, Int, T]): IndexIterator2D[T] = new AbstractIterator2D {
+  def iteratorNonZeros(byRows: Boolean, condition: Procedure3[Int, Int, T]): IndexIterator2D[T] = new AbstractIterator2D(byRows) {
     protected def checkIndex(): Boolean = {
       val value = getQuick(rowIdx, colIdx)
       value != 0 && condition(rowIdx, colIdx, value)
@@ -505,7 +578,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
   /**
    * Returns an iterator that can traverse all values in the matrix.
    */
-  def iteratorAllCells: IndexIterator2D[T] = new AbstractIterator2D {
+  def iteratorAllCells: IndexIterator2D[T] = new AbstractIterator2D(true) {
     protected def checkIndex(): Boolean = true
   }
 
@@ -513,7 +586,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * Returns an iterator that can traverse all values in the matrix
    * which return true from the given condition.
    */
-  def iterator(condition: Procedure3[Int, Int, T]): IndexIterator2D[T] = new AbstractIterator2D {
+  def iterator(condition: Procedure3[Int, Int, T]): IndexIterator2D[T] = new AbstractIterator2D(true) {
     protected def checkIndex(): Boolean = {
       val value = getQuick(rowIdx, colIdx)
       condition(rowIdx, colIdx, value)
@@ -523,7 +596,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
   /**
    * Returns an iterator that can traverse all values in the given row of the matrix
    */
-  def iteratorNonZerosForRow(row: Int): IndexIterator2D[T] = new AbstractIterator2D {
+  def iteratorNonZerosInRow(row: Int): IndexIterator2D[T] = new AbstractIterator2D(true) {
     rowIdx = row
     maxRowIdx = math.min(row+1, rowsVar)
 
@@ -536,7 +609,7 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
   /**
    * Returns an iterator that can traverse all values in the given row of the matrix
    */
-  def iteratorNonZerosForColumn(column: Int): IndexIterator2D[T] = new AbstractIterator2D {
+  def iteratorNonZerosInColumn(column: Int): IndexIterator2D[T] = new AbstractIterator2D(false) {
     colIdx = column
     maxColumnIdx = math.min(column+1, columnsVar)
 
@@ -585,9 +658,10 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * @return the new view.
    */
   def viewRowSelection(condition: Matrix1DProcedure[T]) = {
-    val matches = new IntArrayList()
+    val matches = new ArrayList[Int]()
     for (i <- 0 until rowsVar) if (condition.apply(viewRow(i))) matches.add(i)
-    viewSelection(matches.toIntArray, null)
+    matches.trimToSize()
+    viewSelection(matches.elements(), null)
   }
 
   /**
@@ -629,9 +703,10 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
    * @return the new view.
    */
   def viewColumnSelection(condition: Matrix1DProcedure[T]) = {
-    val matches = new IntArrayList()
+    val matches = new ArrayList[Int]()
     for (i <- 0 until columnsVar) if (condition.apply(viewColumn(i))) matches.add(i)
-    viewSelection(null, matches.toIntArray)
+    matches.trimToSize()
+    viewSelection(null, matches.elements())
   }
 
   /**
@@ -709,13 +784,5 @@ abstract class AbstractMatrix2D[T: Manifest] extends Matrix2D[T] {
   def getFactory: MatrixFactory = null
 
   protected def setFactory(f: MatrixFactory) {}
-
-  /**
-   * @return Return the algebra object with matrix operations for use with this
-   *         matrix.
-   */
-  def getAlgebra: MatrixAlgebra = null
-
-  def setAlgebra(m: MatrixAlgebra) {}
 
 }

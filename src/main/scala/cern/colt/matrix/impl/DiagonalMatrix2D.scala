@@ -1,6 +1,6 @@
 package cern.colt.matrix.impl
 
-import cern.colt.matrix.{impl, Matrix2D}
+import cern.colt.matrix.{Matrix, Matrix2D}
 
 /**
  * Diagonal 2-d matrix holding <tt>double</tt> elements. First see the <a
@@ -12,7 +12,13 @@ import cern.colt.matrix.{impl, Matrix2D}
  */
 @specialized
 @SerialVersionUID(1L)
-class DiagonalMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
+class DiagonalMatrix2D[T: Manifest](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
+
+  def this(rowsAndColumns: Int, value: T) {
+    this(rowsAndColumns, rowsAndColumns, 0)
+    for(i <- 0 until rowsAndColumns)
+      setQuick(i, i, value)
+  }
 
   if (dindex < -rows + 1 || dindex > columns - 1)
     throw new IllegalArgumentException("index is out of bounds")
@@ -87,7 +93,7 @@ class DiagonalMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int, pr
 
   override def assign(values: Array[Array[T]]) = {
     if (values.length != rows)
-      throw new IllegalArgumentException("Must have same number of rows: rows=" + values.length + "rows()=" + rows)
+      throw new IllegalArgumentException("Must have same number of rows: rows=" + values.length + "rows=" + rows)
     var r: Int = 0
     var c: Int = 0
     if (dindex >= 0) {
@@ -100,7 +106,7 @@ class DiagonalMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int, pr
     }
     for (i <- 0 until dlength) {
       if (values(i).length != columns)
-        throw new IllegalArgumentException("Must have same number of columns in every row: columns=" + values(r).length + "columns()=" + columns)
+        throw new IllegalArgumentException("Must have same number of columns in every row: columns=" + values(r).length + "columns=" + columns)
       elementsVar(i) = values(r)(c)
       r += 1
       c += 1
@@ -133,6 +139,23 @@ class DiagonalMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int, pr
   override def everyCellEquals(value: T): Boolean = {
     for (r <- 0 until dlength) {
       if (elementsVar(r) != value)
+        return false
+    }
+    true
+  }
+
+
+  /**
+   * Returns whether all cells are equal to the given value.
+   *
+   * @param value
+   * the value to test against, within the given tolerance.
+   * @return <tt>true</tt> if all cells are equal to the given value,
+   *         <tt>false</tt> otherwise.
+   */
+  override def everyCellEquals(value: T, tolerance: Double): Boolean = {
+    for (r <- 0 until dlength) {
+      if (elementsVar(r).asInstanceOf[Double] - value.asInstanceOf[Double] > tolerance)
         return false
     }
     true
@@ -209,9 +232,39 @@ class DiagonalMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int, pr
   }
 
   override def like2D(rows: Int, columns: Int) = {
-    implicit val f: impl.FastUtilMap[Long,T] = null
     new SparseHashMatrix2D[T](rows, columns)
   }
 
-  override def like1D(size: Int) = new SparseMatrix1D[T](size)
+  override def like1D(size: Int) = new SparseHashMatrix1D[T](size)
+
+  /**
+   * Compares this object against the specified object. The result is
+   * <code>true</code> if and only if the argument is not <code>null</code>
+   * and is  a <code>Matrix</code> of the same dimensions (rows, columns, etc.)
+   * and type [T] as the receiver and has the same values at
+   * the same coordinates within the given tolerance.
+   *
+   * @param mtrx
+   * the object to compare with.
+   * @return <code>true</code> if the objects are the same within the given tolerance <code>false</code>
+   *         otherwise.
+   */
+  override def equals(mtrx: Matrix[T], tolerance: Double): Boolean = {
+    if (tolerance == 0.0)
+      return equals(mtrx)
+    mtrx match {
+      case other: DiagonalMatrix2D[T] => {
+        if (columns != other.columns || rows != other.rows) return false
+        if (dindex != other.dindex || dlength != other.dlength) return false
+
+        for (r <- 0 until dlength) {
+          if (elementsVar(r).asInstanceOf[Double] - other.elementsVar(r).asInstanceOf[Double] > tolerance)
+            return false
+        }
+        true
+      }
+      case _ => super.equals(mtrx, tolerance)
+    }
+    true
+  }
 }

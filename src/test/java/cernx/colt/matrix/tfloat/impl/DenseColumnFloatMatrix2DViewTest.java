@@ -7,9 +7,9 @@ public class DenseColumnFloatMatrix2DViewTest extends DenseColumnFloatMatrix2DTe
     }
 
     protected void createMatrices() throws Exception {
-        A = new DenseColumnFloatMatrix2D(NCOLUMNS, NROWS).viewDice();
-        B = new DenseColumnFloatMatrix2D(NCOLUMNS, NROWS).viewDice();
-        Bt = new DenseColumnFloatMatrix2D(NROWS, NCOLUMNS).viewDice();
+        A = new DenseColumnFloatMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        B = new DenseColumnFloatMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        Bt = new DenseColumnFloatMatrix2D(NROWS, NCOLUMNS).viewTranspose();
     }
 
 }

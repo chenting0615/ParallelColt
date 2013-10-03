@@ -1,13 +1,12 @@
 package cern.colt.matrix.tdouble.impl
 
-//remove if not needed
-import scala.collection.JavaConversions._
+import cern.colt.matrix.MatrixTypes.SparseCCMDoubleMatrix2D
 
 class SparseCCMDoubleMatrix2DViewTest(arg0: String) extends SparseCCMDoubleMatrix2DTest(arg0) {
 
-  protected def createMatrices() {
-    A = new SparseCCMDoubleMatrix2D(NCOLUMNS, NROWS).viewDice()
-    B = new SparseCCMDoubleMatrix2D(NCOLUMNS, NROWS).viewDice()
-    Bt = new SparseCCMDoubleMatrix2D(NROWS, NCOLUMNS).viewDice()
+  override protected def createMatrices() {
+    A = new SparseCCMDoubleMatrix2D(NCOLUMNS, NROWS).viewTranspose()
+    B = new SparseCCMDoubleMatrix2D(NCOLUMNS, NROWS).viewTranspose()
+    Bt = new SparseCCMDoubleMatrix2D(NROWS, NCOLUMNS).viewTranspose()
   }
 }

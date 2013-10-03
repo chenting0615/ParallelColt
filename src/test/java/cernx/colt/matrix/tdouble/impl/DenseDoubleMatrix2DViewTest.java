@@ -7,9 +7,9 @@ public class DenseDoubleMatrix2DViewTest extends DenseDoubleMatrix2DTest {
     }
 
     protected void createMatrices() throws Exception {
-        A = new DenseDoubleMatrix2D(NCOLUMNS, NROWS).viewDice();
-        B = new DenseDoubleMatrix2D(NCOLUMNS, NROWS).viewDice();
-        Bt = new DenseDoubleMatrix2D(NROWS, NCOLUMNS).viewDice();
+        A = new DenseDoubleMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        B = new DenseDoubleMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        Bt = new DenseDoubleMatrix2D(NROWS, NCOLUMNS).viewTranspose();
     }
 
 }

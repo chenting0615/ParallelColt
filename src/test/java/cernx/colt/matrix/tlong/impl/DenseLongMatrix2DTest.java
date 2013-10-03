@@ -21,8 +21,8 @@ public class DenseLongMatrix2DTest extends LongMatrix2DTest {
         }
         A.assign(expected);
         int idx = 0;
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 assertEquals(0, Math.abs(expected[idx++] - A.getQuick(r, c)));
             }
         }

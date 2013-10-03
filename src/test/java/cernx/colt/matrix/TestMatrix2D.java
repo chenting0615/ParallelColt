@@ -138,7 +138,7 @@ class TestMatrix2D {
         System.out.println("\nview2=" + view2);
         DoubleMatrix2D view3 = view2.viewRowFlip();
         System.out.println("\nview3=" + view3);
-        view3.assign(Factory2D.ascending(view3.rows(), view3.columns()));
+        view3.assign(Factory2D.ascending(view3.rows, view3.columns));
         // Basic.ascending(view3);
         System.out.println("\nview3=" + view3);
 
@@ -905,7 +905,7 @@ class TestMatrix2D {
         DoubleFactory2D f = DoubleFactory2D.dense;
         DoubleMatrix1D vector = new DenseDoubleMatrix1D(data);
         DoubleMatrix2D matrix = f.make(arrMatrix);
-        DoubleMatrix1D res = vector.like(matrix.rows());
+        DoubleMatrix1D res = vector.like(matrix.rows);
 
         matrix.zMult(vector, res);
 
@@ -920,7 +920,7 @@ class TestMatrix2D {
 
         DoubleMatrix1D vector = new DenseDoubleMatrix1D(data);
         DoubleMatrix2D matrix = f.make(arrMatrix);
-        DoubleMatrix1D res = vector.like(matrix.rows());
+        DoubleMatrix1D res = vector.like(matrix.rows);
 
         matrix.zMult(vector, res);
 
@@ -1205,7 +1205,7 @@ class TestMatrix2D {
         System.out.println("\n" + inv);
         DoubleMatrix2D B = A.zMult(inv, null);
         System.out.println(B);
-        if (!(B.equals(DoubleFactory2D.dense.identity(A.rows())))) {
+        if (!(B.equals(DoubleFactory2D.dense.identity(A.rows)))) {
             throw new InternalError();
         }
     }
@@ -1422,9 +1422,9 @@ class TestMatrix2D {
         // master.viewPart(2,0,2,3).assign(2); // set [2,1] .. [3,3] to 2
         // System.out.println("\n"+master);
 
-        DoubleMatrix2D view1 = master.viewDice();
+        DoubleMatrix2D view1 = master.viewTranspose();
         System.out.println("view1=" + view1);
-        DoubleMatrix2D view2 = view1.viewDice();
+        DoubleMatrix2D view2 = view1.viewTranspose();
         System.out.println("view2=" + view2);
 
         view2.assign(-1);
@@ -1534,10 +1534,10 @@ class TestMatrix2D {
 
         DoubleMatrix2D H = new DenseDoubleMatrix2D(vals); // see values
         // below...
-        System.out.println("\nHplus=" + H.viewDice().zMult(H, null));
+        System.out.println("\nHplus=" + H.viewTranspose().zMult(H, null));
 
-        DoubleMatrix2D Hplus = DenseDoubleAlgebra.DEFAULT.inverse(H.viewDice().zMult(H, null))
-                .zMult(H.viewDice(), null);
+        DoubleMatrix2D Hplus = DenseDoubleAlgebra.DEFAULT.inverse(H.viewTranspose().zMult(H, null))
+                .zMult(H.viewTranspose(), null);
         Hplus.assign(cern.jet.math.tdouble.DoubleFunctions.round(1.0E-10));
         System.out.println("\nHplus=" + Hplus);
 

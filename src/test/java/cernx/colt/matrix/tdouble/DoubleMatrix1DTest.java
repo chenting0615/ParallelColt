@@ -1,11 +1,9 @@
 package cernx.colt.matrix.tdouble;
 
-import cern.colt.matrix.MatrixClasses.DoubleMatrix1D;
+import cern.colt.matrix.MatrixTypes.DoubleMatrix1D
 import cern.jet.math.tdouble.DoubleFunctions;
-import edu.emory.mathcs.utils.ConcurrencyUtils;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import junit.framework.TestCase;
+import edu.emory.mathcs.utils.ConcurrencyUtils
+import junit.framework.TestCase
 import org.junit.Test;
 
 public abstract class DoubleMatrix1DTest extends TestCase {

@@ -18,7 +18,7 @@ trait Matrix[T] extends cern.colt.PersistentObject {
   protected var isNoView: Boolean = true
 
   /**
-   * TODO: This returns a Long because rows()Xcolumns() can be >= 2**32.  However, this doesn't make sense
+   * TODO: This returns a Long because rowsXcolumns can be >= 2**32.  However, this doesn't make sense
    * for 1D matrices.  Should we put this in Matrix1D and Matrix2D instead?
    *
    * Returns the number of cells in the matrix.
@@ -141,20 +141,6 @@ trait Matrix[T] extends cern.colt.PersistentObject {
   def setParallelStrategy(s: ParallelStrategy): Unit
 
   /**
-   * @return Return the algebra object with matrix operations for use with this
-   *         matrix.
-   * TODO: Should this be available as a type class instead?
-   * TODO: Is there a way to make the implicit type class lookup resolve to this
-   * method?
-   */
-  def getAlgebra: MatrixAlgebra
-
-  def setAlgebra(m: MatrixAlgebra): Unit
-
-  /**
-   * Returns <tt>true</tt> if both matrices share at least one identical cell.
-   */
-  /**
    * Compares this object against the specified object. The result is
    * <code>true</code> if and only if the argument is not <code>null</code>
    * and is at least a <code>Matrix</code> of the same dimensions (rows, columns, etc.)
@@ -169,6 +155,20 @@ trait Matrix[T] extends cern.colt.PersistentObject {
   def equals(obj: Any): Boolean
 
   /**
+   * Compares this object against the specified object. The result is
+   * <code>true</code> if and only if the argument is not <code>null</code>
+   * and is  a <code>Matrix</code> of the same dimensions (rows, columns, etc.)
+   * and type [T] as the receiver and has the same values at
+   * the same coordinates within the given tolerance.
+   *
+   * @param other
+   *            the object to compare with.
+   * @return <code>true</code> if the objects are the same within the given tolerance <code>false</code>
+   *         otherwise.
+   */
+  def equals(other: Matrix[T], tolerance: Double): Boolean
+
+  /**
    * Returns whether all cells are equal to the given value.
    *
    * @param value
@@ -177,6 +177,16 @@ trait Matrix[T] extends cern.colt.PersistentObject {
    *         <tt>false</tt> otherwise.
    */
   def everyCellEquals(value: T): Boolean
+
+  /**
+   * Returns whether all cells are equal to the given value.
+   *
+   * @param value
+   *            the value to test against, within the given tolerance.
+   * @return <tt>true</tt> if all cells are equal to the given value,
+   *         <tt>false</tt> otherwise.
+   */
+  def everyCellEquals(value: T, tolerance: Double): Boolean
 
   /**
    * Returns a string representation of the receiver's shape.

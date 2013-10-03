@@ -3,6 +3,7 @@ package cern.colt.matrix
 import cern.colt.matrix.impl._
 
 object MatrixClasses {
+/*
   trait DoubleMatrix1D extends Matrix1D[Double]
   class DenseColumnDoubleMatrix2D(rows: Int, columns: Int) extends DenseColumnMatrix2D[Double](rows, columns)
   class DenseDoubleMatrix1D(size: Int) extends DenseMatrix1D[Double](size)
@@ -13,7 +14,7 @@ object MatrixClasses {
   class WrapperDoubleMatrix2D(content: Matrix2D[Double]) extends WrapperMatrix2D[Double](content)
   class SparseCCDoubleMatrix2D(rows: Int, columns: Int) extends SparseCCMatrix2D[Double](rows, columns)
   class SparseCCMDoubleMatrix2D(rows: Int, columns: Int) extends SparseCCMMatrix2D[Double](rows, columns)
-  class SparseDoubleMatrix1D(size: Int) extends SparseMatrix1D[Double](size)
+  class SparseDoubleMatrix1D(size: Int) extends SparseHashMatrix1D[Double](size)
   class SparseDoubleMatrix2D(rows: Int, columns: Int) extends SparseHashMatrix2D[Double](rows, columns)
   class SparseRCDoubleMatrix2D(rows: Int, columns: Int) extends SparseRCMatrix2D[Double](rows, columns)
   class SparseRCMDoubleMatrix2D(rows: Int, columns: Int) extends SparseRCMMatrix2D[Double](rows, columns)
@@ -27,7 +28,7 @@ object MatrixClasses {
   class WrapperFloatMatrix2D(content: Matrix2D[Float]) extends WrapperMatrix2D[Float](content)
   //class SparseCCFloatMatrix2D(rows: Int, columns: Int) extends SparseCCMatrix2D[Float](rows, columns)
   class SparseCCMFloatMatrix2D(rows: Int, columns: Int) extends SparseCCMMatrix2D[Float](rows, columns)
-  class SparseFloatMatrix1D(size: Int) extends SparseMatrix1D[Float](size)
+  class SparseFloatMatrix1D(size: Int) extends SparseHashMatrix1D[Float](size)
   class SparseFloatMatrix2D(rows: Int, columns: Int) extends SparseHashMatrix2D[Float](rows, columns)
   //class SparseRCFloatMatrix2D(rows: Int, columns: Int) extends SparseRCMatrix2D[Float](rows, columns)
   class SparseRCMFloatMatrix2D(rows: Int, columns: Int) extends SparseRCMMatrix2D[Float](rows, columns)
@@ -41,7 +42,7 @@ object MatrixClasses {
   class WrapperIntMatrix2D(content: Matrix2D[Int]) extends WrapperMatrix2D[Int](content)
   //class SparseCCIntMatrix2D(rows: Int, columns: Int) extends SparseCCMatrix2D[Int](rows, columns)
   class SparseCCMIntMatrix2D(rows: Int, columns: Int) extends SparseCCMMatrix2D[Int](rows, columns)
-  class SparseIntMatrix1D(size: Int) extends SparseMatrix1D[Int](size)
+  class SparseIntMatrix1D(size: Int) extends SparseHashMatrix1D[Int](size)
   class SparseIntMatrix2D(rows: Int, columns: Int) extends SparseHashMatrix2D[Int](rows, columns)
   //class SparseRCIntMatrix2D(rows: Int, columns: Int) extends SparseRCMatrix2D[Int](rows, columns)
   class SparseRCMIntMatrix2D(rows: Int, columns: Int) extends SparseRCMMatrix2D[Int](rows, columns)
@@ -55,7 +56,7 @@ object MatrixClasses {
   class WrapperLongMatrix2D(content: Matrix2D[Long]) extends WrapperMatrix2D[Long](content)
   //class SparseCCLongMatrix2D(rows: Int, columns: Int) extends SparseCCMatrix2D[Long](rows, columns)
   class SparseCCMLongMatrix2D(rows: Int, columns: Int) extends SparseCCMMatrix2D[Long](rows, columns)
-  class SparseLongMatrix1D(size: Int) extends SparseMatrix1D[Long](size)
+  class SparseLongMatrix1D(size: Int) extends SparseHashMatrix1D[Long](size)
   class SparseLongMatrix2D(rows: Int, columns: Int) extends SparseHashMatrix2D[Long](rows, columns)
   //class SparseRCLongMatrix2D(rows: Int, columns: Int) extends SparseRCMatrix2D[Long](rows, columns)
   class SparseRCMLongMatrix2D(rows: Int, columns: Int) extends SparseRCMMatrix2D[Long](rows, columns)
@@ -73,4 +74,5 @@ object MatrixClasses {
   //class SparseObjectMatrix2D(rows: Int, columns: Int) extends SparseHashMatrix2D[Object](rows, columns)
   //class SparseRCObjectMatrix2D(rows: Int, columns: Int) extends SparseRCMatrix2D[Object](rows, columns)
   //class SparseRCMObjectMatrix2D(rows: Int, columns: Int) extends SparseRCMMatrix2D[Object](rows, columns)
+*/
 }

@@ -1,6 +1,5 @@
 package cern.jet.math.tdouble
 
-import cern.colt.function.Function1
 import cern.colt.function.Procedure1
 import cern.colt.function.FunctionTypes.DoubleDoubleFunction
 import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
@@ -86,8 +85,6 @@ import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
  * }
  * </pre>
  *
- * <p>
- * For aliasing see {@link #functions}. Try this
  * <table>
  * <td class="PRE">
  *
@@ -169,7 +166,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.abs(a)</tt>.
    */
-  val abs = new Function1[Double]() {
+  val abs = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.abs(a)
   }
@@ -177,7 +174,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.acos(a)</tt>.
    */
-  val acos = new Function1[Double]() {
+  val acos = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.acos(a)
   }
@@ -185,7 +182,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.asin(a)</tt>.
    */
-  val asin = new Function1[Double]() {
+  val asin = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.asin(a)
   }
@@ -193,7 +190,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.atan(a)</tt>.
    */
-  val atan = new Function1[Double]() {
+  val atan = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.atan(a)
   }
@@ -201,7 +198,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.ceil(a)</tt>.
    */
-  val ceil = new Function1[Double]() {
+  val ceil = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.ceil(a)
   }
@@ -209,7 +206,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.cos(a)</tt>.
    */
-  val cos = new Function1[Double]() {
+  val cos = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.cos(a)
   }
@@ -217,7 +214,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.exp(a)</tt>.
    */
-  val exp = new Function1[Double]() {
+  val exp = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.exp(a)
   }
@@ -225,7 +222,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.floor(a)</tt>.
    */
-  val floor = new Function1[Double]() {
+  val floor = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.floor(a)
   }
@@ -233,7 +230,7 @@ object DoubleFunctions {
   /**
    * Function that returns its argument.
    */
-  val identity = new Function1[Double]() {
+  val identity = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = a
   }
@@ -241,7 +238,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>1.0 / a</tt>.
    */
-  val inv = new Function1[Double]() {
+  val inv = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = 1.0 / a
   }
@@ -249,7 +246,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.log(a)</tt>.
    */
-  val log = new Function1[Double]() {
+  val log = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.log(a)
   }
@@ -257,7 +254,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.log(a) / Math.log(2)</tt>.
    */
-  val log2 = new Function1[Double]() {
+  val log2 = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.log(a) * 1.4426950408889634
   }
@@ -265,7 +262,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>-a</tt>.
    */
-  val neg = new Function1[Double]() {
+  val neg = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = -a
   }
@@ -273,7 +270,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.rint(a)</tt>.
    */
-  val rint = new Function1[Double]() {
+  val rint = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.rint(a)
   }
@@ -281,7 +278,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>a < 0 ? -1 : a > 0 ? 1 : 0</tt>.
    */
-  val sign = new Function1[Double]() {
+  val sign = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = if (a < 0) -1 else if (a > 0) 1 else 0
   }
@@ -289,7 +286,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.sin(a)</tt>.
    */
-  val sin = new Function1[Double]() {
+  val sin = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.sin(a)
   }
@@ -297,7 +294,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.sqrt(a)</tt>.
    */
-  val sqrt = new Function1[Double]() {
+  val sqrt = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.sqrt(a)
   }
@@ -305,7 +302,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>a * a</tt>.
    */
-  val square = new Function1[Double]() {
+  val square = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = a * a
   }
@@ -313,7 +310,7 @@ object DoubleFunctions {
   /**
    * Function that returns <tt>Math.tan(a)</tt>.
    */
-  val tan = new Function1[Double]() {
+  val tan = new Function1[Double, Double]() {
 
     def apply(a: Double): Double = Math.tan(a)
   }
@@ -489,11 +486,29 @@ object DoubleFunctions {
   }
 
   /**
+   * Returns sqrt(a^2 + b^2) without under/overflow.
+   */
+  val hypot =  new DoubleDoubleFunction() {
+    def apply(a: Double, b: Double) = {
+      if (Math.abs(a) > Math.abs(b)) {
+        val r = b / a
+        Math.abs(a) * Math.sqrt(1 + r * r)
+      }
+      else if (b != 0) {
+        val r = a / b
+        Math.abs(b) * Math.sqrt(1 + r * r)
+      }
+      else
+        0.0
+    }
+  }
+
+  /**
    * Constructs a function that returns <tt>(from<=a && a<=to) ? 1 : 0</tt>.
    * <tt>a</tt> is a variable, <tt>from</tt> and <tt>to</tt> are fixed.
    */
-  def between(from: Double, to: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def between(from: Double, to: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = if (from <= a && a <= to) 1 else 0
     }
@@ -509,8 +524,8 @@ object DoubleFunctions {
    *            <tt>function.apply(c,var)</tt>.
    * @return the unary function <tt>function(c,var)</tt>.
    */
-  def bindArg1(function: DoubleDoubleFunction, c: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def bindArg1(function: DoubleDoubleFunction, c: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(`var`: Double): Double = function.apply(c, `var`)
     }
@@ -526,8 +541,8 @@ object DoubleFunctions {
    *            <tt>function.apply(var,c)</tt>.
    * @return the unary function <tt>function(var,c)</tt>.
    */
-  def bindArg2(function: DoubleDoubleFunction, c: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def bindArg2(function: DoubleDoubleFunction, c: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(`var`: Double): Double = function.apply(`var`, c)
     }
@@ -544,7 +559,7 @@ object DoubleFunctions {
    *            a unary function.
    * @return the binary function <tt>f( g(a), h(b) )</tt>.
    */
-  def chain(f: DoubleDoubleFunction, g: Function1[Double], h: Function1[Double]): DoubleDoubleFunction = {
+  def chain(f: DoubleDoubleFunction, g: Function1[Double, Double], h: Function1[Double, Double]): DoubleDoubleFunction = {
     new DoubleDoubleFunction() {
 
       def apply(a: Double, b: Double): Double = f.apply(g.apply(a), h.apply(b))
@@ -560,7 +575,7 @@ object DoubleFunctions {
    *            a binary function.
    * @return the unary function <tt>g( h(a,b) )</tt>.
    */
-  def chain(g: Function1[Double], h: DoubleDoubleFunction): DoubleDoubleFunction = {
+  def chain(g: Function1[Double, Double], h: DoubleDoubleFunction): DoubleDoubleFunction = {
     new DoubleDoubleFunction() {
 
       def apply(a: Double, b: Double): Double = g.apply(h.apply(a, b))
@@ -576,8 +591,8 @@ object DoubleFunctions {
    *            a unary function.
    * @return the unary function <tt>g( h(a) )</tt>.
    */
-  def chain(g: Function1[Double], h: Function1[Double]): Function1[Double] = {
-    new Function1[Double]() {
+  def chain(g: Function1[Double, Double], h: Function1[Double, Double]): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = g.apply(h.apply(a))
     }
@@ -587,8 +602,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>a < b ? -1 : a > b ? 1 : 0</tt>.
    * <tt>a</tt> is a variable, <tt>b</tt> is fixed.
    */
-  def compare(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def compare(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = if (a < b) -1 else if (a > b) 1 else 0
     }
@@ -597,8 +612,8 @@ object DoubleFunctions {
   /**
    * Constructs a function that returns the constant <tt>c</tt>.
    */
-  def constant(c: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def constant(c: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = c
     }
@@ -708,7 +723,7 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>a / b</tt>. <tt>a</tt> is a
    * variable, <tt>b</tt> is fixed.
    */
-  def div(constant: Double): Function1[Double] = new Function1[Double]() {
+  def div(constant: Double): Function1[Double, Double] = new Function1[Double, Double]() {
     def apply(a: Double) = a / constant
   }
 
@@ -716,8 +731,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>a == b ? 1 : 0</tt>. <tt>a</tt> is
    * a variable, <tt>b</tt> is fixed.
    */
-  def equals(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def equals(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = if (a == b) 1 else 0
     }
@@ -727,8 +742,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>a > b ? 1 : 0</tt>. <tt>a</tt> is
    * a variable, <tt>b</tt> is fixed.
    */
-  def greater(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def greater(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = if (a > b) 1 else 0
     }
@@ -738,8 +753,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>Math.IEEEremainder(a,b)</tt>.
    * <tt>a</tt> is a variable, <tt>b</tt> is fixed.
    */
-  def IEEEremainder(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def IEEEremainder(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = Math.IEEEremainder(a, b)
     }
@@ -789,8 +804,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>a < b ? 1 : 0</tt>. <tt>a</tt> is
    * a variable, <tt>b</tt> is fixed.
    */
-  def less(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def less(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
       def apply(a: Double): Double = if (a < b) 1 else 0
     }
   }
@@ -799,8 +814,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt><tt>Math.log(a) / Math.log(b)</tt>
    * </tt>. <tt>a</tt> is a variable, <tt>b</tt> is fixed.
    */
-  def lg(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def lg(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       private val logInv = 1 / Math.log(b)
 
@@ -820,8 +835,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>Math.max(a,b)</tt>. <tt>a</tt> is
    * a variable, <tt>b</tt> is fixed.
    */
-  def max(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def max(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = Math.max(a, b)
     }
@@ -831,8 +846,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>Math.min(a,b)</tt>. <tt>a</tt> is
    * a variable, <tt>b</tt> is fixed.
    */
-  def min(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def min(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = Math.min(a, b)
     }
@@ -842,7 +857,7 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>a - b</tt>. <tt>a</tt> is a
    * variable, <tt>b</tt> is fixed.
    */
-  def minus(b: Double): Function1[Double] = plus(-b)
+  def minus(b: Double): Function1[Double, Double] = plus(-b)
 
   /**
    * Constructs a function that returns <tt>a - b*constant</tt>. <tt>a</tt>
@@ -854,8 +869,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>a % b</tt>. <tt>a</tt> is a
    * variable, <tt>b</tt> is fixed.
    */
-  def mod(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def mod(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
       def apply(a: Double): Double = a % b
     }
   }
@@ -864,7 +879,7 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>a * b</tt>. <tt>a</tt> is a
    * variable, <tt>b</tt> is fixed.
    */
-  def mult(constant: Double): Function1[Double] = new Function1[Double]() {
+  def mult(constant: Double): Function1[Double, Double] = new Function1[Double, Double]() {
       def apply(a: Double) = a * constant
     }
 
@@ -872,8 +887,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>a + b</tt>. <tt>a</tt> is a
    * variable, <tt>b</tt> is fixed.
    */
-  def plus(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def plus(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = a + b
     }
@@ -905,8 +920,8 @@ object DoubleFunctions {
    * Constructs a function that returns <tt>Math.pow(a,b)</tt>. <tt>a</tt> is
    * a variable, <tt>b</tt> is fixed.
    */
-  def pow(b: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def pow(b: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
 
       def apply(a: Double): Double = Math.pow(a, b)
     }
@@ -927,7 +942,7 @@ object DoubleFunctions {
    * not happy with the default, just pass your favourite random generator to
    * function evaluating methods.
    */
-  def random(): Function1[Double] = new Function1[Double] {
+  def random(): Function1[Double, Double] = new Function1[Double, Double] {
     def apply(argument: Double): Double = Math.random()
   }
 
@@ -940,8 +955,8 @@ object DoubleFunctions {
    * precision = 10   rounds 123   --&gt; 120 , 127   --&gt; 130
    * </pre>
    */
-  def round(precision: Double): Function1[Double] = {
-    new Function1[Double]() {
+  def round(precision: Double): Function1[Double, Double] = {
+    new Function1[Double, Double]() {
       def apply(a: Double): Double = Math.rint(a / precision) * precision
     }
   }

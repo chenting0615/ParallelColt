@@ -358,9 +358,9 @@ public class DiagonalDoubleMatrix2DTest extends DoubleMatrix2DTest {
     }
 
     public void testViewDice() {
-        DoubleMatrix2D B = A.viewDice();
-        assertEquals(NROWS, B.columns());
-        assertEquals(NCOLUMNS, B.rows());
+        DoubleMatrix2D B = A.viewTranspose();
+        assertEquals(NROWS, B.columns);
+        assertEquals(NCOLUMNS, B.rows);
         for (int r = 0; r < NROWS; r++) {
             for (int c = 0; c < NCOLUMNS; c++) {
                 assertEquals(A.getQuick(r, c), B.getQuick(c, r), TOL);
@@ -370,8 +370,8 @@ public class DiagonalDoubleMatrix2DTest extends DoubleMatrix2DTest {
 
     public void testViewPart() {
         DoubleMatrix2D B = A.viewPart(NROWS / 2, NCOLUMNS / 2, NROWS / 3, NCOLUMNS / 3);
-        assertEquals(NROWS / 3, B.rows());
-        assertEquals(NCOLUMNS / 3, B.columns());
+        assertEquals(NROWS / 3, B.rows);
+        assertEquals(NCOLUMNS / 3, B.columns);
         for (int r = 0; r < NROWS / 3; r++) {
             for (int c = 0; c < NCOLUMNS / 3; c++) {
                 assertEquals(A.getQuick(NROWS / 2 + r, NCOLUMNS / 2 + c), B.getQuick(r, c), TOL);
@@ -412,8 +412,8 @@ public class DiagonalDoubleMatrix2DTest extends DoubleMatrix2DTest {
                     }
                 }
             });
-            assertEquals(1, B.rows());
-            assertEquals(NCOLUMNS, B.columns());
+            assertEquals(1, B.rows);
+            assertEquals(NCOLUMNS, B.columns);
             assertEquals(A.getQuick(NROWS / 4, NROWS / 4 + DINDEX), B.getQuick(0, NROWS / 4 + DINDEX), TOL);
         } else {
             A.setQuick(NROWS / 4 - DINDEX, NROWS / 4, value);
@@ -427,8 +427,8 @@ public class DiagonalDoubleMatrix2DTest extends DoubleMatrix2DTest {
                     }
                 }
             });
-            assertEquals(1, B.rows());
-            assertEquals(NCOLUMNS, B.columns());
+            assertEquals(1, B.rows);
+            assertEquals(NCOLUMNS, B.columns);
             assertEquals(A.getQuick(NROWS / 4 - DINDEX, NROWS / 4), B.getQuick(0, NROWS / 4), TOL);
         }
     }
@@ -437,8 +437,8 @@ public class DiagonalDoubleMatrix2DTest extends DoubleMatrix2DTest {
         int[] rowIndexes = new int[] { NROWS / 6, NROWS / 5, NROWS / 4, NROWS / 3, NROWS / 2 };
         int[] colIndexes = new int[] { NROWS / 6, NROWS / 5, NROWS / 4, NROWS / 3, NROWS / 2, NROWS - 1 };
         DoubleMatrix2D B = A.viewSelection(rowIndexes, colIndexes);
-        assertEquals(rowIndexes.length, B.rows());
-        assertEquals(colIndexes.length, B.columns());
+        assertEquals(rowIndexes.length, B.rows);
+        assertEquals(colIndexes.length, B.columns);
         for (int r = 0; r < rowIndexes.length; r++) {
             for (int c = 0; c < colIndexes.length; c++) {
                 assertEquals(A.getQuick(rowIndexes[r], colIndexes[c]), B.getQuick(r, c), TOL);
@@ -457,8 +457,8 @@ public class DiagonalDoubleMatrix2DTest extends DoubleMatrix2DTest {
         int rowStride = 3;
         int colStride = 5;
         DoubleMatrix2D B = A.viewStrides(rowStride, colStride);
-        for (int r = 0; r < B.rows(); r++) {
-            for (int c = 0; c < B.columns(); c++) {
+        for (int r = 0; r < B.rows; r++) {
+            for (int c = 0; c < B.columns; c++) {
                 assertEquals(A.getQuick(r * rowStride, c * colStride), B.getQuick(r, c), TOL);
             }
         }

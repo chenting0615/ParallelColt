@@ -6,6 +6,8 @@ package cern.colt.function
  * the matrix or not.
  */
 object ProcedureTypes {
+  type DoubleProcedure = Procedure1[Double]
+
   type IntDoubleProcedure = Procedure2[Int, Double]
 
   type IntIntDoubleProcedure = Procedure3[Int, Int, Double]

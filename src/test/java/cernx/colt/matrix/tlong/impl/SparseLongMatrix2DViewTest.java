@@ -7,8 +7,8 @@ public class SparseLongMatrix2DViewTest extends SparseLongMatrix2DTest {
     }
 
     protected void createMatrices() throws Exception {
-        A = new SparseLongMatrix2D(NCOLUMNS, NROWS).viewDice();
-        B = new SparseLongMatrix2D(NCOLUMNS, NROWS).viewDice();
-        Bt = new SparseLongMatrix2D(NROWS, NCOLUMNS).viewDice();
+        A = new SparseLongMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        B = new SparseLongMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        Bt = new SparseLongMatrix2D(NROWS, NCOLUMNS).viewTranspose();
     }
 }

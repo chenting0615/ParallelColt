@@ -21,8 +21,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         ((WrapperFloatMatrix2D) A).dct2(true);
         ((WrapperFloatMatrix2D) A).idct2(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++)
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++)
                 assertEquals(0, Math.abs(Acopy.getQuick(r, c) - A.getQuick(r, c)), TOL);
         }
     }
@@ -31,8 +31,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         ((WrapperFloatMatrix2D) A).dctColumns(true);
         ((WrapperFloatMatrix2D) A).idctColumns(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++)
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++)
                 assertEquals(0, Math.abs(Acopy.getQuick(r, c) - A.getQuick(r, c)), TOL);
         }
     }
@@ -41,8 +41,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         ((WrapperFloatMatrix2D) A).dctRows(true);
         ((WrapperFloatMatrix2D) A).idctRows(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++)
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++)
                 assertEquals(0, Math.abs(Acopy.getQuick(r, c) - A.getQuick(r, c)), TOL);
         }
     }
@@ -51,8 +51,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         ((WrapperFloatMatrix2D) A).dht2();
         ((WrapperFloatMatrix2D) A).idht2(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++)
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++)
                 assertEquals(0, Math.abs(Acopy.getQuick(r, c) - A.getQuick(r, c)), TOL);
         }
     }
@@ -61,8 +61,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         ((WrapperFloatMatrix2D) A).dhtColumns();
         ((WrapperFloatMatrix2D) A).idhtColumns(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++)
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++)
                 assertEquals(0, Math.abs(Acopy.getQuick(r, c) - A.getQuick(r, c)), TOL);
         }
     }
@@ -71,8 +71,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         ((WrapperFloatMatrix2D) A).dhtRows();
         ((WrapperFloatMatrix2D) A).idhtRows(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++)
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++)
                 assertEquals(0, Math.abs(Acopy.getQuick(r, c) - A.getQuick(r, c)), TOL);
         }
     }
@@ -81,8 +81,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         ((WrapperFloatMatrix2D) A).dst2(true);
         ((WrapperFloatMatrix2D) A).idst2(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++)
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++)
                 assertEquals(0, Math.abs(Acopy.getQuick(r, c) - A.getQuick(r, c)), TOL);
         }
     }
@@ -91,8 +91,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         ((WrapperFloatMatrix2D) A).dstColumns(true);
         ((WrapperFloatMatrix2D) A).idstColumns(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++)
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++)
                 assertEquals(0, Math.abs(Acopy.getQuick(r, c) - A.getQuick(r, c)), TOL);
         }
     }
@@ -101,8 +101,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         ((WrapperFloatMatrix2D) A).dstRows(true);
         ((WrapperFloatMatrix2D) A).idstRows(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++)
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++)
                 assertEquals(0, Math.abs(Acopy.getQuick(r, c) - A.getQuick(r, c)), TOL);
         }
     }
@@ -120,7 +120,7 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
             }
         }
 
-        A = A.viewDice();
+        A = A.viewTranspose();
         Acopy = A.copy();
         ((WrapperFloatMatrix2D) A).fft2();
         ((WrapperFloatMatrix2D) A).ifft2(true);
@@ -135,8 +135,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         FComplexMatrix2D Ac = ((WrapperFloatMatrix2D) A).getFft2();
         ((DenseLargeFComplexMatrix2D) Ac).ifft2(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 float[] elemAc = Ac.getQuick(r, c);
                 assertEquals(Acopy.getQuick(r, c), elemAc[0], TOL);
                 assertEquals(0, elemAc[1], TOL);
@@ -148,8 +148,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         FComplexMatrix2D Ac = ((WrapperFloatMatrix2D) A).getIfft2(true);
         ((DenseLargeFComplexMatrix2D) Ac).fft2();
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 float[] elemAc = Ac.getQuick(r, c);
                 assertEquals(Acopy.getQuick(r, c), elemAc[0], TOL);
                 assertEquals(0, elemAc[1], TOL);
@@ -161,8 +161,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         FComplexMatrix2D Ac = ((WrapperFloatMatrix2D) A).getFftColumns();
         ((DenseLargeFComplexMatrix2D) Ac).ifftColumns(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 float[] elemAc = Ac.getQuick(r, c);
                 assertEquals(Acopy.getQuick(r, c), elemAc[0], TOL);
                 assertEquals(0, elemAc[1], TOL);
@@ -174,8 +174,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         FComplexMatrix2D Ac = ((WrapperFloatMatrix2D) A).getIfftColumns(true);
         ((DenseLargeFComplexMatrix2D) Ac).fftColumns();
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 float[] elemAc = Ac.getQuick(r, c);
                 assertEquals(Acopy.getQuick(r, c), elemAc[0], TOL);
                 assertEquals(0, elemAc[1], TOL);
@@ -187,8 +187,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         FComplexMatrix2D Ac = ((WrapperFloatMatrix2D) A).getFftRows();
         ((DenseLargeFComplexMatrix2D) Ac).ifftRows(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 float[] elemAc = Ac.getQuick(r, c);
                 assertEquals(Acopy.getQuick(r, c), elemAc[0], TOL);
                 assertEquals(0, elemAc[1], TOL);
@@ -200,8 +200,8 @@ public class DenseLargeFloatMatrix2DTest extends FloatMatrix2DTest {
         FloatMatrix2D Acopy = A.copy();
         FComplexMatrix2D Ac = ((WrapperFloatMatrix2D) A).getIfftRows(true);
         ((DenseLargeFComplexMatrix2D) Ac).fftRows();
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 float[] elemAc = Ac.getQuick(r, c);
                 assertEquals(Acopy.getQuick(r, c), elemAc[0], TOL);
                 assertEquals(0, elemAc[1], TOL);

@@ -95,15 +95,4 @@ class WrapperMatrix2D[T: Manifest](protected val content: Matrix2D[T], rows: Int
   override def getFactory: MatrixFactory = content.getFactory
 
   override protected def setFactory(f: MatrixFactory) {}
-
-  /**
-   * @return Return the algebra object with matrix operations for use with this
-   *         matrix.
-   *         TODO: Should this be available as a type class instead?
-   *         TODO: Is there a way to make the implicit type class lookup resolve to this
-   *         method?
-   */
-  override def getAlgebra: MatrixAlgebra = content.getAlgebra
-
-  override def setAlgebra(m: MatrixAlgebra) {}
 }

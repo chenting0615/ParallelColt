@@ -9,9 +9,9 @@ package cern.colt.matrix.impl
  */
 @specialized
 @SerialVersionUID(1L)
-class SparseCCMMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int) extends RemappedMatrix2D[T] {
+class SparseCCMMatrix2D[T: Manifest](rows: Int, columns: Int) extends RemappedMatrix2D[T] {
 
-  var elements = new Array[SparseMatrix1D[T]](columns)
+  var elements = new Array[SparseHashMatrix1D[T]](columns)
 
   try {
     setUp(rows, columns)
@@ -28,7 +28,7 @@ class SparseCCMMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int) e
 
   override def setQuick(row: Int, column: Int, value: T) {
     if (elements(column) == null)
-      elements(column) = new SparseMatrix1D[T](rows)
+      elements(column) = new SparseHashMatrix1D[T](rows)
     elements(column).setQuick(row, value)
   }
 
@@ -47,11 +47,11 @@ class SparseCCMMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int) e
   override def viewColumn(column: Int) = {
     checkColumn(column)
     if (elements(column) == null)
-      elements(column) = new SparseMatrix1D[T](rowsVar)
+      elements(column) = new SparseHashMatrix1D[T](rowsVar)
     elements(column)
   }
 
   def like2D(rows: Int, columns: Int) = new SparseCCMMatrix2D(rows, columns)
 
-  def like1D(size: Int) = new SparseMatrix1D[T](size)
+  def like1D(size: Int) = new SparseHashMatrix1D[T](size)
 }

@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import cern.colt.Timer;
-import cern.colt.list.tdouble.DoubleArrayList;
+import cern.colt.list.impl.ArrayList;
 import cern.colt.list.tint.IntArrayList;
 import cern.colt.matrix.BenchmarkMatrixKernel;
 import cern.colt.matrix.tdcomplex.DComplexMatrix3D;
@@ -1242,7 +1242,7 @@ public class BenchmarkDenseDoubleMatrix3D {
         IntArrayList sliceList = new IntArrayList();
         IntArrayList rowList = new IntArrayList();
         IntArrayList columnList = new IntArrayList();
-        DoubleArrayList valueList = new DoubleArrayList();
+        ArrayList valueList = new ArrayList();
         for (int i = 0; i < BenchmarkMatrixKernel.NTHREADS.length; i++) {
             ConcurrencyUtils.setNumberOfThreads(BenchmarkMatrixKernel.NTHREADS[i]);
 
@@ -1299,7 +1299,7 @@ public class BenchmarkDenseDoubleMatrix3D {
         IntArrayList sliceList = new IntArrayList();
         IntArrayList rowList = new IntArrayList();
         IntArrayList colList = new IntArrayList();
-        DoubleArrayList valueList = new DoubleArrayList();
+        ArrayList valueList = new ArrayList();
         for (int i = 0; i < BenchmarkMatrixKernel.NTHREADS.length; i++) {
             ConcurrencyUtils.setNumberOfThreads(BenchmarkMatrixKernel.NTHREADS[i]);
             // warm-up
@@ -1355,7 +1355,7 @@ public class BenchmarkDenseDoubleMatrix3D {
         IntArrayList sliceList = new IntArrayList();
         IntArrayList rowList = new IntArrayList();
         IntArrayList columnList = new IntArrayList();
-        DoubleArrayList valueList = new DoubleArrayList();
+        ArrayList valueList = new ArrayList();
         for (int i = 0; i < BenchmarkMatrixKernel.NTHREADS.length; i++) {
             ConcurrencyUtils.setNumberOfThreads(BenchmarkMatrixKernel.NTHREADS[i]);
 

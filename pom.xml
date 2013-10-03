@@ -77,11 +77,13 @@
             <version>2.4.1</version>
         </dependency>
 
+<!--
         <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil</artifactId>
             <version>6.5.9</version>
         </dependency>
+-->
 
         <dependency>
             <groupId>junit</groupId>

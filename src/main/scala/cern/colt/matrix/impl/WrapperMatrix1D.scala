@@ -112,15 +112,4 @@ class WrapperMatrix1D[T: Manifest](protected val content1D: Matrix1D[T]) extends
   override def getParallelStrategy: ParallelStrategy = content1D.getParallelStrategy
 
   override def setParallelStrategy(s: ParallelStrategy) {}
-
-  /**
-   * @return Return the algebra object with matrix operations for use with this
-   *         matrix.
-   *         TODO: Should this be available as a type class instead?
-   *         TODO: Is there a way to make the implicit type class lookup resolve to this
-   *         method?
-   */
-  override def getAlgebra: MatrixAlgebra = content1D.getAlgebra
-
-  override def setAlgebra(m: MatrixAlgebra) {}
 }

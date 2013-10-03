@@ -1,14 +1,14 @@
 /*
 Copyright (C) 1999 CERN - European Organization for Nuclear Research.
-Permission to use, copy, modify, distribute and sell this software and its documentation for any purpose 
-is hereby granted without fee, provided that the above copyright notice appear in all copies and 
-that both that copyright notice and this permission notice appear in supporting documentation. 
-CERN makes no representations about the suitability of this software for any purpose. 
+Permission to use, copy, modify, distribute and sell this software and its documentation for any purpose
+is hereby granted without fee, provided that the above copyright notice appear in all copies and
+that both that copyright notice and this permission notice appear in supporting documentation.
+CERN makes no representations about the suitability of this software for any purpose.
 It is provided "as is" without expressed or implied warranty.
  */
 package cern.jet.random;
 
-import cern.colt.list.tdouble.DoubleArrayList;
+import cern.colt.list.impl.ArrayList;
 import cern.colt.list.tint.IntArrayList;
 import cern.jet.random.tdouble.AbstractDoubleDistribution;
 import cern.jet.random.tdouble.Poisson;
@@ -17,13 +17,13 @@ import cern.jet.random.tdouble.engine.DoubleRandomEngine;
 /**
  * Benchmarks random number generation from various distributions as well as PDF
  * and CDF lookups.
- * 
+ *
  * @author wolfgang.hoschek@cern.ch
  * @version 1.0, 09/24/99
  */
 public class Benchmark extends cern.colt.PersistentObject {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -8509762371822439740L;
     protected DoubleRandomEngine randomGenerator;
@@ -59,7 +59,7 @@ public class Benchmark extends cern.colt.PersistentObject {
 
         // collect random numbers and print statistics
         int size = 100000;
-        cern.colt.list.tdouble.DoubleArrayList numbers = new cern.colt.list.tdouble.DoubleArrayList(size);
+        ArrayList numbers = new ArrayList(size);
         for (int i = 0; i < size; i++)
             numbers.add(dist.nextDouble());
 
@@ -70,7 +70,7 @@ public class Benchmark extends cern.colt.PersistentObject {
 
     /**
      * Benchmarks all subclasses
-     * 
+     *
      * @param args
      *            args[0] - the number of random numbers to be generated per
      *            subclass. args[1] - <tt>true</tt> prints each generated
@@ -87,7 +87,7 @@ public class Benchmark extends cern.colt.PersistentObject {
 
     /**
      * Benchmarks all subclasses
-     * 
+     *
      * @param size
      *            the number of random numbers to be generated per subclass.
      * @param print
@@ -119,7 +119,7 @@ public class Benchmark extends cern.colt.PersistentObject {
          */
 
         /*
-         * 
+         *
          * randomInstance(size,print,new Beta(10.0,
          * 10.0,(RandomEngine)gen.clone())); randomInstance(size,print,new
          * Beta(1.0, 1.0, (RandomEngine)gen.clone()));
@@ -127,19 +127,19 @@ public class Benchmark extends cern.colt.PersistentObject {
          * (RandomEngine)gen.clone())); randomInstance(size,print,new Beta(mean,
          * 1/mean, (RandomEngine)gen.clone())); randomInstance(size,print,new
          * Beta(1/mean, mean, (RandomEngine)gen.clone()));
-         * 
+         *
          * randomInstance(size,print,new Uniform((RandomEngine)gen.clone()));
          */
         randomInstance(size, print, new Poisson(mean, (DoubleRandomEngine) gen.clone()));
         /*
          * randomInstance(size,print,new
          * PoissonSlow(mean,(RandomEngine)gen.clone()));
-         * 
+         *
          * randomInstance(size,print,new
          * Poisson(3.0,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
          * PoissonSlow(3.0,(RandomEngine)gen.clone()));
-         * 
+         *
          * randomInstance(size,print,new
          * Binomial(1,0.5,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
@@ -148,36 +148,36 @@ public class Benchmark extends cern.colt.PersistentObject {
          * Binomial((int)mean,0.999999999,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
          * Binomial((int)mean,1.0/mean,(RandomEngine)gen.clone()));
-         * 
+         *
          * randomInstance(size,print,new
          * Exponential(1.0,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
          * Exponential(3.0,(RandomEngine)gen.clone()));
-         * 
+         *
          * randomInstance(size,print,new
          * Normal(0.0,1.0,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
          * Normal(3.0,1.0,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
          * Normal(mean,largeVariance,(RandomEngine)gen.clone()));
-         * 
+         *
          * randomInstance(size,print,new BreitWigner(1.0, 0.2,
          * Double.NEGATIVE_INFINITY, (RandomEngine)gen.clone()));
          * randomInstance(size,print,new BreitWigner(1.0, 0.2, 1.0,
          * (RandomEngine)gen.clone()));
-         * 
+         *
          * randomInstance(size,print,new BreitWignerMeanSquare(1.0, 0.2,
          * Double.NEGATIVE_INFINITY, (RandomEngine)gen.clone()));
          * randomInstance(size,print,new BreitWignerMeanSquare(1.0, 0.2, 1.0,
          * (RandomEngine)gen.clone()));
-         * 
+         *
          * randomInstance(size,print,new
          * ChiSquare(1.0,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
          * ChiSquare(5.0,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
          * ChiSquare(mean,(RandomEngine)gen.clone()));
-         * 
+         *
          * randomInstance(size,print,new
          * Gamma(0.2,1.0,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
@@ -190,7 +190,7 @@ public class Benchmark extends cern.colt.PersistentObject {
          * Gamma(mean,1.0/mean,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
          * Gamma(mean,mean,(RandomEngine)gen.clone()));
-         * 
+         *
          * randomInstance(size,print,new
          * StudentT(1.0,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
@@ -199,7 +199,7 @@ public class Benchmark extends cern.colt.PersistentObject {
          * StudentT(mean,(RandomEngine)gen.clone()));
          * randomInstance(size,print,new
          * StudentT(1.0/mean,(RandomEngine)gen.clone()));
-         * 
+         *
          * int probs = 10000; double[] pdf = new double[probs]; for (int i=0; i<probs;
          * i++) pdf[i]=i*i; // prepare f(x)=x^2 distrib.
          * randomInstance(size,print,new
@@ -273,7 +273,7 @@ public class Benchmark extends cern.colt.PersistentObject {
 
         System.out.println("\n\nBenchmarking frequencies...\n");
         IntArrayList freq = new IntArrayList();
-        DoubleArrayList distinct = new DoubleArrayList();
+        ArrayList distinct = new ArrayList();
         cern.colt.Timer timer = new cern.colt.Timer();
         timer.reset();
         timer.start();
@@ -291,7 +291,7 @@ public class Benchmark extends cern.colt.PersistentObject {
         /*
          * distinct.shuffle(); timer.reset().start(); distinct.sort();
          * timer.stop().display();
-         * 
+         *
          * timer.reset().start(); binA.frequencies(distinct,freq);
          * timer.stop().display(); //System.out.println(distinct);
          * //System.out.println(freq);

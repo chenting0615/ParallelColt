@@ -10,9 +10,9 @@ public class DiagonalLongMatrix2DViewTest extends DiagonalLongMatrix2DTest {
         DINDEX = 3;
         A = new DiagonalLongMatrix2D(NCOLUMNS, NROWS, -DINDEX);
         DLENGTH = ((DiagonalLongMatrix2D) A).diagonalLength();
-        A = A.viewDice();
-        B = new DiagonalLongMatrix2D(NCOLUMNS, NROWS, -DINDEX).viewDice();
-        Bt = new DiagonalLongMatrix2D(NROWS, NCOLUMNS, DINDEX).viewDice();
+        A = A.viewTranspose();
+        B = new DiagonalLongMatrix2D(NCOLUMNS, NROWS, -DINDEX).viewTranspose();
+        Bt = new DiagonalLongMatrix2D(NROWS, NCOLUMNS, DINDEX).viewTranspose();
     }
 
 }

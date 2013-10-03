@@ -1,8 +1,5 @@
 package cern.jet.random.tdouble
 
-//remove if not needed
-import scala.collection.JavaConversions._
-
 object CliTestNormal {
 
   def main(argv: Array[String]) {

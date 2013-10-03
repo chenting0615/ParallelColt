@@ -28,21 +28,21 @@ public class SparseLongMatrix2DTest extends LongMatrix2DTest {
         }
         SparseLongMatrix2D A = new SparseLongMatrix2D(NROWS, NCOLUMNS, rowindexes, columnindexes, values);
         SparseRCLongMatrix2D B = A.getRowCompressed(false);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 assertEquals(A.getQuick(r, c), B.getQuick(r, c));
             }
         }
         B = A.getRowCompressed(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 assertEquals(A.getQuick(r, c), B.getQuick(r, c));
             }
         }
     }
 
     public void testGetRowCompressedModified() {
-        int SIZE = A.rows() * A.columns();
+        int SIZE = A.rows * A.columns;
         int[] rowindexes = new int[SIZE];
         int[] columnindexes = new int[SIZE];
         long[] values = new long[SIZE];
@@ -51,17 +51,17 @@ public class SparseLongMatrix2DTest extends LongMatrix2DTest {
             columnindexes[i] = (int) Math.abs(rand.nextInt() % NCOLUMNS);
             values[i] = rand.nextLong();
         }
-        SparseLongMatrix2D S = new SparseLongMatrix2D(A.rows(), A.columns(), rowindexes, columnindexes, values);
+        SparseLongMatrix2D S = new SparseLongMatrix2D(A.rows, A.columns, rowindexes, columnindexes, values);
         SparseRCMLongMatrix2D B = S.getRowCompressedModified();
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 assertEquals(S.getQuick(r, c), B.getQuick(r, c));
             }
         }
     }
 
     public void testGetColumnCompressed() {
-        int SIZE = A.rows() * A.columns();
+        int SIZE = A.rows * A.columns;
         int[] rowindexes = new int[SIZE];
         int[] columnindexes = new int[SIZE];
         long[] values = new long[SIZE];
@@ -70,16 +70,16 @@ public class SparseLongMatrix2DTest extends LongMatrix2DTest {
             columnindexes[i] = (int) Math.abs(rand.nextInt() % NCOLUMNS);
             values[i] = rand.nextLong();
         }
-        SparseLongMatrix2D S = new SparseLongMatrix2D(A.rows(), A.columns(), rowindexes, columnindexes, values);
+        SparseLongMatrix2D S = new SparseLongMatrix2D(A.rows, A.columns, rowindexes, columnindexes, values);
         SparseCCLongMatrix2D B = S.getColumnCompressed(false);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 assertEquals(S.getQuick(r, c), B.getQuick(r, c));
             }
         }
         B = S.getColumnCompressed(true);
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 assertEquals(S.getQuick(r, c), B.getQuick(r, c));
             }
         }
@@ -87,7 +87,7 @@ public class SparseLongMatrix2DTest extends LongMatrix2DTest {
     }
 
     public void testGetColumnCompressedModified() {
-        int SIZE = A.rows() * A.columns();
+        int SIZE = A.rows * A.columns;
         int[] rowindexes = new int[SIZE];
         int[] columnindexes = new int[SIZE];
         long[] values = new long[SIZE];
@@ -96,31 +96,31 @@ public class SparseLongMatrix2DTest extends LongMatrix2DTest {
             columnindexes[i] = (int) Math.abs(rand.nextInt() % NCOLUMNS);
             values[i] = rand.nextLong();
         }
-        SparseLongMatrix2D S = new SparseLongMatrix2D(A.rows(), A.columns(), rowindexes, columnindexes, values);
+        SparseLongMatrix2D S = new SparseLongMatrix2D(A.rows, A.columns, rowindexes, columnindexes, values);
         SparseCCMLongMatrix2D B = S.getColumnCompressedModified();
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 assertEquals(S.getQuick(r, c), B.getQuick(r, c));
             }
         }
     }
 
     public void testAssignIntArrayIntArrayLongArrayLongLongFunction() {
-        int SIZE = A.rows() * A.columns();
+        int SIZE = A.rows * A.columns;
         int[] rowindexes = new int[SIZE];
         int[] columnindexes = new int[SIZE];
         long[] values = new long[SIZE];
-        LongMatrix2D Adense = new DenseLongMatrix2D(A.rows(), A.columns());
+        LongMatrix2D Adense = new DenseLongMatrix2D(A.rows, A.columns);
         for (int i = 0; i < SIZE; i++) {
-            rowindexes[i] = i % A.rows();
-            columnindexes[i] = i % A.columns();
+            rowindexes[i] = i % A.rows;
+            columnindexes[i] = i % A.columns;
             values[i] = rand.nextLong();
             Adense.setQuick(rowindexes[i], columnindexes[i], values[i]);
         }
-        SparseLongMatrix2D S = new SparseLongMatrix2D(A.rows(), A.columns());
+        SparseLongMatrix2D S = new SparseLongMatrix2D(A.rows, A.columns);
         S.assign(rowindexes, columnindexes, values, LongFunctions.multSecond(2));
-        for (int r = 0; r < A.rows(); r++) {
-            for (int c = 0; c < A.columns(); c++) {
+        for (int r = 0; r < A.rows; r++) {
+            for (int c = 0; c < A.columns; c++) {
                 assertEquals(2 * Adense.getQuick(r, c), S.getQuick(r, c));
             }
         }

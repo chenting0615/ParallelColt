@@ -8,11 +8,11 @@ import cern.colt.matrix.Matrix
  * href="package-tree.html">tree view</a> to get the broad picture.
  * <p>
  * A matrix has a number of rows and columns, which are assigned upon instance
- * construction - The matrix's size is then <tt>rows()*columns()</tt>. Elements
+ * construction - The matrix's size is then <tt>rows*columns</tt>. Elements
  * are accessed via <tt>[row,column]</tt> coordinates. Legal coordinates range
- * from <tt>[0,0]</tt> to <tt>[rows()-1,columns()-1]</tt>. Any attempt to access
+ * from <tt>[0,0]</tt> to <tt>[rows-1,columns-1]</tt>. Any attempt to access
  * an element at a coordinate
- * <tt>column&lt;0 || column&gt;=columns() || row&lt;0 || row&gt;=rows()</tt>
+ * <tt>column&lt;0 || column&gt;=columns || row&lt;0 || row&gt;=rows</tt>
  * will throw an <tt>IndexOutOfBoundsException</tt>.
  * <p>
  * <b>Note</b> that this implementation is not synchronized.
@@ -136,12 +136,12 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
    *            the values to be filled into the cells.
    * @return <tt>this</tt> (for convenience only).
    * @throws IllegalArgumentException
-   *             if <tt>values.length != rows()*columns()</tt>.
+   *             if <tt>values.length != rows*columns</tt>.
    */
   def assign(values: Array[T], zero: Int, stride: Int) = {
     val requiredLen = size * stride + zero - stride + 1
     if (values.length < requiredLen)
-      throw new IllegalArgumentException("Length too short (" + values.length + "), required rows()*columns()*stride+zero-stride+1=" + requiredLen)
+      throw new IllegalArgumentException("Length too short (" + values.length + "), required rows*columns*stride+zero-stride+1=" + requiredLen)
     var idx = zero
     for (r <- 0 until rowsVar; c <- 0 until columnsVar) {
       setQuick(r, c, values(idx))
@@ -152,8 +152,8 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
 
   /**
    * Constructs and returns a new <i>flip view</i> along the column axis. What
-   * used to be column <tt>0</tt> is now column <tt>columns()-1</tt>, ...,
-   * what used to be column <tt>columns()-1</tt> is now column <tt>0</tt>. The
+   * used to be column <tt>0</tt> is now column <tt>columns-1</tt>, ...,
+   * what used to be column <tt>columns-1</tt> is now column <tt>0</tt>. The
    * returned view is backed by this matrix, so changes in the returned view
    * are reflected in this matrix, and vice-versa.
    * <p>
@@ -190,7 +190,7 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
    * transposition, taking O(1), i.e. constant time. The returned view is
    * backed by this matrix, so changes in the returned view are reflected in
    * this matrix, and vice-versa. Use idioms like
-   * <tt>result = viewDice(A).copy()</tt> to generate an independent
+   * <tt>result = viewTranspose(A).copy()</tt> to generate an independent
    * transposed matrix.
    * <p>
    * <b>Example:</b>
@@ -231,12 +231,12 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
    * <p>
    * The view contains the cells from <tt>[row,column]</tt> to
    * <tt>[row+height-1,column+width-1]</tt>, all inclusive. and has
-   * <tt>view.rows() == height; view.columns() == width;</tt>. A view's legal
+   * <tt>view.rows == height; view.columns == width;</tt>. A view's legal
    * coordinates are again zero based, as usual. In other words, legal
    * coordinates of the view range from <tt>[0,0]</tt> to
-   * <tt>[view.rows()-1==height-1,view.columns()-1==width-1]</tt>. As usual,
+   * <tt>[view.rows-1==height-1,view.columns-1==width-1]</tt>. As usual,
    * any attempt to access a cell at a coordinate
-   * <tt>column&lt;0 || column&gt;=view.columns() || row&lt;0 || row&gt;=view.rows()</tt>
+   * <tt>column&lt;0 || column&gt;=view.columns || row&lt;0 || row&gt;=view.rows</tt>
    * will throw an <tt>IndexOutOfBoundsException</tt>.
    *
    * @param row
@@ -249,7 +249,7 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
    *            The width of the box.
    * @throws IndexOutOfBoundsException
    *             if
-   *             <tt>column<0 || width<0 || column+width>columns() || row<0 || height<0 || row+height>rows()</tt>
+   *             <tt>column<0 || width<0 || column+width>columns || row<0 || height<0 || row+height>rows</tt>
    * @return the new view.
    *
    */
@@ -259,8 +259,8 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
 
   /**
    * Constructs and returns a new <i>flip view</i> along the row axis. What
-   * used to be row <tt>0</tt> is now row <tt>rows()-1</tt>, ..., what used to
-   * be row <tt>rows()-1</tt> is now row <tt>0</tt>. The returned view is
+   * used to be row <tt>0</tt> is now row <tt>rows-1</tt>, ..., what used to
+   * be row <tt>rows-1</tt> is now row <tt>0</tt>. The returned view is
    * backed by this matrix, so changes in the returned view are reflected in
    * this matrix, and vice-versa.
    * <p>
@@ -291,7 +291,7 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
   /**
    * Constructs and returns a new <i>selection view</i> that is a matrix
    * holding the indicated cells. There holds
-   * <tt>view.rows() == rowIndexes.length, view.columns() == columnIndexes.length</tt>
+   * <tt>view.rows == rowIndexes.length, view.columns == columnIndexes.length</tt>
    * and <tt>view.get(i,j) == this.get(rowIndexes[i],columnIndexes[j])</tt>.
    * Indexes can occur multiple times and can be in arbitrary order.
    * <p>
@@ -328,7 +328,7 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
    *            simply set this parameter to <tt>null</tt>.
    * @return the new view.
    * @throws IndexOutOfBoundsException
-   *             if <tt>!(0 <= rowIndexes[i] < rows())</tt> for any
+   *             if <tt>!(0 <= rowIndexes[i] < rows)</tt> for any
    *             <tt>i=0..rowIndexes.length()-1</tt>.
    */
   def viewSelection(rowIndexes: Array[Int], columnIndexes: Array[Int]): AbstractMatrix2D[T] = {
@@ -345,10 +345,10 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
   /**
    * Constructs and returns a new <i>stride view</i> which is a sub matrix
    * consisting of every i-th cell. More specifically, the view has
-   * <tt>this.rows()/rowStride</tt> rows and
-   * <tt>this.columns()/columnStride</tt> columns holding cells
+   * <tt>this.rows/rowStride</tt> rows and
+   * <tt>this.columns/columnStride</tt> columns holding cells
    * <tt>this.get(i*rowStride,j*columnStride)</tt> for all
-   * <tt>i = 0..rows()/rowStride - 1, j = 0..columns()/columnStride - 1</tt>.
+   * <tt>i = 0..rows/rowStride - 1, j = 0..columns/columnStride - 1</tt>.
    * The returned view is backed by this matrix, so changes in the returned
    * view are reflected in this matrix, and vice-versa.
    *
@@ -422,7 +422,7 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
   }
 
   /**
-   * Self modifying version of viewDice().
+   * Self modifying version of viewTranspose().
    */
   protected def vDice() = {
     var tmp: Int = 0
@@ -444,7 +444,7 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
    *
    * @throws IndexOutOfBoundsException
    *             if
-   *             <tt>column<0 || width<0 || column+width>columns() || row<0 || height<0 || row+height>rows()</tt>
+   *             <tt>column<0 || width<0 || column+width>columns || row<0 || height<0 || row+height>rows</tt>
    */
   protected def vPart(row: Int, column: Int, height: Int, width: Int) = {
     checkBox(row, column, height, width)

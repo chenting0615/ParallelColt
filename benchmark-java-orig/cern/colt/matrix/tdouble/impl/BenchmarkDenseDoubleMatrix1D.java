@@ -4,13 +4,13 @@ import java.util.Random;
 
 import cern.colt.function.Function1;
 import cern.colt.function.Procedure1;
+import cern.colt.list.impl.ArrayList;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import cern.colt.Timer;
-import cern.colt.list.tdouble.DoubleArrayList;
 import cern.colt.list.tint.IntArrayList;
 import cern.colt.matrix.BenchmarkMatrixKernel;
 import cern.colt.matrix.tdcomplex.DComplexMatrix1D;
@@ -975,7 +975,7 @@ public class BenchmarkDenseDoubleMatrix1D {
         /* No view */
         DenseDoubleMatrix1D A = new DenseDoubleMatrix1D(a);
         IntArrayList indexList = new IntArrayList();
-        DoubleArrayList valueList = new DoubleArrayList();
+        ArrayList valueList = new ArrayList();
         for (int i = 0; i < BenchmarkMatrixKernel.NTHREADS.length; i++) {
             ConcurrencyUtils.setNumberOfThreads(BenchmarkMatrixKernel.NTHREADS[i]);
 
@@ -1022,7 +1022,7 @@ public class BenchmarkDenseDoubleMatrix1D {
         DenseDoubleMatrix1D A = new DenseDoubleMatrix1D(a);
         A.assign(DoubleFunctions.mult(-1));
         IntArrayList indexList = new IntArrayList();
-        DoubleArrayList valueList = new DoubleArrayList();
+        ArrayList valueList = new ArrayList();
         for (int i = 0; i < BenchmarkMatrixKernel.NTHREADS.length; i++) {
             ConcurrencyUtils.setNumberOfThreads(BenchmarkMatrixKernel.NTHREADS[i]);
 

@@ -8,15 +8,11 @@ import edu.emory.mathcs.csparsej.tdouble.Dcs_transpose
 import edu.emory.mathcs.csparsej.tdouble.Dcs_util
 import SparseCCMatrix2D._
 import cern.colt.matrix.{Matrix1D, Matrix2D}
-import it.unimi.dsi.fastutil.ints.IntArrayList
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList
+import cern.colt.list.impl.ArrayList
 
 object SparseCCMatrix2D {
 
-  private def searchFromTo(list: Array[Int],
-      key: Int,
-      from_p: Int,
-      to: Int): Int = {
+  private def searchFromTo(list: Array[Int], key: Int, from_p: Int, to: Int): Int = {
     var from = from_p
     while (from <= to) {
       if (list(from) == key) {
@@ -138,7 +134,7 @@ object SparseCCMatrix2D {
  */
 @specialized(Double)
 @SerialVersionUID(1L)
-class SparseCCMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
+class SparseCCMatrix2D[T: Manifest](rows: Int, columns: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
 
   protected var rowIndexesSorted: Boolean = false
 
@@ -477,7 +473,7 @@ class SparseCCMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int, nz
 
   override def like2D(rows: Int, columns: Int): Matrix2D[T] = new SparseCCMatrix2D(rows, columns)
 
-  override def like1D(size: Int): Matrix1D[T] = new SparseMatrix1D[T](size)
+  override def like1D(size: Int): Matrix1D[T] = new SparseHashMatrix1D[T](size)
 
   override def setQuick(row: Int, column: Int, value: T) {
     synchronized {
@@ -543,14 +539,11 @@ class SparseCCMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int, nz
     builder.toString()
   }
 
-  protected def insert(row: Int,
-      column: Int,
-      index: Int,
-      value: T) {
-    val rowIndexes = new IntArrayList(dcs.i)
-    rowIndexes.size(dcs.p(columns))
-    val values = new DoubleArrayList(dcs.x)
-    values.size(dcs.p(columns))
+  protected def insert(row: Int, column: Int, index: Int, value: T) {
+    val rowIndexes = new ArrayList[Int](dcs.i)
+    rowIndexes.setSize(dcs.p(columns))
+    val values = new ArrayList[Double](dcs.x)
+    values.setSize(dcs.p(columns))
     rowIndexes.set(index, row)
     values.set(index, value.asInstanceOf[Double])
     var i = dcs.p.length
@@ -561,8 +554,8 @@ class SparseCCMatrix2D[T: Manifest: FastUtilLongMap](rows: Int, columns: Int, nz
   }
 
   protected def remove(column: Int, index: Int) {
-    val rowIndexes = new IntArrayList(dcs.i)
-    val values = new DoubleArrayList(dcs.x)
+    val rowIndexes = new ArrayList[Int](dcs.i)
+    val values = new ArrayList[Double](dcs.x)
     rowIndexes.remove(index)
     values.remove(index)
     var i = dcs.p.length

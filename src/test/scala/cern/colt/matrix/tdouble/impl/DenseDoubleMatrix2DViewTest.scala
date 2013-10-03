@@ -1,13 +1,12 @@
 package cern.colt.matrix.tdouble.impl
 
-//remove if not needed
-import scala.collection.JavaConversions._
+import cern.colt.matrix.MatrixTypes.DenseDoubleMatrix2D
 
 class DenseDoubleMatrix2DViewTest(arg0: String) extends DenseMatrix2DTest(arg0) {
 
-  protected def createMatrices() {
-    A = new DenseMatrix2D(NCOLUMNS, NROWS).viewDice()
-    B = new DenseMatrix2D(NCOLUMNS, NROWS).viewDice()
-    Bt = new DenseMatrix2D(NROWS, NCOLUMNS).viewDice()
+  override protected def createMatrices() {
+    A = new DenseDoubleMatrix2D(NCOLUMNS, NROWS).viewTranspose()
+    B = new DenseDoubleMatrix2D(NCOLUMNS, NROWS).viewTranspose()
+    Bt = new DenseDoubleMatrix2D(NROWS, NCOLUMNS).viewTranspose()
   }
 }

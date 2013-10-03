@@ -18,7 +18,15 @@ abstract class RemappedMatrix2D[T: Manifest] extends AbstractMatrix2D[T] {
 
   isNoView = false
 
-  def viewColumn(column: Int): Matrix1D[T] = viewTranspose().viewRow(column)
+  def viewRow(row: Int): Matrix1D[T] = {
+    checkRow(row)
+    new WrappedRowMatrix1D[T](this, row)
+  }
+
+  def viewColumn(column: Int): Matrix1D[T] = {
+    checkColumn(column)
+    new WrappedColumnMatrix1D[T](this, column)
+  }
 
   override def viewColumnFlip(): AbstractMatrix2D[T] = {
     if (columnsVar == 0) return this
@@ -45,11 +53,6 @@ abstract class RemappedMatrix2D[T: Manifest] extends AbstractMatrix2D[T] {
     view.rowsVar = height
     view.columnsVar = width
     view
-  }
-
-  def viewRow(row: Int): Matrix1D[T] = {
-    checkRow(row)
-    new WrappedRowMatrix1D(this, row)
   }
 
   override def viewRowFlip(): AbstractMatrix2D[T] = {

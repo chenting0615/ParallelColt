@@ -71,7 +71,7 @@ class DenseMatrix1D[T: Manifest](size: Int) extends StrideMatrix1D[T] {
     this.isNoView = !isView
   }
 
-  def elements(): Array[T] = elementsVar
+  def elements: Array[T] = elementsVar
 
   override def assignConstant(value: T) = {
     if (zeroVar == 0 && strideVar == 1) {

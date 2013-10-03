@@ -1,8 +1,5 @@
 package cern.jet.random.tdouble
 
-//remove if not needed
-import scala.collection.JavaConversions._
-
 /**
  * Abstract base class for all continous distributions.
  *

@@ -7,9 +7,9 @@ public class SparseCCFloatMatrix2DViewTest extends SparseCCFloatMatrix2DTest {
     }
 
     protected void createMatrices() throws Exception {
-        A = new SparseCCFloatMatrix2D(NCOLUMNS, NROWS).viewDice();
-        B = new SparseCCFloatMatrix2D(NCOLUMNS, NROWS).viewDice();
-        Bt = new SparseCCFloatMatrix2D(NROWS, NCOLUMNS).viewDice();
+        A = new SparseCCFloatMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        B = new SparseCCFloatMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        Bt = new SparseCCFloatMatrix2D(NROWS, NCOLUMNS).viewTranspose();
     }
 
 }

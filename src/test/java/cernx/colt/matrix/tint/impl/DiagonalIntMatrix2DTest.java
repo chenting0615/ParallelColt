@@ -31,34 +31,34 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
         ConcurrencyUtils.setThreadsBeginN_2D(1);
         if (DINDEX >= 0) {
             for (int r = 0; r < DLENGTH; r++) {
-                A.setQuick(r, r + DINDEX, Math.max(1, rand.nextInt() % A.rows()));
+                A.setQuick(r, r + DINDEX, Math.max(1, rand.nextInt() % A.rows));
             }
 
             for (int r = 0; r < DLENGTH; r++) {
-                B.setQuick(r, r + DINDEX, Math.max(1, rand.nextInt() % A.rows()));
+                B.setQuick(r, r + DINDEX, Math.max(1, rand.nextInt() % A.rows));
             }
 
             for (int r = 0; r < DLENGTH; r++) {
-                Bt.setQuick(r - DINDEX, r, Math.max(1, rand.nextInt() % A.rows()));
+                Bt.setQuick(r - DINDEX, r, Math.max(1, rand.nextInt() % A.rows));
             }
 
         } else {
             for (int r = 0; r < DLENGTH; r++) {
-                A.setQuick(r - DINDEX, r, Math.max(1, rand.nextInt() % A.rows()));
+                A.setQuick(r - DINDEX, r, Math.max(1, rand.nextInt() % A.rows));
             }
 
             for (int r = 0; r < DLENGTH; r++) {
-                B.setQuick(r - DINDEX, r, Math.max(1, rand.nextInt() % A.rows()));
+                B.setQuick(r - DINDEX, r, Math.max(1, rand.nextInt() % A.rows));
             }
             for (int r = 0; r < DLENGTH; r++) {
-                Bt.setQuick(r, r + DINDEX, Math.max(1, rand.nextInt() % A.rows()));
+                Bt.setQuick(r, r + DINDEX, Math.max(1, rand.nextInt() % A.rows));
             }
 
         }
     }
 
     public void testAssignInt() {
-        int value = Math.max(1, rand.nextInt() % A.rows());
+        int value = Math.max(1, rand.nextInt() % A.rows);
         A.assign(value);
         if (DINDEX >= 0) {
             for (int r = 0; r < DLENGTH; r++) {
@@ -75,7 +75,7 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
         int[][] expected = new int[NROWS][NCOLUMNS];
         for (int r = 0; r < NROWS; r++) {
             for (int c = 0; c < NCOLUMNS; c++) {
-                expected[r][c] = Math.max(1, rand.nextInt() % A.rows());
+                expected[r][c] = Math.max(1, rand.nextInt() % A.rows);
             }
         }
         A.assign(expected);
@@ -340,9 +340,9 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
     }
 
     public void testViewDice() {
-        IntMatrix2D B = A.viewDice();
-        assertEquals(NROWS, B.columns());
-        assertEquals(NCOLUMNS, B.rows());
+        IntMatrix2D B = A.viewTranspose();
+        assertEquals(NROWS, B.columns);
+        assertEquals(NCOLUMNS, B.rows);
         for (int r = 0; r < NROWS; r++) {
             for (int c = 0; c < NCOLUMNS; c++) {
                 assertEquals(A.getQuick(r, c), B.getQuick(c, r));
@@ -352,8 +352,8 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
 
     public void testViewPart() {
         IntMatrix2D B = A.viewPart(NROWS / 2, NCOLUMNS / 2, NROWS / 3, NCOLUMNS / 3);
-        assertEquals(NROWS / 3, B.rows());
-        assertEquals(NCOLUMNS / 3, B.columns());
+        assertEquals(NROWS / 3, B.rows);
+        assertEquals(NCOLUMNS / 3, B.columns);
         for (int r = 0; r < NROWS / 3; r++) {
             for (int c = 0; c < NCOLUMNS / 3; c++) {
                 assertEquals(A.getQuick(NROWS / 2 + r, NCOLUMNS / 2 + c), B.getQuick(r, c));
@@ -394,8 +394,8 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
                     }
                 }
             });
-            assertEquals(1, B.rows());
-            assertEquals(NCOLUMNS, B.columns());
+            assertEquals(1, B.rows);
+            assertEquals(NCOLUMNS, B.columns);
             assertEquals(A.getQuick(NROWS / 4, NROWS / 4 + DINDEX), B.getQuick(0, NROWS / 4 + DINDEX));
         } else {
             A.setQuick(NROWS / 4 - DINDEX, NROWS / 4, value);
@@ -409,8 +409,8 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
                     }
                 }
             });
-            assertEquals(1, B.rows());
-            assertEquals(NCOLUMNS, B.columns());
+            assertEquals(1, B.rows);
+            assertEquals(NCOLUMNS, B.columns);
             assertEquals(A.getQuick(NROWS / 4 - DINDEX, NROWS / 4), B.getQuick(0, NROWS / 4));
         }
     }
@@ -419,8 +419,8 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
         int[] rowIndexes = new int[] { NROWS / 6, NROWS / 5, NROWS / 4, NROWS / 3, NROWS / 2 };
         int[] colIndexes = new int[] { NROWS / 6, NROWS / 5, NROWS / 4, NROWS / 3, NROWS / 2, NROWS - 1 };
         IntMatrix2D B = A.viewSelection(rowIndexes, colIndexes);
-        assertEquals(rowIndexes.length, B.rows());
-        assertEquals(colIndexes.length, B.columns());
+        assertEquals(rowIndexes.length, B.rows);
+        assertEquals(colIndexes.length, B.columns);
         for (int r = 0; r < rowIndexes.length; r++) {
             for (int c = 0; c < colIndexes.length; c++) {
                 assertEquals(A.getQuick(rowIndexes[r], colIndexes[c]), B.getQuick(r, c));
@@ -439,8 +439,8 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
         int rowStride = 3;
         int colStride = 5;
         IntMatrix2D B = A.viewStrides(rowStride, colStride);
-        for (int r = 0; r < B.rows(); r++) {
-            for (int c = 0; c < B.columns(); c++) {
+        for (int r = 0; r < B.rows; r++) {
+            for (int c = 0; c < B.columns; c++) {
                 assertEquals(A.getQuick(r * rowStride, c * colStride), B.getQuick(r, c));
             }
         }
@@ -451,7 +451,7 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
         int beta = 5;
         IntMatrix2D C = new DiagonalIntMatrix2D(NROWS, NROWS, 0);
         for (int i = 0; i < DLENGTH; i++) {
-            C.setQuick(i, i, Math.max(1, rand.nextInt() % A.rows()));
+            C.setQuick(i, i, Math.max(1, rand.nextInt() % A.rows));
         }
         int[][] expected = C.toArray();
         C = A.zMult(Bt, C, alpha, beta, false, false);
@@ -492,7 +492,7 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
         //transposeA
         C = new DiagonalIntMatrix2D(NCOLUMNS, NCOLUMNS, 0);
         for (int i = 0; i < DLENGTH; i++) {
-            C.setQuick(i, i, Math.max(1, rand.nextInt() % A.rows()));
+            C.setQuick(i, i, Math.max(1, rand.nextInt() % A.rows));
         }
         expected = C.toArray();
         C = A.zMult(B, C, alpha, beta, true, false);
@@ -532,7 +532,7 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
         //transposeB
         C = new DiagonalIntMatrix2D(NROWS, NROWS, 0);
         for (int i = 0; i < DLENGTH; i++) {
-            C.setQuick(i, i, Math.max(1, rand.nextInt() % A.rows()));
+            C.setQuick(i, i, Math.max(1, rand.nextInt() % A.rows));
         }
         expected = C.toArray();
         C = A.zMult(B, C, alpha, beta, false, true);
@@ -571,7 +571,7 @@ public class DiagonalIntMatrix2DTest extends IntMatrix2DTest {
         //transposeA and transposeB
         C = new DiagonalIntMatrix2D(NCOLUMNS, NCOLUMNS, 0);
         for (int i = 0; i < DLENGTH; i++) {
-            C.setQuick(i, i, Math.max(1, rand.nextInt() % A.rows()));
+            C.setQuick(i, i, Math.max(1, rand.nextInt() % A.rows));
         }
         expected = C.toArray();
         C = A.zMult(Bt, C, alpha, beta, true, true);

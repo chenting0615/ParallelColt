@@ -48,7 +48,9 @@ abstract class StrideMatrix1D[T: Manifest] extends AbstractMatrix1D[T] {
    * @param index
    *            the index of the cell within this matrix.
    */
-  protected def toRawIndex(index: Int): Long = zeroVar + index * strideVar
+  def toRawIndex(index: Int): Long = zeroVar + index * strideVar
+
+  def toExternalIndex(index: Long): Int = ((index - zeroVar) / strideVar).toInt
 
   /**
    * Sets up a matrix with a given number of cells.

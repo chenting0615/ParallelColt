@@ -1,7 +1,8 @@
 package cern.colt.matrix.impl
 
 import cern.colt.matrix._
-import it.unimi.dsi.fastutil.ints.IntArrayList
+import cern.colt.list.impl.ArrayList
+import cern.colt.function.Matrix1DProcedure
 
 /**
  * Dense 2-d matrix holding a specific type elements in an array. First see the <a
@@ -121,9 +122,9 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
     this
   }
 
-  override def assign(values: Array[T]): DenseMatrix2D[T] = {
+  override def assign(values: Array[T]) = {
     if (values.length < size)
-      throw new IllegalArgumentException("Must have same length: length=" + values.length + " rows()*columns()=" + rows * columns)
+      throw new IllegalArgumentException("Must have same length: length=" + values.length + " rows*columns=" + rows * columns)
     if (this.isNoView) {
       System.arraycopy(values, 0, this.elementsVar, 0, values.length)
     }
@@ -139,11 +140,11 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
 
   override def assign(values: Array[Array[T]]) = {
     if (values.length != rows)
-      throw new IllegalArgumentException("Must have same number of rows: rows=" + values.length + "rows()=" + rows)
+      throw new IllegalArgumentException("Must have same number of rows: rows=" + values.length + "rows=" + rows)
     for (r <- 0 until rowsVar) {
       val currentRow = values(r)
       if (currentRow.length != columnsVar)
-        throw new IllegalArgumentException("Must have same number of columns in every row: columns=" + currentRow.length + "columns()=" + columns)
+        throw new IllegalArgumentException("Must have same number of columns in every row: columns=" + currentRow.length + "columns=" + columns)
       for (c <- 0 until columnsVar) {
         elementsVar(toRawIndex(r, c)) = currentRow(c)
       }
@@ -235,11 +236,11 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
    */
   override def toArray(values: Array[Array[T]]): Array[Array[T]] = {
     if (values.length != rowsVar)
-      throw new IllegalArgumentException("Must have same length rows: length=" + values.length + " rows()=" + rowsVar)
+      throw new IllegalArgumentException("Must have same length rows: length=" + values.length + " rows=" + rowsVar)
     for (r <- 0 until rowsVar) {
       val currentRow = values(r)
       if (currentRow.length != columnsVar)
-        throw new IllegalArgumentException("Must have same length columns: length=" + currentRow.length + " columns()=" + columnsVar)
+        throw new IllegalArgumentException("Must have same length columns: length=" + currentRow.length + " columns=" + columnsVar)
       for (c <- 0 until columnsVar) {
         currentRow(c) = elementsVar(toRawIndex(r, c))
       }
@@ -270,7 +271,7 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
    *            the column to fix.
    * @return a new slice view.
    * @throws IndexOutOfBoundsException
-   *             if <tt>column < 0 || column >= columns()</tt>.
+   *             if <tt>column < 0 || column >= columns</tt>.
    * @see #viewRow(int)
    */
   def viewColumn(column: Int): StrideMatrix1D[T] = {
@@ -304,7 +305,7 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
    *            the row to fix.
    * @return a new slice view.
    * @throws IndexOutOfBoundsException
-   *             if <tt>row < 0 || row >= rows()</tt>.
+   *             if <tt>row < 0 || row >= rows</tt>.
    * @see #viewColumn(int)
    */
   def viewRow(row: Int): StrideMatrix1D[T] = {
@@ -354,9 +355,10 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
    * @return the new view.
    */
   override def viewRowSelection(condition: Matrix1DProcedure[T]): Matrix2D[T] = {
-    val matches = new IntArrayList()
+    val matches = new ArrayList[Int](rowsVar)
     for (i <- 0 until rowsVar) if (condition.apply(viewRow(i))) matches.add(i)
-    viewSelection(matches.toIntArray, null)
+    matches.trimToSize()
+    viewSelection(matches.elements(), null)
   }
 
   /**
@@ -398,8 +400,9 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
    * @return the new view.
    */
   override def viewColumnSelection(condition: Matrix1DProcedure[T]): Matrix2D[T] = {
-      val matches = new IntArrayList()
-      for (i <- 0 until columnsVar) if (condition.apply(viewColumn(i))) matches.add(i)
-      viewSelection(null, matches.toIntArray)
-    }
+    val matches = new ArrayList[Int](columnsVar)
+    for (i <- 0 until columnsVar) if (condition.apply(viewColumn(i))) matches.add(i)
+    matches.trimToSize()
+    viewSelection(null, matches.elements())
+  }
 }

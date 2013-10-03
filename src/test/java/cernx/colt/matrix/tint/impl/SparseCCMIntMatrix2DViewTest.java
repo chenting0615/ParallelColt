@@ -7,9 +7,9 @@ public class SparseCCMIntMatrix2DViewTest extends SparseCCMIntMatrix2DTest {
     }
 
     protected void createMatrices() throws Exception {
-        A = new SparseCCMIntMatrix2D(NCOLUMNS, NROWS).viewDice();
-        B = new SparseCCMIntMatrix2D(NCOLUMNS, NROWS).viewDice();
-        Bt = new SparseCCMIntMatrix2D(NROWS, NCOLUMNS).viewDice();
+        A = new SparseCCMIntMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        B = new SparseCCMIntMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        Bt = new SparseCCMIntMatrix2D(NROWS, NCOLUMNS).viewTranspose();
     }
 
 }

@@ -6,7 +6,10 @@ package cern.colt.matrix
 @SerialVersionUID(1L)
 trait IndexIterator[T] {
 
-  def hasNext: Boolean
+  def hasValue: Boolean
 
-  def next(): T
+  def increment(): Boolean
+
+  def value: T
+
 }

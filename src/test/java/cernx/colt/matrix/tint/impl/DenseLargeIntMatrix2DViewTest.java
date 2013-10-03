@@ -7,8 +7,8 @@ public class DenseLargeIntMatrix2DViewTest extends DenseLargeIntMatrix2DTest {
     }
 
     protected void createMatrices() throws Exception {
-        A = new DenseLargeIntMatrix2D(NCOLUMNS, NROWS).viewDice();
-        B = new DenseLargeIntMatrix2D(NCOLUMNS, NROWS).viewDice();
-        Bt = new DenseLargeIntMatrix2D(NROWS, NCOLUMNS).viewDice();
+        A = new DenseLargeIntMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        B = new DenseLargeIntMatrix2D(NCOLUMNS, NROWS).viewTranspose();
+        Bt = new DenseLargeIntMatrix2D(NROWS, NCOLUMNS).viewTranspose();
     }
 }

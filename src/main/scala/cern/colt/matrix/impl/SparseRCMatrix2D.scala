@@ -3,15 +3,11 @@ package cern.colt.matrix.impl
 import java.util.Arrays
 import SparseRCMatrix2D._
 import cern.colt.matrix.Matrix2D
-import it.unimi.dsi.fastutil.ints.IntArrayList
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList
+import cern.colt.list.impl.ArrayList
 
 object SparseRCMatrix2D {
 
-  private def searchFromTo(list: Array[Int],
-      key: Int,
-      from_p: Int,
-      to: Int): Int = {
+  private def searchFromTo(list: Array[Int], key: Int, from_p: Int, to: Int): Int = {
     var from = from_p
     while (from <= to) {
       if (list(from) == key) {
@@ -42,7 +38,7 @@ object SparseRCMatrix2D {
  * <li>switch from zero to non-zero state do use memory.
  * <li>switch back from non-zero to zero state also do use memory. Their memory
  * is <i>not</i> automatically reclaimed (because of the lists vs. arrays).
- * Reclamation can be triggered via {@link #trimToSize()}.
+ * Reclamation can be triggered via trimToSize().
  * </ul>
  * <p>
  * <tt>memory [bytes] = 4*rows + 12 * nonZeros</tt>. <br>
@@ -89,7 +85,7 @@ object SparseRCMatrix2D {
  * <tt>sparse.assign(dense)</tt>. Under the circumstances, this is still rather
  * quick.
  * <p>
- * Fast iteration over non-zeros can be done via {@link #forEachNonZero}, which
+ * Fast iteration over non-zeros can be done via forEachNonZero(), which
  * supplies your function with row, column and value of each nonzero. Although
  * the internally implemented version is a bit more sophisticated, here is how a
  * quite efficient user-level matrix-vector multiplication could look like:
@@ -132,7 +128,7 @@ object SparseRCMatrix2D {
  */
 @specialized(Double)
 @SerialVersionUID(1L)
-class SparseRCMatrix2D[T: Manifest: FastUtilLongMap](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
+class SparseRCMatrix2D[T: Manifest](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
 
   protected var rowPointers: Array[Int] = new Array[Int](rows_p + 1)
 
@@ -428,7 +424,7 @@ class SparseRCMatrix2D[T: Manifest: FastUtilLongMap](rows_p: Int, columns_p: Int
 
   override def like2D(rows: Int, columns: Int) = new SparseRCMatrix2D(rows, columns)
 
-  override def like1D(size: Int) = new SparseMatrix1D[T](size)
+  override def like1D(size: Int) = new SparseHashMatrix1D[T](size)
 
   /**
    * Removes (sums) duplicate entries (if any}
@@ -555,10 +551,10 @@ class SparseRCMatrix2D[T: Manifest: FastUtilLongMap](rows_p: Int, columns_p: Int
   }
 
   protected def insert(row: Int, column: Int, index: Int, value: T) {
-    val columnIndexesList = new IntArrayList(columnIndexes)
-    columnIndexesList.size(rowPointers(rows))
-    val valuesList = new DoubleArrayList(values.asInstanceOf[Array[Double]])
-    valuesList.size(rowPointers(rows))
+    val columnIndexesList = new ArrayList[Int](columnIndexes)
+    columnIndexesList.setSize(rowPointers(rows))
+    val valuesList = new ArrayList[Double](values.asInstanceOf[Array[Double]])
+    valuesList.setSize(rowPointers(rows))
     columnIndexesList.set(index, column)
     valuesList.set(index, value.asInstanceOf[Double])
     var i = rowPointers.length-1
@@ -568,10 +564,10 @@ class SparseRCMatrix2D[T: Manifest: FastUtilLongMap](rows_p: Int, columns_p: Int
   }
 
   protected def remove(row: Int, index: Int) {
-    val columnIndexesList = new IntArrayList(columnIndexes)
-    columnIndexesList.size(rowPointers(rows))
-    val valuesList = new DoubleArrayList(values.asInstanceOf[Array[Double]])
-    valuesList.size(rowPointers(rows))
+    val columnIndexesList = new ArrayList[Int](columnIndexes)
+    columnIndexesList.setSize(rowPointers(rows))
+    val valuesList = new ArrayList[Double](values.asInstanceOf[Array[Double]])
+    valuesList.setSize(rowPointers(rows))
     columnIndexesList.remove(index)
     valuesList.remove(index)
     var i = rowPointers.length-1

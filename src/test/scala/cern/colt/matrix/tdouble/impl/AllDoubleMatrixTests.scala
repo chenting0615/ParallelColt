@@ -7,7 +7,7 @@ object AllDoubleMatrixTests {
 
   def suite(): Test = {
     val suite = new TestSuite("cern.colt.matrix.tdouble tests")
-    suite.addTestSuite(classOf[DenseMatrix1DTest])
+    suite.addTestSuite(classOf[DenseDoubleMatrix1DTest])
     suite.addTestSuite(classOf[DenseDoubleMatrix1DViewTest])
     suite.addTestSuite(classOf[SparseMatrix1DTest])
     suite.addTestSuite(classOf[SparseDoubleMatrix1DViewTest])

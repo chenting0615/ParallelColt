@@ -4,14 +4,14 @@
 <p>Assume, we would like to sort the rows of a 2d matrix by the the last column (representing "age"). This can be done with
 <pre>
 // sort by last column
-sorted = matrix.viewSorted(matrix.columns()-1);
+sorted = matrix.viewSorted(matrix.columns-1);
 </pre>
 <p>Or assume, we would like to sort the columns of a 2d matrix by the the last row. 
 Unfortunately, there is no convenience method to directly sort by row. So we need to view columns as rows and rows as columns, then sort, then adjust our view again.
 <pre>
 // sort by last row
-int lastRow = matrix.rows()-1;
-sorted = matrix.viewDice().viewSorted(lastRow).viewDice();
+int lastRow = matrix.rows-1;
+sorted = matrix.viewTranspose().viewSorted(lastRow).viewTranspose();
 </pre>
 <p>Next, we would like to sort the rows of a 2d matrix by the aggregate sum 
   of values in a row. A <i>comparator</i> object is used to do the job: 

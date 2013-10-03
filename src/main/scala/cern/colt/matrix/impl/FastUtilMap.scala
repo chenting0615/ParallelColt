@@ -2,39 +2,40 @@ package cern.colt.matrix.impl
 
 import java.{lang => jl}
 import java.{util => ju}
-import it.unimi.dsi.fastutil.longs._
+import cern.colt.map.impl.OpenHashMap
 
 abstract class FastUtilMap[K, V] {
+/*
   type Key = K
   type Value = V
   type BoxedKey
   type BoxedValue
 
-  type MapType <: ju.Map[BoxedKey, BoxedValue]{def trim() : Boolean}
+  type MapType <: ju.Map[BoxedKey, BoxedValue]{def trimToSize() : Boolean}
 
   def createMap(initialCapacity: Int, loadFactor: Float): MapType
   @inline def get(map: MapType, key: Key) : Value
-  @inline def put(map: MapType, key: Key, value: Value) : Value
+  @inline def put(map: MapType, key: Key, value: Value) : Boolean
   // TODO put & get are the minimum needed to compile but other specialized methods should also be handled here
+*/
 
 }
 
 object FastUtilMap {
 
-  val m: ju.Map[java.lang.Long, java.lang.Double]  =  new Long2DoubleOpenHashMap()
-
+/*
   implicit object LongDouble extends FastUtilMap[Long, Double] {
     type BoxedKey = jl.Long
     type BoxedValue = jl.Double
 
-    type MapType = Long2DoubleOpenHashMap
+    type MapType = OpenHashMap[Long, Double]
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2DoubleOpenHashMap(initialCapacity, loadFactor)
+      new OpenHashMap[Long, Double](initialCapacity, loadFactor, loadFactor)
     }
 
     @inline def get(map: MapType, key: Key) : Value  = map.get(key)
-    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
+    @inline def put(map: MapType, key: Key, value: Value) : Boolean =  map.put(key, value)
 
   }
 
@@ -42,56 +43,57 @@ object FastUtilMap {
     type BoxedKey = jl.Long
     type BoxedValue = jl.Float
 
-    type MapType = Long2FloatOpenHashMap
+    type MapType = OpenHashMap[Long, Float]
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2FloatOpenHashMap(initialCapacity, loadFactor)
+      new OpenHashMap[Long, Float](initialCapacity, loadFactor, loadFactor)
     }
 
     @inline def get(map: MapType, key: Key) : Value  = map.get(key)
-    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
+    @inline def put(map: MapType, key: Key, value: Value) : Boolean =  map.put(key, value)
   }
 
   implicit object LongLong extends FastUtilMap[Long, Long] {
     type BoxedKey = jl.Long
     type BoxedValue = jl.Long
 
-    type MapType = Long2LongOpenHashMap
+    type MapType = OpenHashMap[Long, Long]
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2LongOpenHashMap(initialCapacity, loadFactor)
+      new OpenHashMap[Long, Long](initialCapacity, loadFactor, loadFactor)
     }
 
     @inline def get(map: MapType, key: Key) : Value  = map.get(key)
-    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
+    @inline def put(map: MapType, key: Key, value: Value) : Boolean =  map.put(key, value)
   }
 
   implicit object LongInt extends FastUtilMap[Long, Int] {
     type BoxedKey = jl.Long
     type BoxedValue = jl.Integer
 
-    type MapType = Long2IntOpenHashMap
+    type MapType = OpenHashMap[Long, Int]
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2IntOpenHashMap(initialCapacity, loadFactor)
+      new OpenHashMap[Long, Int](initialCapacity, loadFactor, loadFactor)
     }
 
     def get(map: MapType, key: Key) : Value  = map.get(key)
-    def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
+    def put(map: MapType, key: Key, value: Value) : Boolean =  map.put(key, value)
   }
 
   implicit object LongObject extends FastUtilMap[Long, AnyRef] {
     type BoxedKey = jl.Long
     type BoxedValue = jl.Object
 
-    type MapType = Long2ObjectOpenHashMap[AnyRef]
+    type MapType = OpenHashMap[Long, Object]
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new Long2ObjectOpenHashMap[AnyRef](initialCapacity, loadFactor)
+      new OpenHashMap[Long, Object](initialCapacity, loadFactor, loadFactor)
     }
 
     @inline def get(map: MapType, key: Key) : Value  = map.get(key)
-    @inline def put(map: MapType, key: Key, value: Value) : Value =  map.put(key, value)
+    @inline def put(map: MapType, key: Key, value: Value) : Boolean =  map.put(key, value)
   }
+*/
 
 }

@@ -4,13 +4,13 @@ import java.util.Random;
 
 import cern.colt.function.Function3;
 import cern.colt.function.Procedure1;
+import cern.colt.list.impl.ArrayList;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import cern.colt.Timer;
-import cern.colt.list.tdouble.DoubleArrayList;
 import cern.colt.list.tint.IntArrayList;
 import cern.colt.matrix.BenchmarkMatrixKernel;
 import cern.colt.matrix.tdcomplex.DComplexMatrix2D;
@@ -1510,7 +1510,7 @@ public class BenchmarkDenseDoubleMatrix2D {
         DenseDoubleMatrix2D A = new DenseDoubleMatrix2D(a_2d);
         IntArrayList rowList = new IntArrayList();
         IntArrayList colList = new IntArrayList();
-        DoubleArrayList valueList = new DoubleArrayList();
+        ArrayList valueList = new ArrayList();
         for (int i = 0; i < BenchmarkMatrixKernel.NTHREADS.length; i++) {
             ConcurrencyUtils.setNumberOfThreads(BenchmarkMatrixKernel.NTHREADS[i]);
 
@@ -1561,7 +1561,7 @@ public class BenchmarkDenseDoubleMatrix2D {
         DenseDoubleMatrix2D A = new DenseDoubleMatrix2D(a_2d);
         IntArrayList rowList = new IntArrayList();
         IntArrayList columnList = new IntArrayList();
-        DoubleArrayList valueList = new DoubleArrayList();
+        ArrayList valueList = new ArrayList();
         for (int i = 0; i < BenchmarkMatrixKernel.NTHREADS.length; i++) {
             ConcurrencyUtils.setNumberOfThreads(BenchmarkMatrixKernel.NTHREADS[i]);
 
@@ -1611,7 +1611,7 @@ public class BenchmarkDenseDoubleMatrix2D {
         A.assign(DoubleFunctions.mult(-1));
         IntArrayList rowList = new IntArrayList();
         IntArrayList columnList = new IntArrayList();
-        DoubleArrayList valueList = new DoubleArrayList();
+        ArrayList valueList = new ArrayList();
         for (int i = 0; i < BenchmarkMatrixKernel.NTHREADS.length; i++) {
             ConcurrencyUtils.setNumberOfThreads(BenchmarkMatrixKernel.NTHREADS[i]);
 
