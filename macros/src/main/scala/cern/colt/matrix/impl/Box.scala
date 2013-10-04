@@ -13,7 +13,7 @@ trait Box[R] {
   def tParam : Boolean
 }
 
-case class Boxed[R, W <: AnyRef](val name: String, val bound: String= "", val tParam: Boolean = false) extends Box[R]  {
+case class Boxed[R, W <: AnyRef](val nameFragment: String, val bound: String= "", val tParam: Boolean = false) extends Box[R]  {
   type Wrap = W
 }
 

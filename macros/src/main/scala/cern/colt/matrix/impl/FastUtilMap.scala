@@ -37,17 +37,17 @@ abstract class FastUtilMap[@specialized K, @specialized V] {
 
 object FastUtilMap {
 
-  implicit def fastUtilMap[K, V](implicit bk: Box[K], bv: Box[V]) = macro fastUtilMap_impl[K, V]
+  implicit def fastUtilMap[K, V, BK <: AnyRef, BV <: AnyRef](implicit kbk: Boxed[K, BK], vbv: Boxed[V, BV]) : FastUtilMap[K, V]= macro fastUtilMap_impl[K, V, BK, BV]
 
-  def fastUtilMap_impl[K, V](c: Context)(bk: c.Expr[cern.colt.matrix.impl.Box[K]], bv: c.Expr[cern.colt.matrix.impl.Box[V]])(implicit k: c.WeakTypeTag[K], v: c.WeakTypeTag[V]) = {
+  def fastUtilMap_impl[K, V, BK <: AnyRef, BV <: AnyRef](c: Context)
+  (kbk: c.Expr[cern.colt.matrix.impl.Boxed[K, BK]], vbv: c.Expr[cern.colt.matrix.impl.Boxed[V, BV]])
+  (implicit k: c.WeakTypeTag[K], v: c.WeakTypeTag[V], bk: c.WeakTypeTag[BK], bv: c.WeakTypeTag[BV])  : c.Expr[FastUtilMap[K, V]]= {
     import c.universe._
-//    val Boxed(a, b, c) = bk
-//    val Boxed(d, e, f) = bv
-    val Key = typeOf[K]
-    val Value = bv.Raw.tpe
-    val BoxedKey = bk.Wrap.tpe
-    val BaxedValue = bv.Wap.tpe
-    val FUMap = typeOf[ju.Map[bk.Raw, bv.Wrap]]
+    val Key = ??? // ...k.tpe...
+    val Value = ??? // ...v.tpe...
+    val BoxedKey =  ???// ...bk.tpe...
+    val BoxedValue = ??? // ...bv.tpe  ...
+    val FUMap =  ???   // ${KeyNameFragment}2${ValNameFragment}OpenHashMap or ${KeyNameFragment}2${ValNameFragment}OpenHashMap[$Value] if Value <: AnyRef
     c.Expr[FastUtilMap[K, V]](q"""new cern.colt.matrix.impl.FastUtilMap[${Key}, ${Value}] {
     type BoxedKey = ${BoxedKey}
     type BoxedValue = ${BoxedValue}
@@ -65,85 +65,4 @@ object FastUtilMap {
   }""")
   }
 
-//  implicit object LongDouble extends FastUtilMap[Long, Double] {
-//    type BoxedKey = jl.Long
-//    type BoxedValue = jl.Double
-//    type FUMapType = Long2DoubleOpenHashMap
-//
-//    final class MapType(final val m: FUMapType) extends /*AnyVal with*/ Wrap {
-//      def get(k: Key) : Value = m.get(k)
-//      def put(k: Key, v: Value): Value = m.put(k, v)
-//      def remove(k: Key) : Value = m.remove()
-//    }
-//
-//    def createMap(initialCapacity: Int, loadFactor: Float) = {
-//      new MapType(new Long2DoubleOpenHashMap(initialCapacity, loadFactor))
-//    }
-//  }
-//
-//  implicit object LongFloat extends FastUtilMap[Long, Float] {
-//    type BoxedKey = jl.Long
-//    type BoxedValue = jl.Float
-//    type FUMapType = Long2FloatOpenHashMap
-//
-//    final class MapType(final val m: FUMapType) extends /*AnyVal with*/ Wrap {
-//      def get(k: Key) : Value = m.get(k)
-//      def put(k: Key, v: Value): Value = m.put(k, v)
-//      def remove(k: Key) : Value = m.remove()
-//    }
-//
-//    def createMap(initialCapacity: Int, loadFactor: Float) = {
-//      new MapType(new Long2FloatOpenHashMap(initialCapacity, loadFactor))
-//    }
-//  }
-//
-//  implicit object LongLong extends FastUtilMap[Long, Long] {
-//    type BoxedKey = jl.Long
-//    type BoxedValue = jl.Long
-//    type FUMapType = Long2LongOpenHashMap
-//
-//    final class MapType(final val m: FUMapType) extends /*AnyVal with*/ Wrap {
-//      def get(k: Key) : Value = m.get(k)
-//      def put(k: Key, v: Value): Value = m.put(k, v)
-//      def remove(k: Key) : Value = m.remove()
-//    }
-//
-//    def createMap(initialCapacity: Int, loadFactor: Float) = {
-//      new MapType(new Long2LongOpenHashMap(initialCapacity, loadFactor))
-//    }
-//  }
-//
-//  implicit object LongInt extends FastUtilMap[Long, Int] {
-//    type BoxedKey = jl.Long
-//    type BoxedValue = jl.Integer
-//    type FUMapType = Long2IntOpenHashMap
-//
-//    final class MapType(final val m: FUMapType) extends /*AnyVal with*/ Wrap {
-//      def get(k: Key) : Value = m.get(k)
-//      def put(k: Key, v: Value): Value = m.put(k, v)
-//      def remove(k: Key) : Value = m.remove()
-//    }
-//
-//    def createMap(initialCapacity: Int, loadFactor: Float) = {
-//      new MapType(new Long2IntOpenHashMap(initialCapacity, loadFactor))
-//    }
-//  }
-//
-//  trait LongObject[V<: AnyRef] extends FastUtilMap[Long, V] {
-//    type BoxedKey = jl.Long
-//    type BoxedValue = Value
-//    type FUMapType = Long2ObjectOpenHashMap[Value]
-//
-//    final class MapType(final val m: FUMapType) extends Wrap {
-//      def get(k: Key) : Value = m.get(k)
-//      def put(k: Key, v: Value): Value = m.put(k, v)
-//      def remove(k: Key) : Value = m.remove()
-//    }
-//
-//    def createMap(initialCapacity: Int, loadFactor: Float) = {
-//      new MapType(new Long2ObjectOpenHashMap[Value](initialCapacity, loadFactor))
-//    }
-//  }
-//
-//  implicit def LongObject[V<: AnyRef] = new LongObject[V]{}
 }
