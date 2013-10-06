@@ -242,7 +242,7 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
    *         otherwise.
    */
   def equals(A: Matrix[Double], B: Matrix[Double]): Boolean = {
-    if (A == B) return true
+    if (A eq B) return true
     if (A == null || B == null) return false
     A.equals(B, toleranceVar)
   }
@@ -691,7 +691,7 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
      * if <tt>this==DEFAULT || this==ZERO || this==TWELVE</tt>.
    */
   def setTolerance(newTolerance: Double) {
-    if (this == DoubleProperty.DEFAULT || this == DoubleProperty.ZERO || this == DoubleProperty.TWELVE)
+    if ((this eq DoubleProperty.DEFAULT) || (this eq DoubleProperty.ZERO) || (this eq DoubleProperty.TWELVE))
       throw new IllegalArgumentException("Attempted to modify immutable object.")
     toleranceVar = Math.abs(newTolerance)
   }

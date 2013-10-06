@@ -5,7 +5,7 @@ import cern.colt.matrix.Norm.Norm
 
 /**
   */
-trait MatrixAlgebra[T, M[T]] {
+trait MatrixAlgebra[T, M] {
 
   def assign(value: M[T], func: DoubleDoubleFunction): M[T]
 

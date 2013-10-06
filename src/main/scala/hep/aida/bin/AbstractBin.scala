@@ -17,7 +17,7 @@ package hep.aida.bin
  */
 @specialized
 @SerialVersionUID(1L)
-abstract class AbstractBin[T] extends cern.colt.PersistentObject {
+abstract class AbstractBin[T: Numeric] extends cern.colt.PersistentObject {
 
   /**
    * Returns <tt>center(0)</tt>.
@@ -39,7 +39,7 @@ abstract class AbstractBin[T] extends cern.colt.PersistentObject {
    * @param dimension
    *            the dimension to be considered (zero based).
    */
-  def center(dimension: Int): T = 0.5.asInstanceOf[T]
+  def center(dimension: Int): T = implicitly[Numeric[T]].one
 
   /**
    * Removes all elements from the receiver. The receiver will be empty after
@@ -54,9 +54,9 @@ abstract class AbstractBin[T] extends cern.colt.PersistentObject {
    */
   override def equals(otherObj: Any): Boolean = {
     if (otherObj == null) return false
-    if (otherObj == this) return true
     otherObj match {
       case other: AbstractBin[T] => {
+        if (other eq this) return true
         size == other.size && value() == other.value() && error() == other.error() && center() == other.center()
       }
       case _ => false
@@ -75,7 +75,7 @@ abstract class AbstractBin[T] extends cern.colt.PersistentObject {
    * @param dimension
    *            the dimension to be considered.
    */
-  def error(dimension: Int): T = 0.asInstanceOf[T]
+  def error(dimension: Int): T = implicitly[Numeric[T]].zero
 
   /**
    * Returns whether a client can obtain all elements added to the receiver.
@@ -102,7 +102,7 @@ abstract class AbstractBin[T] extends cern.colt.PersistentObject {
    * @param dimension
    *            the index of the considered dimension (zero based);
    */
-  def offset(dimension: Int): T = 1.0.asInstanceOf[T]
+  def offset(dimension: Int): T = implicitly[Numeric[T]].one
 
   /**
    * Returns the number of elements contained.
@@ -146,5 +146,5 @@ abstract class AbstractBin[T] extends cern.colt.PersistentObject {
    * @param dimension
    *            the dimension to be considered.
    */
-  def value(dimension: Int): T = 0.asInstanceOf[T]
+  def value(dimension: Int): T = implicitly[Numeric[T]].zero
 }

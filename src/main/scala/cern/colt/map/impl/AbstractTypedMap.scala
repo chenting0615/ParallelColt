@@ -127,9 +127,10 @@ abstract class AbstractTypedMap[K: Manifest, V: Manifest] extends AbstractMap {
    * @return <tt>true</tt> if the specified object is equal to this map.
    */
   override def equals(obj: Any): Boolean = {
-    if (obj == this) return true
+    if (obj == null) return false
     if (! obj.isInstanceOf[AbstractTypedMap[K, V]]) return false
     val other = obj.asInstanceOf[AbstractTypedMap[K, V]]
+    if (other eq this) return true
     if (other.size != size) return false
     forEachPair(new Procedure2[K, V]() {
 

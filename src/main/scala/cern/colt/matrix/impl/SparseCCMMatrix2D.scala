@@ -9,9 +9,9 @@ package cern.colt.matrix.impl
  */
 @specialized
 @SerialVersionUID(1L)
-class SparseCCMMatrix2D[T: Manifest](rows: Int, columns: Int) extends RemappedMatrix2D[T] {
+class SparseCCMMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int) extends RemappedMatrix2D[T] {
 
-  var elements = new Array[SparseHashMatrix1D[T]](columns)
+var elements = new Array[SparseHashMatrix1D[T]](columns)
 
   try {
     setUp(rows, columns)
@@ -21,7 +21,7 @@ class SparseCCMMatrix2D[T: Manifest](rows: Int, columns: Int) extends RemappedMa
 
   override def getQuick(row: Int, column: Int): T = {
     if (elements(column) == null)
-      0.asInstanceOf[T]
+      zero
     else
       elements(column).getQuick(row)
   }

@@ -7,10 +7,7 @@ import cern.colt.function.ProcedureTypes.{IntProcedure, IntIntProcedure}
 
 
 /**
- * Int Function objects to be passed to generic methods. Same as
- * {@link DoubleFunctions} except operating on longs.
- * <p>
- * For aliasing see {@link #intFunctions}.
+ * Integer Function objects to be passed to generic methods.
  *
  * @author wolfgang.hoschek@cern.ch
  * @version 1.0, 09/24/99
@@ -585,13 +582,13 @@ object IntFunctions {
    * number in the closed longerval <tt>[Int.MIN_VALUE,Int.MAX_VALUE]</tt>
    * (including <tt>Int.MIN_VALUE</tt> and <tt>Int.MAX_VALUE</tt>). Currently
    * the engine is
-   * {@link cern.jet.random.tdouble.engine.DoubleMersenneTwister} and is
+   * cern.jet.random.tdouble.engine.DoubleMersenneTwister and is
    * seeded with the current time.
    * <p>
    * Note that any random engine derived from
-   * {@link cern.jet.random.tdouble.engine.DoubleRandomEngine} and any random
+   * cern.jet.random.tdouble.engine.DoubleRandomEngine and any random
    * distribution derived from
-   * {@link cern.jet.random.tdouble.AbstractDoubleDistribution} are function
+   * cern.jet.random.tdouble.AbstractDoubleDistribution are function
    * objects, because they implement the proper longerfaces. Thus, if you are
    * not happy with the default, just pass your favourite random generator to
    * function evaluating methods.

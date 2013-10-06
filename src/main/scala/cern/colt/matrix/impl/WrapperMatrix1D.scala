@@ -13,7 +13,7 @@ import cern.colt.matrix._
  */
 @specialized
 @SerialVersionUID(1L)
-class WrapperMatrix1D[T: Manifest](protected val content1D: Matrix1D[T]) extends AbstractMatrix1D[T] {
+class WrapperMatrix1D[T: Manifest: Numeric](protected val content1D: Matrix1D[T]) extends AbstractMatrix1D[T] {
 
   sizeVar = content1D.size.toInt
 

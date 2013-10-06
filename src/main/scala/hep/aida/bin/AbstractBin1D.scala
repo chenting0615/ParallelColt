@@ -19,7 +19,7 @@ import cern.jet.stat.tdouble.DoubleDescriptive
  */
 @specialized
 @SerialVersionUID(1L)
-abstract class AbstractBin1D[T] extends AbstractBin[T] {
+abstract class AbstractBin1D[T: Numeric] extends AbstractBin[T] {
 
   /**
    * Adds the specified element to the receiver.
@@ -96,16 +96,16 @@ abstract class AbstractBin1D[T] extends AbstractBin[T] {
    */
   override def equals(obj: Any): Boolean = {
     if (obj == null) return false
-    if (obj == this) return true
     if (! obj.isInstanceOf[AbstractBin1D[T]]) return false
     val other = obj.asInstanceOf[AbstractBin1D[T]]
+    if (other eq this) return true
     size == other.size && min == other.min && max == other.max && sum == other.sum && sumOfSquares == other.sumOfSquares
   }
 
   /**
    * Returns the maximum.
    */
-  def max: T
+  def max: Double
 
   /**
    * Returns the arithmetic mean, which is <tt>Sum( x[i] ) / size()</tt>.
@@ -115,7 +115,7 @@ abstract class AbstractBin1D[T] extends AbstractBin[T] {
   /**
    * Returns the minimum.
    */
-  def min: T
+  def min: Double
 
   /**
    * Computes the relative error (in percent) from one measure to another.

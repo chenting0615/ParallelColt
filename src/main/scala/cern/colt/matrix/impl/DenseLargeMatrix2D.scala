@@ -21,9 +21,9 @@ package cern.colt.matrix.impl
  */
 @specialized
 @SerialVersionUID(1L)
-class DenseLargeMatrix2D[T: Manifest](rows: Int, columns: Int) extends RemappedMatrix2D[T] {
+class DenseLargeMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int) extends RemappedMatrix2D[T] {
 
-  var elementsVar = Array.ofDim[T](rows, columns)
+var elementsVar = Array.ofDim[T](rows, columns)
 
   try {
     setUp(rows, columns)

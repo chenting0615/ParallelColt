@@ -25,7 +25,7 @@ import cern.colt.matrix.Matrix
  */
 @specialized
 @SerialVersionUID(1L)
-abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D[T] {
+abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] {
 
   /**
    * the number of elements between two rows, i.e.
@@ -332,8 +332,8 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
    *             <tt>i=0..rowIndexes.length()-1</tt>.
    */
   def viewSelection(rowIndexes: Array[Int], columnIndexes: Array[Int]): AbstractMatrix2D[T] = {
-    val viewRows = if (rowIndexes != null) rowsVar else rowIndexes.length
-    val viewColumns = if (columnIndexes != null) columnsVar else columnIndexes.length
+    val viewRows = if (rowIndexes == null) rowsVar else rowIndexes.length
+    val viewColumns = if (columnIndexes == null) columnsVar else columnIndexes.length
     val view = new WrapperMatrix2D[T](this, viewRows, viewColumns) {
       override def remapIndexes(row: Int, column: Int) = {
         (if (rowIndexes == null) row else rowIndexes(row), if (columnIndexes == null) column else columnIndexes(column))
@@ -370,24 +370,6 @@ abstract class StrideMatrix2D[T: Manifest] protected () extends AbstractMatrix2D
    * TODO: Need to implement this
    */
   override def getStorageMatrix = storageMatrix
-
-
-  /**
-   * Returns <tt>true</tt> if both matrices share at least one identical cell.
-   */
-  def haveSharedCells(other: StrideMatrix2D[T]): Boolean = {
-    if (other == null) return false
-    if (this == other) return true
-    val m = getStorageMatrix
-    if (m == null) return false
-    val otherM = other.getStorageMatrix
-    if (otherM == null) return false
-    if (m == otherM) return true
-    if (m == this || otherM == this)
-      false
-    else
-      m.haveSharedCells(otherM)
-  }
 
   /**
    * Constructs and returns a new view equal to the receiver. The view is a

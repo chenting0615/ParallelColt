@@ -24,7 +24,7 @@ import scala.Tuple2
  */
 @specialized
 @SerialVersionUID(1L)
-class WrapperMatrix2D[T: Manifest](protected val content: Matrix2D[T], rows: Int, columns: Int) extends RemappedMatrix2D[T] {
+class WrapperMatrix2D[T: Manifest: Numeric](protected val content: Matrix2D[T], rows: Int, columns: Int) extends RemappedMatrix2D[T] {
 
   isNoView = false
   if (content == null)

@@ -77,7 +77,7 @@ import cern.colt.map.impl.OpenHashMap
 
 @specialized
 @SerialVersionUID(1L)
-class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: Int, minLoadFactor: Double, maxLoadFactor: Double) extends StrideMatrix2D[T] {
+class SparseHashMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, initialCapacity: Int, minLoadFactor: Double, maxLoadFactor: Double) extends StrideMatrix2D[T] {
 
   private var elementsVar = new OpenHashMap[Long, T](initialCapacity, minLoadFactor, maxLoadFactor)
 
@@ -144,7 +144,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
   }
 
   override def assignConstant(value: T) = {
-    if (this.isNoView && value == 0)
+    if (this.isNoView && value == zero)
       this.elementsVar.clear()
     else
       super.assignConstant(value)
@@ -152,7 +152,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
   }
 
   override def assign(source: Matrix2D[T]) = {
-    if (source != this) {
+    if (source ne this) {
       checkShape(source)
       var doFallBackAssign = true
       source match {
@@ -163,10 +163,11 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
             doFallBackAssign = false
           }
         }
+        case _ => {}
       }
       if (doFallBackAssign) {
         elementsVar.clear()
-        source.forEachNonZero(new Function3[Int, Int, T, T]() {
+        source.forEachNonZeroRowMajor(new Function3[Int, Int, T, T]() {
           def apply(row: Int, column: Int, value: T) = {
             set(row, column, value)
             value
@@ -284,7 +285,8 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
     this.elementsVar.ensureCapacity(minCapacity)
   }
 
-  override def forEachNonZero(function: Function3[Int, Int, T, T]): StrideMatrix2D[T] = {
+  /* We don't override the column-major version of this because it doesn't save much */
+  override def forEachNonZeroRowMajor(function: Function3[Int, Int, T, T]): StrideMatrix2D[T] = {
     if (this.isNoView) {
       for(key <- elementsVar.keys().elements()) {
         val row = (key / columns).toInt
@@ -296,7 +298,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
       }
     }
     else {
-      super.forEachNonZero(function)
+      super.forEachNonZeroRowMajor(function)
     }
     this
   }
@@ -314,10 +316,10 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
   def setQuick(row: Int, column: Int, value: T) {
     synchronized {
       val index = toRawIndex(row, column).toLong
-      if (value == 0)
+      if (value == zero)
         elementsVar.remove(index)
       else
-         elementsVar.put(index, value)
+        elementsVar.put(index, value)
     }
   }
 
@@ -328,7 +330,7 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
       .append('\n')
     for (r <- 0 until rows; c <- 0 until columns) {
       val elem = getQuick(r, c)
-      if (elem != 0) {
+      if (elem != zero) {
         builder.append('(').append(r).append(',').append(c)
           .append(')')
           .append('\t')
@@ -353,12 +355,12 @@ class SparseHashMatrix2D[T: Manifest](rows: Int, columns: Int, initialCapacity: 
         throw new IndexOutOfBoundsException("row: " + row + ", column: " + column + "rowsxcolumns=" + rows + "x" + columns)
       }
       val index = toRawIndex(row, column).toLong
-      if (value != 0) {
+      if (value != zero) {
         elementsVar.put(index, value)
       }
       else {
         val elem = elementsVar.get(index)
-        if (elem != 0) {
+        if (elem != zero) {
           elementsVar.remove(index)
         }
       }

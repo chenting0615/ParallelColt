@@ -217,11 +217,18 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
   }
 
   def testEqualsDouble() {
-    val value = 1
+    val value = 1.0
     A.assignConstant(value)
-    var eq = A == value
+    var eq = A.everyCellEquals(value)
     assertTrue(eq)
-    eq = A == 2
+    eq = A.everyCellEquals(2.0)
+    assertFalse(eq)
+
+    eq = A.equals(value)
+    assertFalse(eq)
+    eq = A.equals(2.0)
+    assertFalse(eq)
+    eq = A.equals(1)
     assertFalse(eq)
   }
 
@@ -237,7 +244,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
     val function = new IntIntDoubleFunction() {
       def apply(first: Int, second: Int, third: Double): Double = Math.sqrt(third)
     }
-    A.forEachNonZero(function)
+    A.forEachNonZeroRowMajor(function)
     for (r <- 0 until A.rows; c <- 0 until A.columns) {
       assertEquals(Math.sqrt(Acopy.getQuick(r, c)), A.getQuick(r, c), TOL)
     }
@@ -291,7 +298,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
     val rowList = new IntArrayList()
     val columnList = new IntArrayList()
     val valueList = new DoubleArrayList()
-    A.forEachNonZero(new IntIntDoubleFunction() {
+    A.forEachNonZeroRowMajor(new IntIntDoubleFunction() {
       def apply(row: Int, column: Int, value: Double) = {
         rowList.add(row)
         columnList.add(column)
@@ -514,7 +521,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
     val beta = 5
     var C: DoubleMatrix2D = new DenseDoubleMatrix2D(A.rows, A.rows)
     C.assign(DoubleFunctions.random())
-    var expected = C.toArray
+    var expected: Array[Array[Double]] = C.toArray
     C = A.dot(Bt, C, alpha, beta, transposeSelf=false, transposeOther=false)
     for (j <- 0 until A.rows; i <- 0 until A.rows) {
       var s = 0.0
@@ -524,7 +531,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       expected(i)(j) = s * alpha + expected(i)(j) * beta
     }
     for (r <- 0 until A.rows; c <- 0 until A.rows) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("("+r+", "+c+")", expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = null
     C = A.dot(Bt, C, alpha, beta, transposeSelf=false, transposeOther=false)
@@ -537,12 +544,12 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       expected(i)(j) = s * alpha
     }
     for (r <- 0 until A.rows; c <- 0 until A.rows) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("("+r+", "+c+")", expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = new DenseDoubleMatrix2D(A.columns, A.columns)
     C.assign(DoubleFunctions.random())
     expected = C.toArray
-    C = A.dot(B, C, alpha, beta, transposeSelf=true, transposeOther=true)
+    C = A.dot(B, C, alpha, beta, transposeSelf=true, transposeOther=false)
     for (j <- 0 until A.columns; i <- 0 until A.columns) {
       var s = 0.0
       for (k <- 0 until A.rows) {
@@ -551,7 +558,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       expected(i)(j) = s * alpha + expected(i)(j) * beta
     }
     for (r <- 0 until A.columns; c <- 0 until A.columns) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("("+r+", "+c+")", expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = null
     C = A.dot(B, C, alpha, beta, transposeSelf=true, transposeOther=false)
@@ -564,7 +571,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       expected(i)(j) = s * alpha
     }
     for (r <- 0 until A.columns; c <- 0 until A.columns) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("("+r+", "+c+")", expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = new DenseDoubleMatrix2D(A.rows, A.rows)
     C.assign(DoubleFunctions.random())
@@ -578,7 +585,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       expected(i)(j) = s * alpha + expected(i)(j) * beta
     }
     for (r <- 0 until A.rows; c <- 0 until A.rows) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("("+r+", "+c+")", expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = null
     C = A.dot(B, C, alpha, beta, transposeSelf=false, transposeOther=true)
@@ -591,7 +598,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       expected(i)(j) = s * alpha
     }
     for (r <- 0 until A.rows; c <- 0 until A.rows) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("("+r+", "+c+")", expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = new DenseDoubleMatrix2D(A.columns, A.columns)
     C.assign(DoubleFunctions.random())
@@ -605,7 +612,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       expected(i)(j) = s * alpha + expected(i)(j) * beta
     }
     for (r <- 0 until A.columns; c <- 0 until A.columns) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("("+r+", "+c+")", expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = null
     C = A.dot(Bt, C, alpha, beta, transposeSelf=true, transposeOther=true)
@@ -618,7 +625,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       expected(i)(j) = s * alpha
     }
     for (r <- 0 until A.columns; c <- 0 until A.columns) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("("+r+", "+c+")", expected(r)(c), C.getQuick(r, c), TOL)
     }
   }
 

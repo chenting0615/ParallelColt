@@ -1,6 +1,6 @@
 package cern.colt.matrix
 
-import cern.colt.matrix.impl._
+//import cern.colt.matrix.impl._
 
 object MatrixClasses {
 /*

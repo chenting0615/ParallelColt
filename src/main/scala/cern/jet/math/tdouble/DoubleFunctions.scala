@@ -6,7 +6,7 @@ import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
 
 /**
  * Function objects to be passed to generic methods. Contains the functions of
- * {@link java.lang.Math} as function objects, as well as a few more basic
+ * java.lang.Math as function objects, as well as a few more basic
  * functions.
  * <p>
  * Function objects conveniently allow to express arbitrary functions in a
@@ -16,13 +16,13 @@ import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
  * result value. Function objects are comparable to function pointers in C used
  * for call-backs.
  * <p>
- * Unary functions are of type {@link cern.colt.tdouble.DoubleFunction}
+ * Unary functions are of type cern.colt.tdouble.DoubleFunction
  * , binary functions of type
- * {@link cern.colt.tdouble.DoubleDoubleFunction}. All can be retrieved
+ * cern.colt.tdouble.DoubleDoubleFunction. All can be retrieved
  * via <tt>public
  static final</tt> variables named after the function. Unary predicates are of
- * type {@link cern.colt.tdouble.DoubleProcedure}, binary predicates of
- * type {@link cern.colt.tdouble.DoubleDoubleProcedure}. All can be
+ * type cern.colt.tdouble.DoubleProcedure, binary predicates of
+ * type cern.colt.tdouble.DoubleDoubleProcedure. All can be
  * retrieved via <tt>public
  static final</tt> variables named <tt>isXXX</tt>.
  *
@@ -38,10 +38,10 @@ import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
  * </ul>
  * More general, any binary function can be made an unary functions by fixing
  * either the first or the second argument. See methods
- * {@link #bindArg1(DoubleDoubleFunction,double)} and
- * {@link #bindArg2(DoubleDoubleFunction,double)}. The order of arguments can be
+ * bindArg1(DoubleDoubleFunction,double) and
+ * bindArg2(DoubleDoubleFunction,double). The order of arguments can be
  * swapped so that the first argument becomes the second and vice-versa. See
- * method {@link #swapArgs(DoubleDoubleFunction)}. Example:
+ * method swapArgs(DoubleDoubleFunction). Example:
  * <ul>
  * <li><tt>Functions.pow</tt> gives the function <tt>a<sup>b</sup></tt>.
  * <li><tt>Functions.bindArg2(Functions.pow,3)</tt> gives the function
@@ -55,18 +55,18 @@ import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
  * Even more general, functions can be chained (composed, assembled). Assume we
  * have two unary functions <tt>g</tt> and <tt>h</tt>. The unary function
  * <tt>g(h(a))</tt> applying both in sequence can be generated via
- * {@link #chain(DoubleFunction,DoubleFunction)}:
+ * chain(DoubleFunction,DoubleFunction)
  * <ul>
  * <li><tt>Functions.chain(g,h);</tt>
  * </ul>
  * Assume further we have a binary function <tt>f</tt>. The binary function
  * <tt>g(f(a,b))</tt> can be generated via
- * {@link #chain(DoubleFunction,DoubleDoubleFunction)}:
+ * chain(DoubleFunction,DoubleDoubleFunction)
  * <ul>
  * <li><tt>Functions.chain(g,f);</tt>
  * </ul>
  * The binary function <tt>f(g(a),h(b))</tt> can be generated via
- * {@link #chain(DoubleDoubleFunction,DoubleFunction,DoubleFunction)}:
+ * chain(DoubleDoubleFunction,DoubleFunction,DoubleFunction):
  * <ul>
  * <li><tt>Functions.chain(f,g,h);</tt>
  * </ul>
@@ -931,13 +931,13 @@ object DoubleFunctions {
    * Constructs a function that returns a new uniform random number in the
    * open unit interval <code>(0.0,1.0)</code> (excluding 0.0 and 1.0).
    * Currently the engine is
-   * {@link cern.jet.random.tdouble.engine.DoubleMersenneTwister} and is
+   * cern.jet.random.tdouble.engine.DoubleMersenneTwister and is
    * seeded with the current time.
    * <p>
    * Note that any random engine derived from
-   * {@link cern.jet.random.tdouble.engine.DoubleRandomEngine} and any random
+   * cern.jet.random.tdouble.engine.DoubleRandomEngine and any random
    * distribution derived from
-   * {@link cern.jet.random.tdouble.AbstractDoubleDistribution} are function
+   * cern.jet.random.tdouble.AbstractDoubleDistribution are function
    * objects, because they implement the proper interfaces. Thus, if you are
    * not happy with the default, just pass your favourite random generator to
    * function evaluating methods.

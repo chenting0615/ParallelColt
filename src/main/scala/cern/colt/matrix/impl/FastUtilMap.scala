@@ -1,8 +1,10 @@
 package cern.colt.matrix.impl
 
+/*
 import java.{lang => jl}
 import java.{util => ju}
 import cern.colt.map.impl.OpenHashMap
+*/
 
 abstract class FastUtilMap[K, V] {
 /*

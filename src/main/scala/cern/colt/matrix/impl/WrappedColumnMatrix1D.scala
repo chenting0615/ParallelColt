@@ -12,10 +12,10 @@ import cern.colt.matrix._
  */
 @specialized
 @SerialVersionUID(1L)
-class WrappedColumnMatrix1D[T: Manifest](protected val content2D: Matrix2D[T], column: Int) extends AbstractMatrix1D[T] {
+class WrappedColumnMatrix1D[T: Manifest: Numeric](protected val content2D: Matrix2D[T], column: Int) extends AbstractMatrix1D[T] {
 
-  content2D.checkRow(column)
-  this.sizeVar = content2D.columns
+  content2D.checkColumn(column)
+  this.sizeVar = content2D.rows
   this.isNoView = false
 
   /**

@@ -25,7 +25,7 @@ import cern.colt.matrix.{Matrix, Matrix1D}
  */
 @specialized
 @SerialVersionUID(1L)
-abstract class StrideMatrix1D[T: Manifest] extends AbstractMatrix1D[T] {
+abstract class StrideMatrix1D[T: Manifest: Numeric] extends AbstractMatrix1D[T] {
 
   /**
    the index of the first element
@@ -48,9 +48,9 @@ abstract class StrideMatrix1D[T: Manifest] extends AbstractMatrix1D[T] {
    * @param index
    *            the index of the cell within this matrix.
    */
-  def toRawIndex(index: Int): Long = zeroVar + index * strideVar
+  def toRawIndex(index: Int): Int = zeroVar + index * strideVar
 
-  def toExternalIndex(index: Long): Int = ((index - zeroVar) / strideVar).toInt
+  def toExternalIndex(index: Int): Int = (index - zeroVar) / strideVar
 
   /**
    * Sets up a matrix with a given number of cells.
@@ -215,6 +215,7 @@ abstract class StrideMatrix1D[T: Manifest] extends AbstractMatrix1D[T] {
       return this
     checkIndexes(indexes)
     new WrapperMatrix1D[T](this) {
+      sizeVar = indexes.size
       override def remapIndex(index: Int) = indexes(index)
     }
   }

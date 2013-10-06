@@ -12,7 +12,7 @@ import cern.colt.matrix.{Matrix, Matrix2D}
  */
 @specialized
 @SerialVersionUID(1L)
-class DiagonalMatrix2D[T: Manifest](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
+class DiagonalMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
 
   def this(rowsAndColumns: Int, value: T) {
     this(rowsAndColumns, rowsAndColumns, 0)
@@ -116,7 +116,7 @@ class DiagonalMatrix2D[T: Manifest](rows: Int, columns: Int, protected val dinde
 
   override def assign(source: Matrix2D[T]): DiagonalMatrix2D[T] = {
     if (source == null) return this
-    if (source == this) return this
+    if (source eq this) return this
     checkShape(source)
     source match {
       case other: DiagonalMatrix2D[T] => {
@@ -132,7 +132,7 @@ class DiagonalMatrix2D[T: Manifest](rows: Int, columns: Int, protected val dinde
 
   override def numNonZero: Long = {
     var cardinality = 0L
-    for (r <- 0 until dlength) if (elementsVar(r) != 0) cardinality += 1
+    for (r <- 0 until dlength) if (elementsVar(r) != zero) cardinality += 1
     cardinality
   }
 
@@ -163,9 +163,9 @@ class DiagonalMatrix2D[T: Manifest](rows: Int, columns: Int, protected val dinde
 
   override def equals(obj: Any): Boolean = {
     if (obj == null) return false
-    if (this == obj) return true
     obj match {
       case other: DiagonalMatrix2D[T] => {
+        if (this eq other) return true
         if (columns != other.columns || rows != other.rows) return false
         if (dindex != other.dindex || dlength != other.dlength) return false
 
@@ -179,23 +179,24 @@ class DiagonalMatrix2D[T: Manifest](rows: Int, columns: Int, protected val dinde
     }
   }
 
-  override def forEachNonZero(function: Function3[Int, Int, T, T]) = {
+  override def forEachNonZeroRowMajor(function: Function3[Int, Int, T, T]) = {
     var r: Int = 0
     var c: Int = 0
-    if (dindex >= 0) {
-      r = 0
+    if (dindex >= 0)
       c = dindex
-    }
-    else {
+    else
       r = -dindex
-      c = 0
-    }
+
     for(i <- 0 until dlength) {
       val value = elementsVar(i)
-      if (value != 0)
+      if (value != zero)
         elementsVar(i) = function.apply(i+r, i+c, value)
     }
     this
+  }
+
+  override def forEachNonZeroColumnMajor(function: Function3[Int, Int, T, T]) = {
+    forEachNonZeroRowMajor(function)
   }
 
   /**
@@ -219,7 +220,7 @@ class DiagonalMatrix2D[T: Manifest](rows: Int, columns: Int, protected val dinde
     }
     else if (row >= -dindex && column < dlength && row + dindex == column)
       return elementsVar(column)
-    0.asInstanceOf[T]
+    zero
   }
 
   override def setQuick(row: Int, column: Int, value: T) {
@@ -236,6 +237,12 @@ class DiagonalMatrix2D[T: Manifest](rows: Int, columns: Int, protected val dinde
   }
 
   override def like1D(size: Int) = new SparseHashMatrix1D[T](size)
+
+  override def copy() = {
+    val c = clone().asInstanceOf[DiagonalMatrix2D[T]]
+    c.elementsVar = elementsVar.clone()
+    c
+  }
 
   /**
    * Compares this object against the specified object. The result is

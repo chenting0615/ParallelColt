@@ -1,6 +1,6 @@
 package cern.colt.matrix.impl
 
-import java.util.ArrayList
+import java.util
 import cern.colt.list.ArrayTypes.IntArrayList
 import cern.colt.matrix.Matrix2D
 
@@ -9,11 +9,11 @@ import cern.colt.matrix.Matrix2D
  */
 @specialized
 @SerialVersionUID(1L)
-class CompositeVerticalMatrix2D[T: Manifest](numberOfColumns: Int) extends RemappedMatrix2D[T] {
+class CompositeVerticalMatrix2D[T: Manifest: Numeric](numberOfColumns: Int) extends RemappedMatrix2D[T] {
 
   private val rowOffsets = new IntArrayList()
 
-  private val matrices = new ArrayList[Matrix2D[T]]()
+  private val matrices = new util.ArrayList[Matrix2D[T]]()
 
   setUp(0, numberOfColumns)
 

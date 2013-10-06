@@ -248,7 +248,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
       val rowList = new IntArrayList()
       val columnList = new IntArrayList()
       val valueList = new DoubleArrayList()
-      A.forEachNonZero(new IntIntDoubleFunction() {
+      A.forEachNonZeroRowMajor(new IntIntDoubleFunction() {
         def apply(row: Int, col: Int, value: Double) = {
           rowList.add(row)
           columnList.add(col)
@@ -271,7 +271,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
       val rowList = new IntArrayList()
       val columnList = new IntArrayList()
       val valueList = new DoubleArrayList()
-      A.forEachNonZero(new IntIntDoubleFunction() {
+      A.forEachNonZeroRowMajor(new IntIntDoubleFunction() {
         def apply(row: Int, col: Int, value: Double) = {
           rowList.add(row)
           columnList.add(col)
@@ -345,7 +345,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
     val Avec = A.vectorize()
     var idx = 0
     for (c <- 0 until NCOLUMNS; r <- 0 until NROWS) {
-      assertEquals(A.getQuick(r, c), Avec.getQuick(idx), TOL)
+      assertEquals("index " + idx + ", row=" + r + ", col=" + c, A.getQuick(r, c), Avec.getQuick(idx), TOL)
       idx += 1
     }
   }
@@ -401,7 +401,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
   }
 
   override def testViewSelectionDoubleMatrix1DProcedure() {
-    val value = 2
+    val value = 2.0
     A.assignConstant(0)
     if (DINDEX >= 0) {
       A.setQuick(NROWS / 4, NROWS / 4 + DINDEX, value)

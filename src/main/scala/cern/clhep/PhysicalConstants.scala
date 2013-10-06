@@ -6,8 +6,6 @@ package cern.clhep
  * >C++ version</a> found in <a
  * href="http://wwwinfo.cern.ch/asd/lhc++/clhep">CLHEP 1.4.0</a>, which in turn
  * has been provided by Geant4 (a simulation toolkit for HEP).
- * <p>
- * For aliasing see {@link #physicalConstants}.
  *
  * @author wolfgang.hoschek@cern.ch
  * @version 1.0, 09/24/99
@@ -52,7 +50,7 @@ object PhysicalConstants {
 
   val mu0 = 4 * pi * 1.e-7 * Units.henry / Units.m
 
-  val epsilon0 = 1. / (c_squared * mu0)
+  val epsilon0 = 1.0 / (c_squared * mu0)
 
   val elm_coupling = e_squared / (4 * pi * epsilon0)
 
@@ -72,9 +70,9 @@ object PhysicalConstants {
 
   val STP_Temperature = 273.15 * Units.kelvin
 
-  val STP_Pressure = 1. * Units.atmosphere
+  val STP_Pressure = 1.0 * Units.atmosphere
 
-  val kGasThreshold = 10. * Units.mg / Units.cm3
+  val kGasThreshold = 10.0 * Units.mg / Units.cm3
 
   val universe_mean_density = 1.e-25 * Units.g / Units.cm3
 }

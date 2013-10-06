@@ -218,6 +218,8 @@ trait Matrix2D[T] extends Matrix[T] {
    * of <tt>this</tt> (i.e. work in read-only mode), simply return the input
    * value unchanged.
    *
+   * The matrix is traversed in row-major order.
+   *
    * Parameters to function are as follows: <tt>first==row</tt>,
    * <tt>second==column</tt>, <tt>third==nonZeroValue</tt>.
    *
@@ -226,7 +228,26 @@ trait Matrix2D[T] extends Matrix[T] {
    *            cell's row, column and value.
    * @return <tt>this</tt> (for convenience only).
    */
-  def forEachNonZero(function: Function3[Int, Int, T, T]): Matrix2D[T]
+  def forEachNonZeroRowMajor(function: Function3[Int, Int, T, T]): Matrix2D[T]
+
+  /**
+   * Assigns the result of a function to each <i>non-zero</i> cell;
+   * <tt>x[row,col] = function(x[row,col])</tt>. Use this method for fast
+   * special-purpose iteration. If you want to modify another matrix instead
+   * of <tt>this</tt> (i.e. work in read-only mode), simply return the input
+   * value unchanged.
+   *
+   * The matrix is traversed in column-major order.
+   *
+   * Parameters to function are as follows: <tt>first==row</tt>,
+   * <tt>second==column</tt>, <tt>third==nonZeroValue</tt>.
+   *
+   * @param function
+   *            a function object taking as argument the current non-zero
+   *            cell's row, column and value.
+   * @return <tt>this</tt> (for convenience only).
+   */
+  def forEachNonZeroColumnMajor(function: Function3[Int, Int, T, T]): Matrix2D[T]
 
   /**
    * Assigns the result of a function to each <i>non-zero</i> cell in the given row;

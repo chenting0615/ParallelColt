@@ -156,9 +156,9 @@ class ArrayList[T: Manifest](elements_p: Array[T]) extends AbstractList[T] {
    */
   override def equals(otherObj: Any): Boolean = {
     if (otherObj == null) return false
-    if (this == otherObj) return true
     if (!otherObj.isInstanceOf[ArrayList[T]]) return super.equals(otherObj)
     val other = otherObj.asInstanceOf[ArrayList[T]]
+    if (this eq other) return true
     if (sizeVar != other.sizeVar) return false
     for(i <- 0 until sizeVar) {
       if (elementsVar(i) != other.elementsVar(i)) return false
@@ -191,7 +191,8 @@ class ArrayList[T: Manifest](elements_p: Array[T]) extends AbstractList[T] {
    *                size()).
    */
   override def get(index: Int): T = {
-    if (index >= sizeVar || index < 0) throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + sizeVar)
+    if (index >= sizeVar || index < 0)
+      throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + sizeVar)
     elementsVar(index)
   }
 

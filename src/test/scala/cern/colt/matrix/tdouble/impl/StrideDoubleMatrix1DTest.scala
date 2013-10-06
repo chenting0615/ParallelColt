@@ -171,11 +171,17 @@ abstract class StrideDoubleMatrix1DTest(arg0: String) extends TestCase(arg0) {
   }
 
   def testEqualsDouble() {
-    val value = 1
+    val value = 1.0
     A.assignConstant(value)
-    var eq = A == value
+    var eq = A.everyCellEquals(value)
     Assert.assertTrue(eq)
-    eq = A == 2
+    eq = A.everyCellEquals(2.0)
+    Assert.assertFalse(eq)
+    eq = A == value
+    Assert.assertFalse(eq)
+    eq = A == 2.0
+    Assert.assertFalse(eq)
+    eq = A == 1
     Assert.assertFalse(eq)
   }
 
@@ -191,8 +197,8 @@ abstract class StrideDoubleMatrix1DTest(arg0: String) extends TestCase(arg0) {
     A.setQuick(A.size.toInt / 3, 0.7)
     A.setQuick(A.size.toInt / 2, 0.1)
     val maxAndLoc = A.getMaxLocation
-    Assert.assertEquals(0.7, maxAndLoc._1, TOL)
-    Assert.assertEquals(A.size.toInt / 3, maxAndLoc._2.toInt)
+    Assert.assertEquals(0.7, maxAndLoc._2, TOL)
+    Assert.assertEquals(A.size.toInt / 3, maxAndLoc._1.toInt)
   }
 
   def testMinLocation() {
@@ -200,8 +206,8 @@ abstract class StrideDoubleMatrix1DTest(arg0: String) extends TestCase(arg0) {
     A.setQuick(A.size.toInt / 3, -0.7)
     A.setQuick(A.size.toInt / 2, -0.1)
     val minAndLoc = A.getMinLocation
-    Assert.assertEquals(-0.7, minAndLoc._1, TOL)
-    Assert.assertEquals(A.size.toInt / 3, minAndLoc._2.toInt)
+    Assert.assertEquals(-0.7, minAndLoc._2, TOL)
+    Assert.assertEquals(A.size.toInt / 3, minAndLoc._1.toInt)
   }
 
 /*
@@ -329,7 +335,6 @@ abstract class StrideDoubleMatrix1DTest(arg0: String) extends TestCase(arg0) {
 
   def testViewSelectionDoubleProcedure() {
     val b = A.viewSelection(new Procedure1[Double]() {
-
       def apply(element: Double): Boolean = element % 2 == 0
     })
     for (i <- 0 until b.size.toInt) {
@@ -377,7 +382,7 @@ abstract class StrideDoubleMatrix1DTest(arg0: String) extends TestCase(arg0) {
   def testZDotProductDoubleMatrix1DIntInt() {
     val product = A.dot(B, 5, B.size.toInt - 10)
     var expected = 0.0
-    for (i <- 5 until A.size.toInt - 5) {
+    for (i <- 5 until A.size.toInt - 10) {
       expected += A.getQuick(i) * B.getQuick(i)
     }
     Assert.assertEquals(expected, product, TOL)

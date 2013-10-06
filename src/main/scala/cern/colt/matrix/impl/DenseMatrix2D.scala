@@ -46,14 +46,44 @@ import cern.colt.function.Matrix1DProcedure
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  *
+ * Constructs a matrix with the given parameters.
+ *
+ * @param rows_p
+ *            the number of rows the matrix shall have.
+ * @param columns_p
+ *            the number of columns the matrix shall have.
+ * @param elements_p
+ *            the cells.
+ * @param rowZero_p
+ *            the position of the first element.
+ * @param columnZero_p
+ *            the position of the first element.
+ * @param rowStride_p
+ *            the number of elements between two rows, i.e.
+ *            <tt>index(i+1,j)-index(i,j)</tt>.
+ * @param columnStride_p
+ *            the number of elements between two columns, i.e.
+ *            <tt>index(i,j+1)-index(i,j)</tt>.
+ * @param isView
+ *            if true then a matrix view is constructed
+ * @throws IllegalArgumentException
+ *             if
+ *             <tt>rows<0 || columns<0 || (double)columns*rows > Integer.MAX_VALUE</tt>
+ *             or flip's are illegal.
  */
 @specialized
 @SerialVersionUID(1L)
-class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D[T] {
+class DenseMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, elements_p: Array[T], rowZero_p: Int, columnZero_p: Int, rowStride_p: Int, columnStride_p: Int, isView: Boolean) extends StrideMatrix2D[T] {
 
-  protected var elementsVar: Array[T] = Array.ofDim[T](rows * columns)
+  protected var elementsVar: Array[T] = elements_p
+  setUp(rows_p, columns_p, rowZero_p, columnZero_p, rowStride_p, columnStride_p)
+  this.isNoView = !isView
 
-  setUp(rows, columns)
+  /**
+   */
+  def this(rows: Int, columns: Int) {
+    this(rows, columns, Array.ofDim[T](rows*columns), 0, 0, columns, 1, false)
+  }
 
   /**
    * Constructs a matrix with a copy of the given values. <tt>values</tt> is
@@ -75,39 +105,6 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
     assign(values)
   }
 
-  /**
-   * Constructs a matrix with the given parameters.
-   *
-   * @param rows
-   *            the number of rows the matrix shall have.
-   * @param columns
-   *            the number of columns the matrix shall have.
-   * @param elements
-   *            the cells.
-   * @param rowZero
-   *            the position of the first element.
-   * @param columnZero
-   *            the position of the first element.
-   * @param rowStride
-   *            the number of elements between two rows, i.e.
-   *            <tt>index(i+1,j)-index(i,j)</tt>.
-   * @param columnStride
-   *            the number of elements between two columns, i.e.
-   *            <tt>index(i,j+1)-index(i,j)</tt>.
-   * @param isView
-   *            if true then a matrix view is constructed
-   * @throws IllegalArgumentException
-   *             if
-   *             <tt>rows<0 || columns<0 || (double)columns*rows > Integer.MAX_VALUE</tt>
-   *             or flip's are illegal.
-   */
-  def this(rows: Int, columns: Int, elements: Array[T], rowZero: Int, columnZero: Int, rowStride: Int, columnStride: Int, isView: Boolean) {
-    this(rows, columns)
-    setUp(rows, columns, rowZero, columnZero, rowStride, columnStride)
-    this.elementsVar = elements
-    this.isNoView = !isView
-  }
-
   override def assignConstant(value: T) = {
     if (this.isNoView) {
       for(i <- 0 until elementsVar.length) elementsVar(i) = value
@@ -124,7 +121,7 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
 
   override def assign(values: Array[T]) = {
     if (values.length < size)
-      throw new IllegalArgumentException("Must have same length: length=" + values.length + " rows*columns=" + rows * columns)
+      throw new IllegalArgumentException("Must have same length: length=" + values.length + " rows*columns=" + rowsVar * columnsVar)
     if (this.isNoView) {
       System.arraycopy(values, 0, this.elementsVar, 0, values.length)
     }
@@ -140,11 +137,11 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
 
   override def assign(values: Array[Array[T]]) = {
     if (values.length != rows)
-      throw new IllegalArgumentException("Must have same number of rows: rows=" + values.length + "rows=" + rows)
+      throw new IllegalArgumentException("Must have same number of rows: rows=" + values.length + "rows=" + rowsVar)
     for (r <- 0 until rowsVar) {
       val currentRow = values(r)
       if (currentRow.length != columnsVar)
-        throw new IllegalArgumentException("Must have same number of columns in every row: columns=" + currentRow.length + "columns=" + columns)
+        throw new IllegalArgumentException("Must have same number of columns in every row: columns=" + currentRow.length + "columns=" + columnsVar)
       for (c <- 0 until columnsVar) {
         elementsVar(toRawIndex(r, c)) = currentRow(c)
       }
@@ -153,7 +150,7 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
   }
 
   override def assign(source: Matrix2D[T]): DenseMatrix2D[T] = {
-    if (source == this) return this
+    if (source eq this) return this
     checkShape(source)
     if (! source.isInstanceOf[DenseMatrix2D[T]]) {
       super.assign(source)
@@ -188,7 +185,7 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
     var cardinality = 0
     for (r <- 0 until rowsVar) {
       for (c <- 0 until columnsVar) {
-        if (elementsVar(toRawIndex(r, c)) != 0) cardinality += 1
+        if (elementsVar(toRawIndex(r, c)) != zero) cardinality += 1
       }
     }
     cardinality
@@ -207,7 +204,7 @@ class DenseMatrix2D[T: Manifest](rows: Int, columns: Int) extends StrideMatrix2D
   }
 
   override def toArray: Array[Array[T]] = {
-    val values = Array.ofDim[T](rows, columns)
+    val values = Array.ofDim[T](rowsVar, columnsVar)
     toArray(values)
   }
 

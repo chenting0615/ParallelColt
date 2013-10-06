@@ -54,7 +54,7 @@ import cern.colt.function.Procedure2
  */
 @specialized(Double)
 @SerialVersionUID(1L)
-class SparseHashMatrix1D[T: Manifest](size_p: Int, initialCapacity: Int, minLoadFactor: Double, maxLoadFactor: Double) extends StrideMatrix1D[T] {
+class SparseHashMatrix1D[T: Manifest: Numeric](size_p: Int, initialCapacity: Int, minLoadFactor: Double, maxLoadFactor: Double) extends StrideMatrix1D[T] {
 
   protected var elements = new OpenHashMap[Long, T](initialCapacity, minLoadFactor, maxLoadFactor)
 
@@ -94,7 +94,7 @@ class SparseHashMatrix1D[T: Manifest](size_p: Int, initialCapacity: Int, minLoad
    * @return <tt>this</tt> (for convenience only).
    */
   override def assignConstant(value: T): SparseHashMatrix1D[T] = {
-    if (this.isNoView && value == 0) this.elements.clear() else super.assignConstant(value)
+    if (this.isNoView && value == zero) this.elements.clear() else super.assignConstant(value)
     this
   }
 
@@ -145,10 +145,13 @@ class SparseHashMatrix1D[T: Manifest](size_p: Int, initialCapacity: Int, minLoad
   override def forEachNonZero(f: Function2[Int, T, T]): SparseHashMatrix1D[T] = {
     this.elements.forEachPair(new Procedure2[Long, T]() {
       def apply(rawIndex: Long, oldValue: T) = {
-        val extIndex = toExternalIndex(rawIndex)
+        val extIndex = toExternalIndex(rawIndex.toInt)
         val newValue = f.apply(extIndex.toInt, oldValue)
         if (newValue != oldValue) {
-          if (newValue != 0.0) elements.put(rawIndex, newValue) else elements.remove(rawIndex)
+          if (newValue != zero)
+            elements.put(rawIndex, newValue)
+          else
+            elements.remove(rawIndex)
         }
         true
       }
@@ -196,7 +199,7 @@ class SparseHashMatrix1D[T: Manifest](size_p: Int, initialCapacity: Int, minLoad
     for (c <- 0 until columns; r <- 0 until rows) {
       val elem = getQuick(idx)
       idx += 1
-      if (elem != 0) {
+      if (elem != zero) {
         M.setQuick(r, c, elem)
       }
     }
@@ -218,8 +221,10 @@ class SparseHashMatrix1D[T: Manifest](size_p: Int, initialCapacity: Int, minLoad
    *            the value to be filled into the specified cell.
    */
   def setQuick(index: Int, value: T) {
-    val i = toRawIndex(index)
-    if (value == 0) this.elements.remove(i) else this.elements.put(i, value)
+    if (value == zero)
+      this.elements.remove(toRawIndex(index))
+    else
+      this.elements.put(toRawIndex(index), value)
   }
 
   override def toString: String = {
@@ -229,7 +234,7 @@ class SparseHashMatrix1D[T: Manifest](size_p: Int, initialCapacity: Int, minLoad
       .append('\n')
     for (i <- 0 until size.toInt) {
       val elem = getQuick(i)
-      if (elem != 0) {
+      if (elem != zero) {
         builder.append('(').append(i).append(')').append('\t')
           .append(elem)
           .append('\n')

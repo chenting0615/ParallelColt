@@ -30,16 +30,18 @@ import cern.colt.list.ArrayTypes.DoubleArrayList
  */
 @specialized
 @SerialVersionUID(1L)
-class StaticBin1D[T] extends AbstractBin1D[T] {
+class StaticBin1D[T: Numeric] extends AbstractBin1D[T] {
+
+  val num = implicitly[Numeric[T]]
 
   /**
    * The number of elements consumed by incremental parameter maintainance.
    */
   protected var sizeVar: Int = 0
 
-  protected var minVar: Double = Double.PositiveInfinity
+  protected var minVar: Double = Double.NegativeInfinity
 
-  protected var maxVar: Double = Double.NegativeInfinity
+  protected var maxVar: Double = Double.PositiveInfinity
 
   protected var sumVar: Double = 0.0
 
@@ -71,7 +73,7 @@ class StaticBin1D[T] extends AbstractBin1D[T] {
    *            element to be appended.
    */
   def add(element_p: T) {
-    val element = element_p.asInstanceOf[Double]
+    val element = num.toDouble(element_p)
     if (element < minVar)
       minVar = element
     if (element > maxVar)
@@ -140,19 +142,19 @@ class StaticBin1D[T] extends AbstractBin1D[T] {
   /**
    * Returns the maximum.
    */
-  def max: T = maxVar.asInstanceOf[T]
+  def max: Double = maxVar
 
   /**
    * Returns the minimum.
    */
-  def min: T = minVar.asInstanceOf[T]
+  def min: Double = minVar
 
   /**
    * Returns the number of elements contained in the receiver.
    *
    * @return the number of elements contained in the receiver.
    */
-  def size: Int = sizeVar
+  def size = sizeVar
 
   /**
    * Returns the sum of all elements, which is <tt>Sum( x[i] )</tt>.

@@ -12,14 +12,14 @@ import cern.colt.matrix.{Matrix2D, Matrix1D}
  */
 @specialized
 @SerialVersionUID(1L)
-class WrappedDiagonalMatrix2D[T: Manifest](content1D: Matrix1D[T]) extends RemappedMatrix2D[T] {
+class WrappedDiagonalMatrix2D[T: Manifest: Numeric](content1D: Matrix1D[T]) extends RemappedMatrix2D[T] {
 
   this.isNoView = false
   setUp(content1D.size.toInt, content1D.size.toInt)
 
   def getQuick(row: Int, column: Int): T = {
     if (row != column)
-      0.asInstanceOf[T]
+      zero
     else
       content1D.getQuick(row)
   }
@@ -42,17 +42,21 @@ class WrappedDiagonalMatrix2D[T: Manifest](content1D: Matrix1D[T]) extends Remap
     this
   }
 
-  override def forEachNonZero(f: Function3[Int, Int, T, T]) = {
+  override def forEachNonZeroRowMajor(f: Function3[Int, Int, T, T]) = {
     for(i <- 0 until content1D.size.toInt) {
-      val oldValue: T = content1D.getQuick(i)
-      if (oldValue != 0.0) {
-        val newValue: T = f.apply(i, i, oldValue)
+      val oldValue = content1D.getQuick(i)
+      if (oldValue != zero) {
+        val newValue = f.apply(i, i, oldValue)
         if (newValue != oldValue) {
           content1D.setQuick(i, newValue)
         }
       }
     }
     this
+  }
+
+  override def forEachNonZeroColumnMajor(f: Function3[Int, Int, T, T]) = {
+    forEachNonZeroRowMajor(f)
   }
 
   /**

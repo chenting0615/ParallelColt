@@ -17,7 +17,9 @@ import cern.colt.list.impl.ArrayList
  */
 @specialized
 @SerialVersionUID(1L)
-abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
+abstract class AbstractMatrix1D[T: Manifest: Numeric] extends Matrix1D[T] {
+
+  val zero = implicitly[Numeric[T]].zero
 
   /**
    the number of cells this matrix (view) has
@@ -43,12 +45,10 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    *             i=0..indexes.length()-1.
    */
   override def checkIndexes(indexes: Array[Int]) {
-    var i = indexes.length
-    while (i >= 0) {
+    for(i <- 0 until indexes.length) {
       val index = indexes(i)
       if (index < 0 || index >= sizeVar)
         throw new IndexOutOfBoundsException("Index " + i + ": Attempted to access " + toShapeString + " at index=" + index)
-      i -= 1
     }
   }
 
@@ -127,7 +127,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    *             if <tt>size() != other.size()</tt>.
    */
   def assign(other: Matrix1D[T]): Matrix1D[T] = {
-    if (other == this) return this
+    if (other eq this) return this
     checkSize(other)
     for (i <- 0 until size.toInt) {
       setQuick(i, other.getQuick(i))
@@ -142,7 +142,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    */
   def numNonZero: Long = {
     var cardinality = 0L
-    for (i <- 0 until size.toInt if getQuick(i) != 0.0) cardinality += 1
+    for (i <- 0 until size.toInt) if (getQuick(i) != zero) cardinality += 1
     cardinality
   }
 
@@ -151,7 +151,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    */
   protected def haveSharedCells(other: Matrix1D[T]): Boolean = {
     if (other == null) return false
-    if (this == other) return true
+    if (this eq other) return true
     getStorageMatrix.haveSharedCells(other.getStorageMatrix)
   }
 
@@ -164,7 +164,10 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    *         <tt>false</tt> otherwise.
    */
   def everyCellEquals(value: T): Boolean = {
-    for (i <- 0 until size.toInt)  if (getQuick(i) != value) return false
+    for (i <- 0 until size.toInt) {
+      if (getQuick(i) != value)
+        return false
+    }
     true
   }
 
@@ -194,10 +197,9 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
    *         otherwise.
    */
   override def equals(obj: Any): Boolean = {
-    if (this == obj) return true
     if (obj == null) return false
-    if (! obj.isInstanceOf[AbstractMatrix1D[T]]) return false
-    val other = obj.asInstanceOf[AbstractMatrix1D[T]]
+    if (! obj.isInstanceOf[Matrix1D[T]]) return false
+    val other = obj.asInstanceOf[Matrix1D[T]]
     if (size != other.size) return false
     for (i <- 0 until size.toInt)  if (getQuick(i) != other.getQuick(i)) return false
     true
@@ -220,7 +222,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
       return equals(other)
     if (other == null)
       return false
-    if (other == this)
+    if (other eq this)
       return true
     if ( ! other.isInstanceOf[Matrix1D[T]])
       return false
@@ -343,7 +345,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
   override def forEachNonZero(function: Function2[Int, T, T]) = {
     for(idx <- 0 until sizeVar) {
       val oldValue = getQuick(idx)
-      if (oldValue != 0) {
+      if (oldValue != zero) {
         val newValue = function(idx, oldValue)
         if (newValue != oldValue)
           setQuick(idx, newValue)
@@ -359,12 +361,12 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
 
     protected def checkIndex(): Boolean
 
-    def hasValue: Boolean = checkIndex()
+    def hasValue: Boolean = indexVar < sizeVar && checkIndex()
 
     def increment(): Boolean = {
-      while(indexVar < sizeVar-1) {
+      while(indexVar < sizeVar) {
         indexVar += 1
-        if (checkIndex())
+        if (indexVar < sizeVar && checkIndex())
           return true
       }
       false
@@ -381,7 +383,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
   def iteratorNonZeros: IndexIterator1D[T] = new AbstractIndexIterator1D() {
     def checkIndex(): Boolean = {
       val value = getQuick(indexVar)
-      value != 0.0
+      value != zero
     }
   }
 
@@ -392,7 +394,7 @@ abstract class AbstractMatrix1D[T: Manifest] extends Matrix1D[T] {
   def iteratorNonZeros(condition: Procedure2[Int, T]): IndexIterator1D[T] = new AbstractIndexIterator1D() {
     def checkIndex(): Boolean = {
       val value = getQuick(indexVar)
-      value != 0.0 && condition(indexVar, value)
+      value != zero && condition(indexVar, value)
     }
   }
 

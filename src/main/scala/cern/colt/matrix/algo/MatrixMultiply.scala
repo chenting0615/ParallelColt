@@ -260,7 +260,7 @@ object MatrixMultiply {
    *             if <tt>A.columns != y.size() || A.rows > z.size())</tt>.
    */
   def multiply1D(A: DoubleMatrix2D, y: DoubleMatrix1D, z: DoubleMatrix1D, alpha: Double = 1.0, beta: Double = 0.0, transposeA: Boolean = false): DoubleMatrix1D = {
-    check1DMult(A, y, z)
+    check1DMult(A, y, z, transposeA)
 
     algorithmList.foreach(a => {
       if (a.predicate(A, y, z, transposeA)) {
@@ -315,7 +315,7 @@ object MatrixMultiply {
    *             if <tt>A == C || B == C</tt>.
    */
   def multiply2D(A: DoubleMatrix2D, B: DoubleMatrix2D, C: DoubleMatrix2D, alpha: Double = 1.0, beta: Double = 0.0, transposeA: Boolean = false, transposeB: Boolean = false): DoubleMatrix2D = {
-    check2DMult(A, B, C)
+    check2DMult(A, B, C, transposeA, transposeB)
 
     algorithmList.foreach(a => {
       if (a.predicate(A, B, C, transposeA, transposeB)) {
@@ -351,21 +351,43 @@ object MatrixMultiply {
     checkSizesEqual(A, B)
   }
 
-  def check1DMult(A: DoubleMatrix2D, y: DoubleMatrix1D, result: DoubleMatrix1D) {
-    if (result != null)
-      checkRowsEqualsSize(A, result)
-    checkColumnsEqualsSize(A, y)
+  def check1DMult(A: DoubleMatrix2D, y: DoubleMatrix1D, result: DoubleMatrix1D, transposeA: Boolean) {
+    if (transposeA) {
+      if (result != null)
+        checkColumnsEqualsSize(A, result)
+      checkRowsEqualsSize(A, y)
+    }
+    else {
+      if (result != null)
+        checkRowsEqualsSize(A, result)
+      checkColumnsEqualsSize(A, y)
+    }
+    if (y eq result)
+        throw new IllegalArgumentException("Source and destination matrices must not be the same y=" + System.identityHashCode(y) + " and result=" + System.identityHashCode(result))
   }
 
-  def check2DMult(A: DoubleMatrix2D, B: DoubleMatrix2D, result: DoubleMatrix2D) {
-    checkColumnsEqualsRows(A, B)
+  def check2DMult(A: DoubleMatrix2D, B: DoubleMatrix2D, result: DoubleMatrix2D, transposeA: Boolean, transposeB: Boolean) {
+    if (transposeA && transposeB)
+      checkColumnsEqualsRows(B, A)
+    else if (transposeA)
+      checkRowsEqual(A, B)
+    else if (transposeB)
+      checkColumnsEqual(A, B)
+    else
+      checkColumnsEqualsRows(A, B)
     if (result != null) {
-      checkRowsEqual(A, result)
-      checkColumnsEqual(B, result)
+      if (transposeA)
+        checkColumnsEqualsRows(A, result)
+      else
+        checkRowsEqual(A, result)
+      if (transposeB)
+        checkColumnsEqualsRows(result, B)
+      else
+        checkColumnsEqual(B, result)
     }
-    if (A == result)
+    if (A eq result)
         throw new IllegalArgumentException("Source and destination matrices must not be the same A=" + System.identityHashCode(A) + " and result=" + System.identityHashCode(result))
-    if (B == result)
+    if (B eq result)
         throw new IllegalArgumentException("Source and destination matrices must not be the same B=" + System.identityHashCode(B) + " and result=" + System.identityHashCode(result))
   }
 
@@ -399,7 +421,8 @@ object MatrixMultiply {
       sum
     }
 
-    def multiply(A: DoubleMatrix2D, y: DoubleMatrix1D, z: DoubleMatrix1D, alpha: Double, beta: Double): DoubleMatrix1D = {
+    def multiply(A: DoubleMatrix2D, y: DoubleMatrix1D, z: DoubleMatrix1D, alpha: Double, beta_p: Double): DoubleMatrix1D = {
+      val beta = if (z == null) 0.0 else beta_p
       val zz: DoubleMatrix1D = if (z == null) y.like1D(A.rows) else z
 
       MatrixProcessor.singleton.processRows[Double](A, zz, new Function1[Int, Double]() {
@@ -414,7 +437,8 @@ object MatrixMultiply {
       zz
     }
 
-    def multiply(A: DoubleMatrix2D, B: DoubleMatrix2D, C: DoubleMatrix2D, alpha: Double, beta: Double): DoubleMatrix2D = {
+    def multiply(A: DoubleMatrix2D, B: DoubleMatrix2D, C: DoubleMatrix2D, alpha: Double, beta_p: Double): DoubleMatrix2D = {
+      val beta = if (C == null) 0.0 else beta_p
       val CC = if (C == null) A.like2D(A.rows, B.columns) else C
 
       MatrixProcessor.singleton.processIndexes(B.columns, new IntProcedure(){
@@ -461,7 +485,8 @@ object MatrixMultiply {
       sum
     }
 
-    def multiply(A: DoubleMatrix2D, y: DoubleMatrix1D, z: DoubleMatrix1D, alpha: Double, beta: Double): DoubleMatrix1D = {
+    def multiply(A: DoubleMatrix2D, y: DoubleMatrix1D, z: DoubleMatrix1D, alpha: Double, beta_p: Double): DoubleMatrix1D = {
+      val beta = if (z == null) 0.0 else beta_p
       val zz: DoubleMatrix1D = if (z == null) y.like1D(A.rows) else z
 
       MatrixProcessor.singleton.processRows[Double](A, zz, new Function1[Int, Double]() {
@@ -482,7 +507,8 @@ object MatrixMultiply {
       zz
     }
 
-    def multiply(A: DoubleMatrix2D, B: DoubleMatrix2D, C: DoubleMatrix2D, alpha: Double, beta: Double): DoubleMatrix2D = {
+    def multiply(A: DoubleMatrix2D, B: DoubleMatrix2D, C: DoubleMatrix2D, alpha: Double, beta_p: Double): DoubleMatrix2D = {
+      val beta = if (C == null) 0.0 else beta_p
       val CC = if (C == null) A.like2D(A.rows, B.columns) else C
 
       MatrixProcessor.singleton.processIndexes(B.columns, new IntProcedure(){
@@ -576,8 +602,9 @@ object MatrixMultiply {
       sum
     }
 
-    def multiply(A: DoubleMatrix2D, B: DoubleMatrix1D, C: DoubleMatrix1D, alpha: Double, beta: Double): DoubleMatrix1D = {
-      val CC = if (C == null) A.like1D(B.size.toInt) else C
+    def multiply(A: DoubleMatrix2D, B: DoubleMatrix1D, C: DoubleMatrix1D, alpha: Double, beta_p: Double): DoubleMatrix1D = {
+      val beta = if (C == null) 0.0 else beta_p
+      val CC = if (C == null) A.like1D(A.rows) else C
 
       MatrixProcessor.singleton.processCellIndexes(CC, new Function1[Int, Double]() {
         def apply(rowIdx: Int): Double = {
@@ -604,7 +631,8 @@ object MatrixMultiply {
       CC
     }
 
-    def multiply(A: DoubleMatrix2D, B: DoubleMatrix2D, C: DoubleMatrix2D, alpha: Double, beta: Double): DoubleMatrix2D = {
+    def multiply(A: DoubleMatrix2D, B: DoubleMatrix2D, C: DoubleMatrix2D, alpha: Double, beta_p: Double): DoubleMatrix2D = {
+      val beta = if (C == null) 0.0 else beta_p
       val CC = if (C == null) A.like2D(A.rows, B.columns) else C
 
       MatrixProcessor.singleton.processCells[Double](CC, new Function2[Int, Int, Double]() {
@@ -879,7 +907,7 @@ object MatrixMultiply {
       (if (transposeB) B.viewTranspose() else B).toShapeString() +
       ", " +
       C.toShapeString())
-    if (this == C || B == C) throw new IllegalArgumentException("Matrices must not be identical")
+    if (this eq C || B eq C) throw new IllegalArgumentException("Matrices must not be identical")
     if (!ignore) C.assign(cern.jet.math.tdouble.DoubleFunctions.mult(beta))
     val Brows = Array.ofDim[DoubleMatrix1D](columnsA)
     var i = columnsA
@@ -1108,7 +1136,7 @@ object MatrixMultiply {
       (if (transposeB) B.viewTranspose() else B).toShapeString() +
       ", " +
       C.toShapeString())
-    if (this == C || B == C) throw new IllegalArgumentException("Matrices must not be identical")
+    if (this eq C || B eq C) throw new IllegalArgumentException("Matrices must not be identical")
     if (!ignore && beta != 1.0) {
       C.assign(cern.jet.math.tdouble.DoubleFunctions.mult(beta))
     }
@@ -1289,7 +1317,7 @@ object MatrixMultiply {
           C.toShapeString())
       }
     }
-    if (this == C || B == C) throw new IllegalArgumentException("Matrices must not be identical")
+    if (this eq C || B eq C) throw new IllegalArgumentException("Matrices must not be identical")
     if (! B.isInstanceOf[DenseColumnDoubleMatrix2D] || !C.isInstanceOf[DenseColumnDoubleMatrix2D] ||
       this.isView ||
       B.isView ||

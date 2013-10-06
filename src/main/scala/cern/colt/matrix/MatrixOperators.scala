@@ -397,7 +397,7 @@ object MatrixOperators {
     }
 
     def assign(f1: DoubleFunction): DoubleMatrix2D = {
-      // TODO:
+      MatrixProcessor.singleton.processCells(m, f1)
       m
     }
 
@@ -507,8 +507,15 @@ object MatrixOperators {
       result /= divisor
     }
 
-    def assign(other: DoubleMatrix2D, f: DoubleDoubleFunction) {
-      //TODO:
+    def assign(other: DoubleMatrix2D, f: DoubleDoubleFunction) = {
+      checkRowsEqual(m, other)
+      checkColumnsEqual(m, other)
+      MatrixProcessor.singleton.processCells(m, new IntIntDoubleFunction() {
+        def apply(row: Int, col: Int, value: Double) = {
+          f(value, other.getQuick(row, col))
+        }
+      })
+      m
     }
 
     def /=(divisor: DoubleMatrix2D) = {
@@ -758,7 +765,7 @@ object MatrixOperators {
 
     def sumAllCells = {
       var result = 0.0
-      m.forEachNonZero(new Function3[Int, Int, Double, Double]() {
+      m.forEachNonZeroRowMajor(new Function3[Int, Int, Double, Double]() {
         def apply(v1: Int, v2: Int, value: Double) = {
           result += value
           value
@@ -889,7 +896,7 @@ object MatrixOperators {
       var savedValue = Double.MaxValue
       var firstRowIdx = -1
       var firstColIdx = -1
-      m.forEachNonZero(new Function3[Int, Int, Double, Double]() {
+      m.forEachNonZeroRowMajor(new Function3[Int, Int, Double, Double]() {
         def apply(rowIdx: Int, colIdx: Int, value: Double) = {
           if (value < savedValue) {
             savedRowIdx = rowIdx
@@ -924,7 +931,7 @@ object MatrixOperators {
       var savedValue = Double.MinValue
       var firstRowIdx = -1
       var firstColIdx = -1
-      m.forEachNonZero(new Function3[Int, Int, Double, Double]() {
+      m.forEachNonZeroRowMajor(new Function3[Int, Int, Double, Double]() {
         def apply(rowIdx: Int, colIdx: Int, value: Double) = {
           if (value > savedValue) {
             savedRowIdx = rowIdx
@@ -1206,7 +1213,7 @@ object MatrixOperators {
 
     private var currentRow = -1
 
-    def hasNext: Boolean = currentRow < m.rows
+    def hasNext: Boolean = currentRow < m.rows-1
 
     def next(): DoubleMatrix1D = {
       if (hasNext) {
@@ -1641,7 +1648,7 @@ object MatrixOperators {
       result
     }
 
-    def greaterThanValue(value: Double): IntMatrix1D = {
+    def >(value: Double): IntMatrix1D = {
       val result = new DenseIntMatrix1D(m.size.toInt)
       result.assignByIndex(new IntFunction() {
         def apply(idx: Int): Int =  {
@@ -1833,9 +1840,11 @@ object MatrixOperators {
       result *= factor
     }
 
-    def assign(f: IntFunction) {
-      //TODO:
+    def assign(f: IntFunction) = {
+      MatrixProcessor.singleton.processCells(m, f)
+      m
     }
+
     def *=(factor: Int) = {
       m.assign(IntFunctions.mult(factor))
     }

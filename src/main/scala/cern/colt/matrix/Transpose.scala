@@ -12,7 +12,7 @@ object Transpose extends Enumeration {
      * @return the netlib character version of this designation, for use with F2J.
      */
     def netlib(): String = {
-      if (this == NoTranspose) return "N"
+      if (this eq NoTranspose) return "N"
       "T"
     }
   }

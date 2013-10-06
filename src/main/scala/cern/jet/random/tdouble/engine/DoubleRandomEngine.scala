@@ -5,7 +5,7 @@ object DoubleRandomEngine {
   /**
    * Constructs and returns a new uniform random number engine seeded with the
    * current time. Currently this is
-   * {@link cern.jet.random.tdouble.engine.DoubleMersenneTwister}.
+   * cern.jet.random.tdouble.engine.DoubleMersenneTwister.
    */
   def makeDefault(): DoubleRandomEngine = {
     new cern.jet.random.tdouble.engine.DoubleMersenneTwister(System.currentTimeMillis().toInt)
@@ -52,7 +52,7 @@ abstract class DoubleRandomEngine protected () extends cern.colt.PersistentObjec
    * <tt>Long.MIN_VALUE</tt> and <tt>Long.MAX_VALUE</tt>).
    */
   def nextLong(): Long = {
-    ((nextInt() & 0xFFFFFFFFL) << 32) | ((nextInt() & 0xFFFFFFFFL))
+    ((nextInt() & 0xFFFFFFFFL) << 32) | (nextInt() & 0xFFFFFFFFL)
   }
 
   /**

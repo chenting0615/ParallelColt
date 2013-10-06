@@ -1,6 +1,6 @@
 package cern.colt.matrix.impl
 
-import java.util.Arrays
+import java.util
 import SparseRCMatrix2D._
 import cern.colt.matrix.Matrix2D
 import cern.colt.list.impl.ArrayList
@@ -128,7 +128,7 @@ object SparseRCMatrix2D {
  */
 @specialized(Double)
 @SerialVersionUID(1L)
-class SparseRCMatrix2D[T: Manifest](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
+class SparseRCMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
 
   protected var rowPointers: Array[Int] = new Array[Int](rows_p + 1)
 
@@ -261,12 +261,13 @@ class SparseRCMatrix2D[T: Manifest](rows_p: Int, columns_p: Int, nzmax: Int) ext
   }
 
   override def assignConstant(value: T) = {
-    if (value == 0) {
-      Arrays.fill(rowPointers, 0)
-      Arrays.fill(columnIndexes, 0)
+    if (value == zero) {
+      util.Arrays.fill(rowPointers, 0)
+      util.Arrays.fill(columnIndexes, 0)
       for(i <- 0 until values.length)
         values(i) = value
-    } else {
+    }
+    else {
       val nnz = numNonZero.toInt
       for (i <- 0 until nnz) {
         values(i) = value
@@ -276,40 +277,43 @@ class SparseRCMatrix2D[T: Manifest](rows_p: Int, columns_p: Int, nzmax: Int) ext
   }
 
   override def assign(source: Matrix2D[T]): SparseRCMatrix2D[T] = {
-    if (source == this) return this
+    if (source eq this) return this
     checkShape(source)
-    if (source.isInstanceOf[SparseRCMatrix2D[T]]) {
-      val other = source.asInstanceOf[SparseRCMatrix2D[T]]
-      System.arraycopy(other.rowPointers, 0, rowPointers, 0, rows + 1)
-      val nzmax = other.columnIndexes.length
-      if (columnIndexes.length < nzmax) {
-        columnIndexes = Array.ofDim[Int](nzmax)
-        values = Array.ofDim[T](nzmax)
-      }
-      System.arraycopy(other.columnIndexes, 0, columnIndexes, 0, nzmax)
-      System.arraycopy(other.values, 0, values, 0, nzmax)
-      columnIndexesSorted = other.columnIndexesSorted
-    } else if (source.isInstanceOf[SparseCCMatrix2D[T]]) {
-      val other = source.asInstanceOf[SparseCCMatrix2D[T]].getTranspose
-      rowPointers = other.getColumnPointers
-      columnIndexes = other.getRowIndexes
-      values = other.getValues
-      columnIndexesSorted = true
-    } else {
-      assignConstant(0.asInstanceOf[T])
-      source.forEachNonZero(new Function3[Int, Int, T, T]() {
-        def apply(i: Int, j: Int, value: T): T = {
-          setQuick(i, j, value)
-          value
+    source match {
+      case other: SparseRCMatrix2D[T] => {
+        System.arraycopy(other.rowPointers, 0, rowPointers, 0, rows + 1)
+        val nzmax = other.columnIndexes.length
+        if (columnIndexes.length < nzmax) {
+          columnIndexes = Array.ofDim[Int](nzmax)
+          values = Array.ofDim[T](nzmax)
         }
-      })
+        System.arraycopy(other.columnIndexes, 0, columnIndexes, 0, nzmax)
+        System.arraycopy(other.values, 0, values, 0, nzmax)
+        columnIndexesSorted = other.columnIndexesSorted
+      }
+      case other: SparseCCMatrix2D[T] => {
+        rowPointers = other.getColumnPointers
+        columnIndexes = other.getRowIndexes
+        values = other.getValues
+        columnIndexesSorted = true
+      }
+      case _ => {
+        assignConstant(zero)
+        source.forEachNonZeroRowMajor(new Function3[Int, Int, T, T]() {
+          def apply(i: Int, j: Int, value: T): T = {
+            setQuick(i, j, value)
+            value
+          }
+        })
+      }
     }
     this
   }
 
   override def numNonZero = rowPointers(rows)
 
-  override def forEachNonZero(function: Function3[Int, Int, T, T]) = {
+  /* We don't over-ride the column-major version of this, because it doesn't same much */
+  override def forEachNonZeroRowMajor(function: Function3[Int, Int, T, T]) = {
     var i = rows
     while (i >= 0) {
       val low = rowPointers(i)
@@ -353,7 +357,7 @@ class SparseRCMatrix2D[T: Manifest](rows_p: Int, columns_p: Int, nzmax: Int) ext
    */
   def getDense: DenseMatrix2D[T] = {
     val dense = new DenseMatrix2D[T](rows, columns)
-    forEachNonZero(new Function3[Int, Int, T, T]() {
+    forEachNonZeroRowMajor(new Function3[Int, Int, T, T]() {
       def apply(i: Int, j: Int, value: T): T = {
         dense.setQuick(i, j, value)
         value
@@ -364,7 +368,7 @@ class SparseRCMatrix2D[T: Manifest](rows_p: Int, columns_p: Int, nzmax: Int) ext
 
   override def getQuick(row: Int, column: Int): T = {
     val k = searchFromTo(columnIndexes, column, rowPointers(row), rowPointers(row + 1) - 1)
-    if (k >= 0) values(k) else 0.asInstanceOf[T]
+    if (k >= 0) values(k) else zero
   }
 
   /**
@@ -479,10 +483,12 @@ class SparseRCMatrix2D[T: Manifest](rows_p: Int, columns_p: Int, nzmax: Int) ext
   override def setQuick(row: Int, column: Int, value: T) {
     var k = searchFromTo(columnIndexes, column, rowPointers(row), rowPointers(row + 1) - 1)
     if (k >= 0) {
-      if (value == 0) remove(row, k) else values(k) = value
-      return
+      if (value == zero)
+        remove(row, k)
+      else
+        values(k) = value
     }
-    if (value != 0) {
+    else if (value != zero) {
       k = -k - 1
       insert(row, column, k, value)
     }

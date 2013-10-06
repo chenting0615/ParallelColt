@@ -12,7 +12,7 @@ import cern.colt.matrix.{Matrix2D, Matrix1D}
  */
 @specialized
 @SerialVersionUID(1L)
-class WrappedDiagonalMatrix1D[T: Manifest](content2D: Matrix2D[T]) extends AbstractMatrix1D[T] {
+class WrappedDiagonalMatrix1D[T: Manifest: Numeric](content2D: Matrix2D[T]) extends AbstractMatrix1D[T] {
 
   this.sizeVar = Math.min(content2D.rows, content2D.columns)
   this.isNoView = false
@@ -40,7 +40,7 @@ class WrappedDiagonalMatrix1D[T: Manifest](content2D: Matrix2D[T]) extends Abstr
     var i: Int = 0
     while (i < content2D.rows && i < content2D.columns) {
       val oldValue: T = content2D.getQuick(i, i)
-      if (oldValue != 0.0) {
+      if (oldValue != zero) {
         val newValue: T = f.apply(i, oldValue)
         if (newValue != oldValue) {
           content2D.setQuick(i, i, newValue)

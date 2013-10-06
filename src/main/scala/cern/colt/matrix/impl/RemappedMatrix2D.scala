@@ -14,7 +14,7 @@ import scala.Tuple2
  */
 @specialized
 @SerialVersionUID(1L)
-abstract class RemappedMatrix2D[T: Manifest] extends AbstractMatrix2D[T] {
+abstract class RemappedMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] {
 
   isNoView = false
 

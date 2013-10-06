@@ -1,9 +1,11 @@
 package cern.colt.matrix.bazaarvoice
 
+/*
 import java.util.HashMap
 import java.util.Map
 import cern.colt.matrix.MatrixTypes._
 import cern.colt.matrix.impl.CompositeVerticalMatrix2D
+*/
 
 object MatrixFactory {
 

@@ -109,7 +109,7 @@ class DoubleUniform(protected var min: Double, protected var max: Double, random
 
   /**
    * Constructs a uniform distribution with the given minimum and maximum,
-   * using a {@link cern.jet.random.tdouble.engine.DoubleMersenneTwister}
+   * using a cern.jet.random.tdouble.engine.DoubleMersenneTwister
    * seeded with the given seed.
    */
   def this(min: Double, max: Double, seed: Int) {

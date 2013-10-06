@@ -16,8 +16,7 @@ import cern.colt.list.ArrayTypes.DoubleArrayList
  * @version 0.9, 03-Jul-99
  */
 @SerialVersionUID(1L)
-class MightyStaticBin1D[T](protected var hasSumOfLogarithmsVar: Boolean, protected var hasSumOfInversionsVar: Boolean, maxOrderForSumOfPowersVar: Int)
-    extends StaticBin1D[T] {
+class MightyStaticBin1D[T: Numeric](protected var hasSumOfLogarithmsVar: Boolean, protected var hasSumOfInversionsVar: Boolean, maxOrderForSumOfPowersVar: Int) extends StaticBin1D[T] {
 
   protected var sumOfLogarithmsVar: Double = 0.0
 

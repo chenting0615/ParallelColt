@@ -30,7 +30,10 @@ object OpenHashMap {
  */
 @specialized
 @SerialVersionUID(1L)
-class OpenHashMap[K: Manifest, V: Manifest](initialCapacity: Int, protected var minLoadFactor: Double, protected var maxLoadFactor: Double) extends AbstractTypedMap[K, V] {
+class OpenHashMap[K: Manifest: Numeric, V: Manifest: Numeric](initialCapacity: Int, protected var minLoadFactor: Double, protected var maxLoadFactor: Double) extends AbstractTypedMap[K, V] {
+
+  val keyNumeric = implicitly[Numeric[K]]
+  val zeroValue = implicitly[Numeric[V]].zero
 
   protected val FREE: Byte = 0
   protected val FULL: Byte = 1
@@ -216,7 +219,7 @@ class OpenHashMap[K: Manifest, V: Manifest](initialCapacity: Int, protected var 
    */
   def get(key: K): V = {
     val i = indexOfKey(key)
-    if (i < 0) return 0.asInstanceOf[V]
+    if (i < 0) return zeroValue
     valuesVar(i)
   }
 
@@ -234,8 +237,7 @@ class OpenHashMap[K: Manifest, V: Manifest](initialCapacity: Int, protected var 
     val tab = table
     val stat = state
     val length = tab.length
-    // TODO: Fix this
-    val hash = HashFunctions.hash(key.asInstanceOf[Long]) & 0x7FFFFFFF
+    val hash = HashFunctions.hash(keyNumeric.toLong(key)) & 0x7FFFFFFF
     var i = hash % length
     var decrement = hash % (length - 2)
     if (decrement == 0) decrement = 1
@@ -267,8 +269,7 @@ class OpenHashMap[K: Manifest, V: Manifest](initialCapacity: Int, protected var 
     val tab = table
     val stat = state
     val length = tab.length
-    // TODO: Fix this
-    val hash = HashFunctions.hash(key.asInstanceOf[Long]) & 0x7FFFFFFF
+    val hash = HashFunctions.hash(keyNumeric.toLong(key)) & 0x7FFFFFFF
     var i = hash % length
     var decrement = hash % (length - 2)
     if (decrement == 0) decrement = 1

@@ -7,7 +7,7 @@ object AbstractDoubleDistribution {
   /**
    * Constructs and returns a new uniform random number generation engine
    * seeded with the current time. Currently this is
-   * {@link cern.jet.random.tdouble.engine.DoubleMersenneTwister}.
+   * cern.jet.random.tdouble.engine.DoubleMersenneTwister.
    */
   def makeDefaultGenerator(): DoubleRandomEngine = {
     cern.jet.random.tdouble.engine.DoubleRandomEngine.makeDefault()
@@ -24,11 +24,11 @@ object AbstractDoubleDistribution {
  * and transform its results to the target distribution. Thus, they expect such
  * a uniform engine upon instance construction.
  * <p>
- * {@link cern.jet.random.tdouble.engine.DoubleMersenneTwister} is recommended
+ * cern.jet.random.tdouble.engine.DoubleMersenneTwister is recommended
  * as uniform pseudo-random number generation engine, since it is very strong
- * and at the same time quick. {@link #makeDefaultGenerator()} will conveniently
+ * and at the same time quick. makeDefaultGenerator() will conveniently
  * construct and return such a magic thing. You can also, for example, use
- * {@link cern.jet.random.tdouble.engine.DRand}, a quicker (but much weaker)
+ * cern.jet.random.tdouble.engine.DRand, a quicker (but much weaker)
  * uniform random number generation engine. Of course, you can also use other
  * strong uniform random number generation engines.
  *

@@ -107,9 +107,13 @@ trait Matrix[T] extends cern.colt.PersistentObject {
    */
   def haveSharedCells(other: Matrix[T]): Boolean = {
     if (other == null) return false
-    if (this == other) return true
-    if (getStorageMatrix == other.getStorageMatrix) return true
-    getStorageMatrix.haveSharedCells(other.getStorageMatrix)
+    if (this eq other) return true
+    val thisStorage = getStorageMatrix
+    val otherStorage = other.getStorageMatrix
+    if ((otherStorage eq null) || (thisStorage eq null)) return false
+    if (thisStorage eq otherStorage) return true
+    if ((this eq thisStorage) && (other eq otherStorage)) return false
+    thisStorage.haveSharedCells(otherStorage)
   }
 
   /**

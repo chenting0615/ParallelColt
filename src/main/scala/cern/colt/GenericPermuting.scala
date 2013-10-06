@@ -15,9 +15,9 @@ object GenericPermuting {
    * <p>
    * This is, for example, useful for Monte-Carlo-tests where one might want
    * to compute <tt>k</tt> distinct and random permutations of a sequence,
-   * obtaining <tt>p</tt> from {@link cern.jet.random.tdouble.sampling}
+   * obtaining <tt>p</tt> from cern.jet.random.tdouble.sampling
    * without replacement or a random engine like
-   * {@link cern.jet.random.tdouble.engine.DoubleMersenneTwister}. <br>
+   * cern.jet.random.tdouble.engine.DoubleMersenneTwister. <br>
    * Note: When <tt>N!</tt> exceeds the 64-bit range (i.e. for <tt>N > 20</tt>
    * ), this method has <i>different</i> behaviour: it makes a sequence
    * <tt>[0,1,...,N-1]</tt> and randomizes it, seeded with parameter
@@ -236,9 +236,9 @@ object GenericPermuting {
  * method. Let <tt>after</tt> be the generic data after calling the reordering
  * method. Then there holds <tt>after[i] == before[indexes[i]]</tt>.
  * <p>
- * Similar to {@link GenericSorting}, this class has no idea what kind of data
+ * Similar to GenericSorting, this class has no idea what kind of data
  * it is reordering. It can decide to swap the data at index <tt>a</tt> with the
- * data at index <tt>b</tt>. It calls a user provided {@link cern.colt.Swapper}
+ * data at index <tt>b</tt>. It calls a user provided cern.colt.Swapper
  * object that knows how to swap the data of these indexes.
  * <p>
  * For convenience, some non-generic variants are also provided. Further a
@@ -292,7 +292,7 @@ object GenericPermuting {
  *     }
  * };
  *
- * // reordering the rows of a 2-d matrix (see {@link cern.colt.matrix})
+ * // reordering the rows of a 2-d matrix (see cern.colt.matrix)
  * Swapper swapper = new Swapper() {
  *     public void swap(int a, int b) {
  *         matrix.viewRow(a).swap(matrix.viewRow(b));

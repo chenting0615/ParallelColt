@@ -64,7 +64,7 @@ object AbstractFormatter {
     var i = size
     while (i >= 0) {buf.append(' '); i -= 1}
     val str = buf.toString
-    i = size
+    i = size-1
     while (i >= 0) {
       blanksCache(i) = str.substring(0, i)
       i -= 1

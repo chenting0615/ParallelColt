@@ -23,14 +23,38 @@ import cern.colt.matrix._
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  *
+ * @param size_p
+ *            the number of cells the matrix shall have.
+ * @param elements_p
+ *            the cells.
+ * @param zero_p
+ *            the index of the first element.
+ * @param stride_p
+ *            the number of indexes between any two elements, i.e.
+ *            <tt>index(i+1)-index(i)</tt>.
+ * @param isView
+ *            if true then a matrix view is constructed
+ * @throws IllegalArgumentException
+ *             if <tt>size<0</tt>.
  */
 @specialized
 @SerialVersionUID(1L)
-class DenseMatrix1D[T: Manifest](size: Int) extends StrideMatrix1D[T] {
+class DenseMatrix1D[T: Manifest: Numeric](size_p: Int, elements_p: Array[T], zero_p: Int, stride_p: Int, isView: Boolean) extends StrideMatrix1D[T] {
 
-  protected var elementsVar: Array[T] = null
+  protected var elementsVar: Array[T] = elements_p
 
-  setUp(size)
+  setUp(size_p, zero_p, stride_p)
+  this.isNoView = ! isView
+
+  /**
+   * Constructs an empty matrix with the given size.
+   *
+   * @param size
+   *            The size of the new matrix.
+   */
+  def this(size: Int) {
+    this(size, Array.ofDim[T](size), 0, 1, false)
+  }
 
   /**
    * Constructs a matrix with a copy of the given values. The values are
@@ -45,32 +69,6 @@ class DenseMatrix1D[T: Manifest](size: Int) extends StrideMatrix1D[T] {
     assign(values)
   }
 
-  /**
-   * Constructs a matrix with the given parameters.
-   *
-   * @param size
-   *            the number of cells the matrix shall have.
-   * @param elements
-   *            the cells.
-   * @param zero
-   *            the index of the first element.
-   * @param stride
-   *            the number of indexes between any two elements, i.e.
-   *            <tt>index(i+1)-index(i)</tt>.
-   * @param isView
-   *            if true then a matrix view is constructed
-   * @throws IllegalArgumentException
-   *             if <tt>size<0</tt>.
-   */
-  def this(size: Int, elements: Array[T], zero: Int, stride: Int, isView: Boolean) {
-    // TODO: Much check size, zero, stride == elements.length
-    this(size)
-    setUp(size, zero, stride)
-    if (elements != null)
-      this.elementsVar = elements
-    this.isNoView = !isView
-  }
-
   def elements: Array[T] = elementsVar
 
   override def assignConstant(value: T) = {
@@ -79,8 +77,8 @@ class DenseMatrix1D[T: Manifest](size: Int) extends StrideMatrix1D[T] {
         elementsVar(i) = value
     }
     else {
-      for (i <- zeroVar until sizeVar by strideVar)
-        elementsVar(i) = value
+      for (i <- 0 until sizeVar)
+        elementsVar(toRawIndex(i)) = value
     }
     this
   }
@@ -91,17 +89,15 @@ class DenseMatrix1D[T: Manifest](size: Int) extends StrideMatrix1D[T] {
       System.arraycopy(elementsVar, 0, values, 0, sizeVar)
     }
     else {
-      var idx = zeroVar
       for (i <- 0 until sizeVar) {
-        elementsVar(idx) = values(i)
-        idx += strideVar
+        elementsVar(toRawIndex(i)) = values(i)
       }
     }
     this
   }
 
   override def assign(source: Matrix1D[T]): Matrix1D[T] = {
-    if (source == this) return this
+    if (source eq this) return this
     checkSize(source)
     if (! source.isInstanceOf[DenseMatrix1D[T]]) {
       super.assign(source)
@@ -121,9 +117,9 @@ class DenseMatrix1D[T: Manifest](size: Int) extends StrideMatrix1D[T] {
     }
     var idx = zeroVar
     var idxOther = other.zeroVar
-    for (k <- 0 until size.toInt) {
+    for (k <- 0 until sizeVar) {
       elementsVar(idx) = other.elementsVar(idxOther)
-      idx += stride
+      idx += strideVar
       idxOther += other.strideVar
     }
     this
@@ -132,8 +128,8 @@ class DenseMatrix1D[T: Manifest](size: Int) extends StrideMatrix1D[T] {
 
   override def numNonZero: Long = {
     var cardinality = 0
-    for (idx <- zeroVar until sizeVar by strideVar)
-      if (elementsVar(idx) != 0) cardinality += 1
+    for (i <- 0 until sizeVar)
+      if (elementsVar(toRawIndex(i)) != zero) cardinality += 1
     cardinality
   }
 
@@ -142,7 +138,7 @@ class DenseMatrix1D[T: Manifest](size: Int) extends StrideMatrix1D[T] {
     var idx = zeroVar
     if (rem == 1) {
       val value = elementsVar(idx)
-      if (value != 0.0) {
+      if (value != zero) {
         elementsVar(idx) = f.apply(0, value)
       }
       idx += stride
@@ -150,11 +146,11 @@ class DenseMatrix1D[T: Manifest](size: Int) extends StrideMatrix1D[T] {
     var i = rem
     while (i < sizeVar) {
       var value = elementsVar(idx)
-      if (value != 0.0)
+      if (value != zero)
         elementsVar(idx) = f.apply(i, value)
       idx += strideVar
       value = elementsVar(idx)
-      if (value != 0.0)
+      if (value != zero)
         elementsVar(idx) = f.apply(i + 1, value)
       idx += strideVar
       i += 2
@@ -173,7 +169,7 @@ class DenseMatrix1D[T: Manifest](size: Int) extends StrideMatrix1D[T] {
       throw new IllegalArgumentException("rows*columns != size")
 
     val M = new DenseMatrix2D[T](rows, columns)
-    M.assign(elementsVar, zeroVar, strideVar)
+    M.viewTranspose().assign(elementsVar, zeroVar, strideVar)
     M
   }
 
