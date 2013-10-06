@@ -172,10 +172,11 @@
                             <version>2.0.0-SNAPSHOT</version>
                         </compilerPlugin>
                     </compilerPlugins>
-                      <!--<args>-->
+                      <args>
+                          <arg>-Ymacro-debug-lite</arg>
                           <!--<arg>-deprecation</arg>-->
                           <!--<args>-feature</args>-->
-                      <!--</args>-->
+                      </args>
               </configuration>
 
               <executions>

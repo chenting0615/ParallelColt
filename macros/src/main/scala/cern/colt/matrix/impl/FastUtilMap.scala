@@ -11,11 +11,11 @@ import it.unimi.dsi.fastutil.longs._
 trait MapWrap[@specialized Key, @specialized Value, BoxedKey <: AnyRef, BoxedValue <: AnyRef] extends Any {
   type MapTrim = java.util.Map[BoxedKey, BoxedValue] {def trim() : Boolean}
   def m: MapTrim
-  def trim() = m.trim()
-  def clear() = m.clear()
-  def putAll(m2: MapWrap[Key, Value, BoxedKey, BoxedValue]) = m.putAll(m2.m)
-  def size() = m.size()
-  def keySet() = m.keySet()
+  final def trim() = m.trim()
+  final def clear() = m.clear()
+  final def putAll(m2: MapWrap[Key, Value, BoxedKey, BoxedValue]) = m.putAll(m2.m)
+  final def size() = m.size()
+  final def keySet() = m.keySet()
   def get(k: Key) : Value
   def put(k: Key, v: Value): Value
   def remove(k: Key) : Value
@@ -37,17 +37,24 @@ abstract class FastUtilMap[@specialized K, @specialized V] {
 
 object FastUtilMap {
 
-  implicit def fastUtilMap[K, V, BK <: AnyRef, BV <: AnyRef](implicit kbk: Boxed[K, BK], vbv: Boxed[V, BV]) : FastUtilMap[K, V]= macro fastUtilMap_impl[K, V, BK, BV]
+  implicit def fastUtilMap[@specialized K, @specialized V, BK <: AnyRef, BV <: AnyRef](implicit kbk: Boxed[K, BK], vbv: Boxed[V, BV]) : FastUtilMap[K, V]= macro fastUtilMap_impl[K, V, BK, BV]
 
-  def fastUtilMap_impl[K, V, BK <: AnyRef, BV <: AnyRef](c: Context)
+  def fastUtilMap_impl[@specialized K, @specialized V, BK <: AnyRef, BV <: AnyRef](c: Context)
   (kbk: c.Expr[cern.colt.matrix.impl.Boxed[K, BK]], vbv: c.Expr[cern.colt.matrix.impl.Boxed[V, BV]])
   (implicit k: c.WeakTypeTag[K], v: c.WeakTypeTag[V], bk: c.WeakTypeTag[BK], bv: c.WeakTypeTag[BV])  : c.Expr[FastUtilMap[K, V]]= {
     import c.universe._
-    val Key = ??? // ...k.tpe...
-    val Value = ??? // ...v.tpe...
-    val BoxedKey =  ???// ...bk.tpe...
-    val BoxedValue = ??? // ...bv.tpe  ...
-    val FUMap =  ???   // ${KeyNameFragment}2${ValNameFragment}OpenHashMap or ${KeyNameFragment}2${ValNameFragment}OpenHashMap[$Value] if Value <: AnyRef
+
+    def nameFrag(tp: Type) = if (tp <:< typeOf[AnyVal]) tp.normalize.typeSymbol.name.toString else "Object"
+    val Key = k.tpe.normalize
+    val Value = v.tpe.normalize
+    val BoxedKey =  bk.tpe.normalize
+    val BoxedValue = bv.tpe.normalize
+    val tParams = Seq(Key,Value).filter(_ <:< typeOf[AnyRef])
+    val Pkg = newTermName(s"${nameFrag(Key)}s".toLowerCase)
+    val FUMap0 = newTypeName(s"${nameFrag(Key)}2${nameFrag(Value)}OpenHashMap")
+    val FUMap1 = tq"it.unimi.dsi.fastutil.${Pkg}.${FUMap0}"
+    val FUMap =  if (tParams.isEmpty)  tq"${FUMap1}" else tq"${FUMap1}[..${tParams}]"
+
     c.Expr[FastUtilMap[K, V]](q"""new cern.colt.matrix.impl.FastUtilMap[${Key}, ${Value}] {
     type BoxedKey = ${BoxedKey}
     type BoxedValue = ${BoxedValue}
@@ -60,7 +67,7 @@ object FastUtilMap {
     }
 
     def createMap(initialCapacity: Int, loadFactor: Float) = {
-      new MapType(new ${FUMap}(initialCapacity, loadFactor))
+      new MapType(new FUMapType(initialCapacity, loadFactor))
     }
   }""")
   }
