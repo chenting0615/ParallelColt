@@ -10,9 +10,10 @@ import cern.colt.matrix.{Matrix, Matrix2D}
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
-@specialized
 @SerialVersionUID(1L)
-class DiagonalMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
+class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
+
+  val numeric = implicitly[Numeric[T]]
 
   def this(rowsAndColumns: Int, value: T) {
     this(rowsAndColumns, rowsAndColumns, 0)
@@ -73,6 +74,8 @@ class DiagonalMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, protected 
     assign(values)
   }
 
+  def getElements = elementsVar
+
   override def isSparse = true
 
   override def isRowMajor = true
@@ -120,10 +123,10 @@ class DiagonalMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, protected 
     checkShape(source)
     source match {
       case other: DiagonalMatrix2D[T] => {
-        if (dindex != other.dindex || dlength != other.dlength)
+        if (dindex != other.diagonalIndex || dlength != other.diagonalLength)
           throw new IllegalArgumentException("source is DiagonalDoubleMatrix2D with different diagonal stored.")
 
-        System.arraycopy(other.elementsVar, 0, this.elementsVar, 0, this.elementsVar.length)
+        System.arraycopy(other.getElements, 0, this.elementsVar, 0, this.elementsVar.length)
       }
       case _ => super.assign(source)
     }
@@ -238,11 +241,14 @@ class DiagonalMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, protected 
 
   override def like1D(size: Int) = new SparseHashMatrix1D[T](size)
 
+  // Can't override here because c.elementsVar can't be assigned because of @specialized
+/*
   override def copy() = {
     val c = clone().asInstanceOf[DiagonalMatrix2D[T]]
     c.elementsVar = elementsVar.clone()
     c
   }
+*/
 
   /**
    * Compares this object against the specified object. The result is
@@ -261,11 +267,11 @@ class DiagonalMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, protected 
       return equals(mtrx)
     mtrx match {
       case other: DiagonalMatrix2D[T] => {
-        if (columns != other.columns || rows != other.rows) return false
-        if (dindex != other.dindex || dlength != other.dlength) return false
+        if (columnsVar != other.columns || rowsVar != other.rows) return false
+        if (dindex != other.diagonalIndex || dlength != other.diagonalLength) return false
 
         for (r <- 0 until dlength) {
-          if (elementsVar(r).asInstanceOf[Double] - other.elementsVar(r).asInstanceOf[Double] > tolerance)
+          if (numeric.toDouble(numeric.minus(elementsVar(r), other.getElements(r))) > tolerance)
             return false
         }
         true

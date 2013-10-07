@@ -15,9 +15,8 @@ import cern.colt.list.impl.ArrayList
  * @author wolfgang.hoschek@cern.ch
  * @version 1.0, 09/24/99
  */
-@specialized
 @SerialVersionUID(1L)
-abstract class AbstractMatrix1D[T: Manifest: Numeric] extends Matrix1D[T] {
+abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matrix1D[T] {
 
   val zero = implicitly[Numeric[T]].zero
 

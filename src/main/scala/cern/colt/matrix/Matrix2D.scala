@@ -11,7 +11,6 @@ import cern.colt.function.{Matrix1DProcedure, Procedure3}
  * @author wolfgang.hoschek@cern.ch
  * @version 1.0, 09/24/99
  */
-@specialized
 @SerialVersionUID(1L)
 trait Matrix2D[T] extends Matrix[T] {
 

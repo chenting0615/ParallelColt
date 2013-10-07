@@ -23,9 +23,8 @@ import cern.colt.matrix.{Matrix, Matrix1D}
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
-@specialized
 @SerialVersionUID(1L)
-abstract class StrideMatrix1D[T: Manifest: Numeric] extends AbstractMatrix1D[T] {
+abstract class StrideMatrix1D[@specialized T: Manifest: Numeric] extends AbstractMatrix1D[T] {
 
   /**
    the index of the first element
@@ -88,14 +87,16 @@ abstract class StrideMatrix1D[T: Manifest: Numeric] extends AbstractMatrix1D[T] 
   /**
    * Returns the stride.
    */
-  def stride: Int = strideVar
+  def stride = strideVar
+
+  def zeroIndex = zeroVar
 
   /**
    * Self modifying version of viewFlip(). What used to be index <tt>0</tt> is
    * now index <tt>size()-1</tt>, ..., what used to be index <tt>size()-1</tt>
    * is now index <tt>0</tt>.
    */
-  protected def vFlip(): AbstractMatrix1D[T] = {
+  def vFlip() = {
     if (size > 0) {
       this.zeroVar += (this.sizeVar - 1) * this.strideVar
       this.strideVar = -this.strideVar
@@ -110,11 +111,10 @@ abstract class StrideMatrix1D[T: Manifest: Numeric] extends AbstractMatrix1D[T] 
    * @throws IndexOutOfBoundsException
    *             if <tt>index<0 || index+width>size()</tt>.
    */
-  protected def vPart(index: Int, width: Int): AbstractMatrix1D[T] = {
+  def vPart(index: Int, width: Int) = {
     checkRange(index, width)
     this.zeroVar += this.strideVar * index
     this.sizeVar = width
-    this.isNoView = false
     this
   }
 
@@ -124,7 +124,7 @@ abstract class StrideMatrix1D[T: Manifest: Numeric] extends AbstractMatrix1D[T] 
    * @throws IndexOutOfBoundsException
    *             if <tt>stride <= 0</tt>.
    */
-  protected def vStrides(stride: Int): AbstractMatrix1D[T] = {
+  def vStrides(stride: Int) = {
     if (stride <= 0)
       throw new IndexOutOfBoundsException("illegal stride: " + stride)
     this.strideVar *= stride
@@ -143,8 +143,8 @@ abstract class StrideMatrix1D[T: Manifest: Numeric] extends AbstractMatrix1D[T] 
    *
    * @return a new flip view.
    */
-  override def viewFlip(): Matrix1D[T] = {
-    view().vFlip().asInstanceOf[Matrix1D[T]]
+  override def viewFlip() = {
+    view().vFlip()
   }
 
   /**
@@ -175,8 +175,8 @@ abstract class StrideMatrix1D[T: Manifest: Numeric] extends AbstractMatrix1D[T] 
    * @return the new view.
    *
    */
-  def viewPart(index: Int, width: Int): Matrix1D[T] = {
-    view().vPart(index, width).asInstanceOf[Matrix1D[T]]
+  def viewPart(index: Int, width: Int) = {
+    view().vPart(index, width)
   }
 
   /**
@@ -233,11 +233,15 @@ abstract class StrideMatrix1D[T: Manifest: Numeric] extends AbstractMatrix1D[T] 
    * @return the new view.
    *
    */
-  def viewStrides(stride: Int): StrideMatrix1D[T] = {
-    view().vStrides(stride).asInstanceOf[StrideMatrix1D[T]]
+  def viewStrides(stride: Int) = {
+    view().vStrides(stride)
   }
 
   override def getStorageMatrix = storageMatrix
+
+  override def setStorageMatrix(m: Matrix[T]) {
+    storageMatrix = m
+  }
 
   /**
    * Constructs and returns a new view equal to the receiver. The view is a
@@ -254,8 +258,8 @@ abstract class StrideMatrix1D[T: Manifest: Numeric] extends AbstractMatrix1D[T] 
    */
   protected def view(): StrideMatrix1D[T] = {
     val v = clone().asInstanceOf[StrideMatrix1D[T]]
-    v.storageMatrix = this.getStorageMatrix
-    v.isNoView = false
+    v.setStorageMatrix(this.getStorageMatrix)
+    v.setIsView(isView=true)
     v
   }
 }

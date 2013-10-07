@@ -10,9 +10,8 @@ import cern.colt.matrix.{Matrix2D, Matrix1D}
  * @version 1.0, 09/24/99
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
-@specialized
 @SerialVersionUID(1L)
-class WrappedDiagonalMatrix2D[T: Manifest: Numeric](content1D: Matrix1D[T]) extends RemappedMatrix2D[T] {
+class WrappedDiagonalMatrix2D[@specialized T: Manifest: Numeric](content1D: Matrix1D[T]) extends RemappedMatrix2D[T] {
 
   this.isNoView = false
   setUp(content1D.size.toInt, content1D.size.toInt)

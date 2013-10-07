@@ -505,7 +505,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
       expected(i)(j) = s * alpha + expected(i)(j) * beta
     }
     for (r <- 0 until NCOLUMNS; c <- 0 until NCOLUMNS) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("row=" + r + ", col=" + c, expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = null
     C = A.dot(B, C, alpha, beta, transposeSelf=true, transposeOther=false)
@@ -518,7 +518,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
       expected(i)(j) = s * alpha
     }
     for (r <- 0 until NCOLUMNS; c <- 0 until NCOLUMNS) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("row=" + r + ", col=" + c, expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = new DiagonalDoubleMatrix2D(NROWS, NROWS, 0)
     for (i <- 0 until DLENGTH) {
@@ -534,7 +534,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
       expected(i)(j) = s * alpha + expected(i)(j) * beta
     }
     for (r <- 0 until NROWS; c <- 0 until NROWS) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("row=" + r + ", col=" + c, expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = null
     C = A.dot(B, C, alpha, beta, transposeSelf=false, transposeOther=true)
@@ -547,7 +547,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
       expected(i)(j) = s * alpha
     }
     for (r <- 0 until NROWS; c <- 0 until NROWS) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("row=" + r + ", col=" + c, expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = new DiagonalDoubleMatrix2D(NCOLUMNS, NCOLUMNS, 0)
     for (i <- 0 until DLENGTH) {
@@ -563,7 +563,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
       expected(i)(j) = s * alpha + expected(i)(j) * beta
     }
     for (r <- 0 until NCOLUMNS; c <- 0 until NCOLUMNS) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("row=" + r + ", col=" + c, expected(r)(c), C.getQuick(r, c), TOL)
     }
     C = null
     C = A.dot(Bt, C, alpha, beta, transposeSelf=true, transposeOther=true)
@@ -576,7 +576,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
       expected(i)(j) = s * alpha
     }
     for (r <- 0 until NCOLUMNS; c <- 0 until NCOLUMNS) {
-      assertEquals(expected(r)(c), C.getQuick(r, c), TOL)
+      assertEquals("row=" + r + ", col=" + c, expected(r)(c), C.getQuick(r, c), TOL)
     }
   }
 }

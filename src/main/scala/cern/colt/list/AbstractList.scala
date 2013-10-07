@@ -16,7 +16,7 @@ package cern.colt.list
  */
 @specialized
 @SerialVersionUID(1L)
-abstract class AbstractList[T: Manifest] extends AbstractCollection[T] {
+abstract class AbstractList[@specialized T: Manifest] extends AbstractCollection[T] {
 
   /**
    * Checks if the given index is in range.

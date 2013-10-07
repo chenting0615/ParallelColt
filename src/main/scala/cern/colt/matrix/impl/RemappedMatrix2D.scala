@@ -12,9 +12,8 @@ import scala.Tuple2
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
-@specialized
 @SerialVersionUID(1L)
-abstract class RemappedMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] {
+abstract class RemappedMatrix2D[@specialized T: Manifest: Numeric] extends AbstractMatrix2D[T] {
 
   isNoView = false
 
@@ -37,21 +36,17 @@ abstract class RemappedMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T
   }
 
   override def viewTranspose(): WrapperMatrix2D[T] = {
-    val view = new WrapperMatrix2D[T](this) {
+    val view = new WrapperMatrix2D[T](this, columnsVar, rowsVar) {
       override protected def remapIndexes(row: Int, column: Int): Tuple2[Int, Int] = (column, row)
     }
-    view.rowsVar = columnsVar
-    view.columnsVar = rowsVar
     view
   }
 
   override def viewPart(boxRow: Int, boxColumn: Int, height: Int, width: Int): WrapperMatrix2D[T] = {
     checkBox(boxRow, boxColumn, height, width)
-    val view = new WrapperMatrix2D[T](this) {
+    val view = new WrapperMatrix2D[T](this, height, width) {
       override protected def remapIndexes(row: Int, column: Int): Tuple2[Int, Int] = (row+boxRow, column+boxColumn)
     }
-    view.rowsVar = height
-    view.columnsVar = width
     view
   }
 
@@ -66,25 +61,25 @@ abstract class RemappedMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T
   override def viewSelection(rowIndexes: Array[Int], columnIndexes: Array[Int]) = {
     checkRowIndexes(rowIndexes)
     checkColumnIndexes(columnIndexes)
-    val view = new WrapperMatrix2D(this) {
+    val viewRowsVar = if (rowIndexes == null) rowsVar else rowIndexes.length
+    val viewColumnsVar = if (columnIndexes == null) columnsVar else columnIndexes.length
+    val view = new WrapperMatrix2D(this, viewRowsVar, viewColumnsVar) {
       override protected def remapIndexes(row: Int, column: Int): Tuple2[Int, Int] = {
         (if (rowIndexes == null) row else rowIndexes(row), if (columnIndexes == null) column else columnIndexes(column))
       }
     }
-    view.rowsVar = if (rowIndexes == null) rowsVar else rowIndexes.length
-    view.columnsVar = if (columnIndexes == null) columnsVar else columnIndexes.length
     view
   }
 
   override def viewStrides(rowStride: Int, columnStride: Int): WrapperMatrix2D[T] = {
     if (rowStride <= 0 || columnStride <= 0) throw new IndexOutOfBoundsException("illegal stride")
-    val view = new WrapperMatrix2D(this) {
+    val viewRowsVar = if (rowsVar != 0) (rowsVar - 1) / rowStride + 1 else rowsVar
+    val viewColumnsVar = if (columnsVar != 0) (columnsVar - 1) / columnStride + 1 else columnsVar
+    val view = new WrapperMatrix2D(this, viewRowsVar, viewColumnsVar) {
       override protected def remapIndexes(row: Int, column: Int): Tuple2[Int, Int] = {
         (rowStride * row, columnStride * column)
       }
     }
-    if (rowsVar != 0) view.rowsVar = (rowsVar - 1) / rowStride + 1
-    if (columnsVar != 0) view.columnsVar = (columnsVar - 1) / columnStride + 1
     view
   }
 }

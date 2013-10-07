@@ -22,7 +22,7 @@ object Arrays {
    * @param minCapacity
    *            the desired minimum capacity.
    */
-  def ensureCapacity[T: Manifest](array: Array[T], minCapacity: Int): Array[T] = {
+  def ensureCapacity[@specialized T: Manifest](array: Array[T], minCapacity: Int): Array[T] = {
     val oldCapacity = array.length
     var newArray: Array[T] = null
     if (minCapacity > oldCapacity) {
@@ -71,7 +71,7 @@ object Arrays {
    * @param maxCapacity
    *            the desired maximum capacity.
    */
-  def trimToCapacity[T: Manifest](arrayP: Array[T], maxCapacity: Int): Array[T] = {
+  def trimToCapacity[@specialized T: Manifest](arrayP: Array[T], maxCapacity: Int): Array[T] = {
     var array = arrayP
     if (array.length > maxCapacity) {
       val oldArray = array

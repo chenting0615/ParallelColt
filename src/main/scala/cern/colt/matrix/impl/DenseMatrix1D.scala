@@ -37,9 +37,8 @@ import cern.colt.matrix._
  * @throws IllegalArgumentException
  *             if <tt>size<0</tt>.
  */
-@specialized
 @SerialVersionUID(1L)
-class DenseMatrix1D[T: Manifest: Numeric](size_p: Int, elements_p: Array[T], zero_p: Int, stride_p: Int, isView: Boolean) extends StrideMatrix1D[T] {
+class DenseMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, elements_p: Array[T], zero_p: Int, stride_p: Int, isView: Boolean) extends StrideMatrix1D[T] {
 
   protected var elementsVar: Array[T] = elements_p
 
@@ -69,7 +68,7 @@ class DenseMatrix1D[T: Manifest: Numeric](size_p: Int, elements_p: Array[T], zer
     assign(values)
   }
 
-  def elements: Array[T] = elementsVar
+  def getElements = elementsVar
 
   override def assignConstant(value: T) = {
     if (zeroVar == 0 && strideVar == 1) {
@@ -104,8 +103,8 @@ class DenseMatrix1D[T: Manifest: Numeric](size_p: Int, elements_p: Array[T], zer
       return this
     }
     var other = source.asInstanceOf[DenseMatrix1D[T]]
-    if (isNoView && other.isNoView) {
-      System.arraycopy(other.elementsVar, 0, this.elementsVar, 0, this.elementsVar.length)
+    if (isNoView && ! other.isView) {
+      System.arraycopy(other.getElements, 0, this.elementsVar, 0, this.elementsVar.length)
       return this
     }
     if (haveSharedCells(other)) {
@@ -116,11 +115,11 @@ class DenseMatrix1D[T: Manifest: Numeric](size_p: Int, elements_p: Array[T], zer
       other = c.asInstanceOf[DenseMatrix1D[T]]
     }
     var idx = zeroVar
-    var idxOther = other.zeroVar
+    var idxOther = other.zeroIndex
     for (k <- 0 until sizeVar) {
-      elementsVar(idx) = other.elementsVar(idxOther)
+      elementsVar(idx) = other.getElements(idxOther)
       idx += strideVar
-      idxOther += other.strideVar
+      idxOther += other.stride
     }
     this
   }

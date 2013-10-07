@@ -52,9 +52,8 @@ import cern.colt.function.Procedure2
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  * @version 1.1, 08/22/2007
  */
-@specialized(Double)
 @SerialVersionUID(1L)
-class SparseHashMatrix1D[T: Manifest: Numeric](size_p: Int, initialCapacity: Int, minLoadFactor: Double, maxLoadFactor: Double) extends StrideMatrix1D[T] {
+class SparseHashMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, initialCapacity: Int, minLoadFactor: Double, maxLoadFactor: Double) extends StrideMatrix1D[T] {
 
   protected var elements = new OpenHashMap[Long, T](initialCapacity, minLoadFactor, maxLoadFactor)
 

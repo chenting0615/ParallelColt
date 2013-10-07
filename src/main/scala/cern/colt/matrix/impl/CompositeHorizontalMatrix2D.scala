@@ -7,9 +7,8 @@ import cern.colt.matrix.Matrix2D
 /**
  *
  */
-@specialized
 @SerialVersionUID(1L)
-class CompositeHorizontalMatrix2D[T: Manifest: Numeric](numberOfRows: Int) extends RemappedMatrix2D[T] {
+class CompositeHorizontalMatrix2D[@specialized T: Manifest: Numeric](numberOfRows: Int) extends RemappedMatrix2D[T] {
 
   private val columnOffsets = new IntArrayList()
 

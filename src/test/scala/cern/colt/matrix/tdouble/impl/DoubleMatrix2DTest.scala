@@ -499,7 +499,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       expected(r) = s * alpha + expected(r) * beta
     }
     for (r <- 0 until A.columns) {
-      assertEquals(expected(r), z.getQuick(r), TOL)
+      assertEquals("idx=" + r, expected(r), z.getQuick(r), TOL)
     }
     z = null
     z = A.dot(y, z, alpha, beta, transposeSelf=true)
@@ -512,7 +512,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       expected(r) = s * alpha
     }
     for (r <- 0 until A.columns) {
-      assertEquals(expected(r), z.getQuick(r), TOL)
+      assertEquals("idx=" + r, expected(r), z.getQuick(r), TOL)
     }
   }
 

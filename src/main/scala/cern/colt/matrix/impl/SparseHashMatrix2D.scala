@@ -74,10 +74,8 @@ import cern.colt.map.impl.OpenHashMap
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
-
-@specialized
 @SerialVersionUID(1L)
-class SparseHashMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, initialCapacity: Int, minLoadFactor: Double, maxLoadFactor: Double) extends StrideMatrix2D[T] {
+class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: Int, initialCapacity: Int, minLoadFactor: Double, maxLoadFactor: Double) extends StrideMatrix2D[T] {
 
   private var elementsVar = new OpenHashMap[Long, T](initialCapacity, minLoadFactor, maxLoadFactor)
 
@@ -157,7 +155,7 @@ class SparseHashMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, initialC
       var doFallBackAssign = true
       source match {
         case other: SparseHashMatrix2D[T] => {
-          if (this.isNoView && other.isNoView) {
+          if (this.isNoView && ! other.isView) {
             this.elementsVar.clear()
             this.elementsVar.putAll(other.elementsVar)
             doFallBackAssign = false

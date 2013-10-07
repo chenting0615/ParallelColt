@@ -1,11 +1,7 @@
 package cern.colt.matrix.impl
 
 import java.util
-import edu.emory.mathcs.csparsej.tdouble.Dcs_cumsum
-import edu.emory.mathcs.csparsej.tdouble.Dcs_dropzeros
-import edu.emory.mathcs.csparsej.tdouble.Dcs_dupl
-import edu.emory.mathcs.csparsej.tdouble.Dcs_transpose
-import edu.emory.mathcs.csparsej.tdouble.Dcs_util
+import edu.emory.mathcs.csparsej.tdouble._
 import SparseCCMatrix2D._
 import cern.colt.matrix.{Matrix1D, Matrix2D}
 import cern.colt.list.impl.ArrayList
@@ -132,9 +128,8 @@ object SparseCCMatrix2D {
  * @throws IllegalArgumentException
  *             if <tt>rows<0 || columns<0</tt> .
  */
-@specialized(Double)
 @SerialVersionUID(1L)
-class SparseCCMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
+class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
 
   protected var rowIndexesSorted: Boolean = false
 
@@ -158,6 +153,22 @@ class SparseCCMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, nzmax: Int
    */
   def this(rows: Int, columns: Int) {
     this(rows, columns, Math.min(10l * rows, Integer.MAX_VALUE).toInt)
+  }
+
+  /**
+   * Constructs a matrix with a given number of rows and columns. All entries
+   * are initially <tt>0</tt>.
+   *
+   * @param rows
+   *            the number of rows the matrix shall have.
+   * @param columns
+   *            the number of columns the matrix shall have.
+   * @throws IllegalArgumentException
+   *             if <tt>rows<0 || columns<0</tt> .
+   */
+  def this(dcs_p: Dcs_common.Dcs, rows: Int, columns: Int) {
+    this(rows, columns, Math.min(10l * rows, Integer.MAX_VALUE).toInt)
+    this.dcs = dcs_p
   }
 
   /**
@@ -345,7 +356,7 @@ class SparseCCMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, nzmax: Int
           }
           System.arraycopy(other.getRowIndexes, 0, this.dcs.i, 0, nzmax)
           System.arraycopy(other.getValues, 0, this.dcs.x, 0, nzmax)
-          rowIndexesSorted = other.rowIndexesSorted
+          rowIndexesSorted = other.hasRowIndexesSorted
         }
         case other: SparseRCMatrix2D[T] => {
           this.dcs.p = other.getRowPointers
@@ -447,8 +458,7 @@ class SparseCCMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, nzmax: Int
    */
   def getTranspose: SparseCCMatrix2D[T] = {
     val dcst = Dcs_transpose.cs_transpose(dcs, true)
-    val tr = new SparseCCMatrix2D[T](columns, rows)
-    tr.dcs = dcst
+    val tr = new SparseCCMatrix2D[T](dcst, columns, rows)
     tr
   }
 

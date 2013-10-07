@@ -23,9 +23,8 @@ import cern.colt.matrix.Matrix
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  *
  */
-@specialized
 @SerialVersionUID(1L)
-abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] {
+abstract class StrideMatrix2D[@specialized T: Manifest: Numeric] extends AbstractMatrix2D[T] {
 
   /**
    * the number of elements between two rows, i.e.
@@ -46,12 +45,12 @@ abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] 
 
   protected var columnZeroVar: Int = 0
 
-  private var storageMatrix: Matrix[T] = this
+  protected var storageMatrix: Matrix[T] = this
 
   /**
    * Returns the column stride.
    */
-  def columnStride(): Int = columnStrideVar
+  def columnStride: Int = columnStrideVar
 
   /**
    * Returns the position of the given coordinate within the (virtual or
@@ -62,14 +61,14 @@ abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] 
    * @param column
    *            the index of the column-coordinate.
    */
-  protected def toRawIndex(row: Int, column: Int): Int = {
+  def toRawIndex(row: Int, column: Int): Int = {
     rowZeroVar + row * rowStrideVar + columnZeroVar + column * columnStrideVar
   }
 
   /**
    * Returns the row stride.
    */
-  def rowStride(): Int = rowStrideVar
+  def rowStride: Int = rowStrideVar
 
   /**
    * Sets up a matrix with a given number of rows and columns.
@@ -214,7 +213,7 @@ abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] 
    * @return a new dice view.
    */
   def viewTranspose() = {
-    view().vDice()
+    view().vTranspose()
   }
 
   /**
@@ -371,6 +370,10 @@ abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] 
    */
   override def getStorageMatrix = storageMatrix
 
+  override def setStorageMatrix(m: Matrix[T]) {
+    storageMatrix = m
+  }
+
   /**
    * Constructs and returns a new view equal to the receiver. The view is a
    * shallow clone. Calls <code>clone()</code> and casts the result.
@@ -386,19 +389,18 @@ abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] 
    */
   protected def view() = {
     val v = clone().asInstanceOf[StrideMatrix2D[T]]
-    v.storageMatrix = this.getStorageMatrix
-    v.isNoView = false
+    v.setStorageMatrix(this.getStorageMatrix)
+    v.setIsView(isView=true)
     v
   }
 
   /**
    * Self modifying version of viewColumnFlip().
    */
-  protected def vColumnFlip() = {
+  def vColumnFlip() = {
     if (columnsVar > 0) {
       columnZeroVar += (columnsVar - 1) * columnStrideVar
       columnStrideVar = -columnStrideVar
-      this.isNoView = false
     }
     this
   }
@@ -406,7 +408,7 @@ abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] 
   /**
    * Self modifying version of viewTranspose().
    */
-  protected def vDice() = {
+  def vTranspose() = {
     var tmp: Int = 0
     tmp = rowsVar
     rowsVar = columnsVar
@@ -428,7 +430,7 @@ abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] 
    *             if
    *             <tt>column<0 || width<0 || column+width>columns || row<0 || height<0 || row+height>rows</tt>
    */
-  protected def vPart(row: Int, column: Int, height: Int, width: Int) = {
+  def vPart(row: Int, column: Int, height: Int, width: Int) = {
     checkBox(row, column, height, width)
     this.rowZeroVar += this.rowStride * row
     this.columnZeroVar += this.columnStride * column
@@ -441,7 +443,7 @@ abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] 
   /**
    * Self modifying version of viewRowFlip().
    */
-  protected def vRowFlip() = {
+  def vRowFlip() = {
     if (rowsVar > 0) {
       rowZeroVar += (rowsVar - 1) * rowStrideVar
       rowStrideVar = -rowStrideVar
@@ -456,7 +458,7 @@ abstract class StrideMatrix2D[T: Manifest: Numeric] extends AbstractMatrix2D[T] 
    * @throws IndexOutOfBoundsException
    *             if <tt>rowStride<=0 || columnStride<=0</tt>.
    */
-  protected def vStrides(rowStride: Int, columnStride: Int) = {
+  def vStrides(rowStride: Int, columnStride: Int) = {
     if (rowStride <= 0 || columnStride <= 0)
       throw new IndexOutOfBoundsException("illegal strides: " + rowStride + ", " + columnStride)
     this.rowStrideVar *= rowStride

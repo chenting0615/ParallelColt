@@ -28,9 +28,8 @@ import cern.colt.list.ArrayTypes.DoubleArrayList
  * @author wolfgang.hoschek@cern.ch
  * @version 0.9, 03-Jul-99
  */
-@specialized
 @SerialVersionUID(1L)
-class StaticBin1D[T: Numeric] extends AbstractBin1D[T] {
+class StaticBin1D[@specialized T: Numeric] extends AbstractBin1D[T] {
 
   val num = implicitly[Numeric[T]]
 

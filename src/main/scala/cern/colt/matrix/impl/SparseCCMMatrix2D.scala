@@ -7,9 +7,8 @@ package cern.colt.matrix.impl
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  *
  */
-@specialized
 @SerialVersionUID(1L)
-class SparseCCMMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int) extends RemappedMatrix2D[T] {
+class SparseCCMMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: Int) extends RemappedMatrix2D[T] {
 
 var elements = new Array[SparseHashMatrix1D[T]](columns)
 

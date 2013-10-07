@@ -11,7 +11,6 @@ package cern.colt.matrix
  * @author wolfgang.hoschek@cern.ch
  * @version 1.0, 09/24/99
  */
-@specialized
 @SerialVersionUID(1L)
 trait Matrix[T] extends cern.colt.PersistentObject {
 
@@ -37,6 +36,10 @@ trait Matrix[T] extends cern.colt.PersistentObject {
    * TODO: Should this be a reference to the underlying storage matrix
    */
   def isView: Boolean = !this.isNoView
+
+  def setIsView(isView: Boolean) {
+    this.isNoView = ! isView
+  }
 
   /**
    * @return Returns true if this matrix uses a sparse representation for storing cell values
@@ -122,6 +125,8 @@ trait Matrix[T] extends cern.colt.PersistentObject {
    * otherwise. Override this method in wrappers.
    */
   def getStorageMatrix: Matrix[T] = this
+
+  def setStorageMatrix(m: Matrix[T]) {}
 
   /**
    * @return Return the MatrixFactory which can produce more matrices like this one.

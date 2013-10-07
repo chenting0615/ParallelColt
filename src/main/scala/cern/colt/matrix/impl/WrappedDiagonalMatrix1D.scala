@@ -10,9 +10,8 @@ import cern.colt.matrix.{Matrix2D, Matrix1D}
  * @version 1.0, 09/24/99
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
-@specialized
 @SerialVersionUID(1L)
-class WrappedDiagonalMatrix1D[T: Manifest: Numeric](content2D: Matrix2D[T]) extends AbstractMatrix1D[T] {
+class WrappedDiagonalMatrix1D[@specialized T: Manifest: Numeric](content2D: Matrix2D[T]) extends AbstractMatrix1D[T] {
 
   this.sizeVar = Math.min(content2D.rows, content2D.columns)
   this.isNoView = false

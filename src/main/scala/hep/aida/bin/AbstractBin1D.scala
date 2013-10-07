@@ -17,9 +17,8 @@ import cern.jet.stat.tdouble.DoubleDescriptive
  * @author wolfgang.hoschek@cern.ch
  * @version 0.9, 03-Jul-99
  */
-@specialized
 @SerialVersionUID(1L)
-abstract class AbstractBin1D[T: Numeric] extends AbstractBin[T] {
+abstract class AbstractBin1D[@specialized T: Numeric] extends AbstractBin[T] {
 
   /**
    * Adds the specified element to the receiver.

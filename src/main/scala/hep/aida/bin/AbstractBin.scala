@@ -15,9 +15,8 @@ package hep.aida.bin
  * @author wolfgang.hoschek@cern.ch
  * @version 0.9, 03-Jul-99
  */
-@specialized
 @SerialVersionUID(1L)
-abstract class AbstractBin[T: Numeric] extends cern.colt.PersistentObject {
+abstract class AbstractBin[@specialized T: Numeric] extends cern.colt.PersistentObject {
 
   /**
    * Returns <tt>center(0)</tt>.

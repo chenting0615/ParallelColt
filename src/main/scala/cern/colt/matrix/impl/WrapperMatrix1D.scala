@@ -11,11 +11,15 @@ import cern.colt.matrix._
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
-@specialized
 @SerialVersionUID(1L)
-class WrapperMatrix1D[T: Manifest: Numeric](protected val content1D: Matrix1D[T]) extends AbstractMatrix1D[T] {
+class WrapperMatrix1D[@specialized T: Manifest: Numeric](protected val content1D: Matrix1D[T]) extends AbstractMatrix1D[T] {
 
   sizeVar = content1D.size.toInt
+
+  def this(content: Matrix1D[T], size: Int) {
+    this(content)
+    this.sizeVar = size
+  }
 
   override def getStorageMatrix = this.content1D.getStorageMatrix
 
@@ -41,10 +45,9 @@ class WrapperMatrix1D[T: Manifest: Numeric](protected val content1D: Matrix1D[T]
 
   override def viewPart(indexOffset: Int, width: Int): WrapperMatrix1D[T] = {
     checkRange(indexOffset, width)
-    val view = new WrapperMatrix1D[T](this) {
+    val view = new WrapperMatrix1D[T](this, width) {
       override protected def remapIndex(i: Int): Int = indexOffset + i
     }
-    view.sizeVar = width
     view
   }
 
@@ -52,21 +55,19 @@ class WrapperMatrix1D[T: Manifest: Numeric](protected val content1D: Matrix1D[T]
     if (indexes == null || indexes.length == 0)
       return this
     checkIndexes(indexes)
-    val view = new WrapperMatrix1D[T](this) {
+    val view = new WrapperMatrix1D[T](this, indexes.length) {
       override protected def remapIndex(index: Int): Int = indexes(index)
     }
-    view.sizeVar = indexes.length
     view
   }
 
   override def viewStrides(stride: Int): WrapperMatrix1D[T] = {
     if (stride <= 0)
       throw new IllegalArgumentException("illegal stride: " + stride)
-    val view = new WrapperMatrix1D(this) {
+    val viewSize = if (sizeVar != 0) (sizeVar - 1) / stride + 1 else sizeVar
+    val view = new WrapperMatrix1D(this, viewSize) {
       override protected def remapIndex(index: Int): Int = index * stride
     }
-    if (sizeVar != 0)
-      view.sizeVar = (sizeVar - 1) / stride + 1
     view
   }
 

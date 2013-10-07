@@ -71,9 +71,8 @@ import cern.colt.function.Matrix1DProcedure
  *             <tt>rows<0 || columns<0 || (double)columns*rows > Integer.MAX_VALUE</tt>
  *             or flip's are illegal.
  */
-@specialized
 @SerialVersionUID(1L)
-class DenseMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, elements_p: Array[T], rowZero_p: Int, columnZero_p: Int, rowStride_p: Int, columnStride_p: Int, isView: Boolean) extends StrideMatrix2D[T] {
+class DenseMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p: Int, elements_p: Array[T], rowZero_p: Int, columnZero_p: Int, rowStride_p: Int, columnStride_p: Int, isView: Boolean) extends StrideMatrix2D[T] {
 
   protected var elementsVar: Array[T] = elements_p
   setUp(rows_p, columns_p, rowZero_p, columnZero_p, rowStride_p, columnStride_p)
@@ -104,6 +103,8 @@ class DenseMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, elements_
     this(values.length, if (values.length == 0) 0 else values(0).length)
     assign(values)
   }
+
+  def getElements = elementsVar
 
   override def assignConstant(value: T) = {
     if (this.isNoView) {
@@ -158,8 +159,8 @@ class DenseMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, elements_
     }
 
     var other = source.asInstanceOf[DenseMatrix2D[T]]
-    if (this.isNoView && other.isNoView && isRowMajor == other.isRowMajor) {
-      System.arraycopy(other.elementsVar, 0, this.elementsVar, 0, this.elementsVar.length)
+    if (this.isNoView && ! other.isView && isRowMajor == other.isRowMajor) {
+      System.arraycopy(other.getElements, 0, this.elementsVar, 0, this.elementsVar.length)
       return this
     }
 
@@ -172,7 +173,7 @@ class DenseMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, elements_
       other = c.asInstanceOf[DenseMatrix2D[T]]
     }
 
-    val elementsOther = other.elementsVar
+    val elementsOther = other.getElements
     for (r <- 0 until rowsVar) {
       for (c <- 0 until columnsVar) {
         elementsVar(toRawIndex(r, c)) = elementsOther(other.toRawIndex(r, c))

@@ -3,7 +3,7 @@ package cern.colt.matrix
 /**
   */
 @SerialVersionUID(1L)
-trait IndexIterator[@specialized T] {
+trait IndexIterator[T] {
 
   def hasValue: Boolean
 

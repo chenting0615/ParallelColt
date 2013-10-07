@@ -9,7 +9,7 @@ import cern.colt.list.AbstractList
  * <a href="package-tree.html">tree view</a> to get the broad picture.
  */
 @SerialVersionUID(1L)
-class ArrayList[T: Manifest](elements_p: Array[T]) extends AbstractList[T] {
+class ArrayList[@specialized T: Manifest](elements_p: Array[T]) extends AbstractList[T] {
 
   /**
    * The array buffer into which the elements of the list are stored. The

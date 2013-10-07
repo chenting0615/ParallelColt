@@ -126,9 +126,8 @@ object SparseRCMatrix2D {
  * @author wolfgang.hoschek@cern.ch
  * @version 0.9, 04/14/2000
  */
-@specialized(Double)
 @SerialVersionUID(1L)
-class SparseRCMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
+class SparseRCMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
 
   protected var rowPointers: Array[Int] = new Array[Int](rows_p + 1)
 
@@ -281,15 +280,15 @@ class SparseRCMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax:
     checkShape(source)
     source match {
       case other: SparseRCMatrix2D[T] => {
-        System.arraycopy(other.rowPointers, 0, rowPointers, 0, rows + 1)
-        val nzmax = other.columnIndexes.length
+        System.arraycopy(other.getRowPointers, 0, rowPointers, 0, rows + 1)
+        val nzmax = other.getColumnIndexes.length
         if (columnIndexes.length < nzmax) {
           columnIndexes = Array.ofDim[Int](nzmax)
           values = Array.ofDim[T](nzmax)
         }
-        System.arraycopy(other.columnIndexes, 0, columnIndexes, 0, nzmax)
-        System.arraycopy(other.values, 0, values, 0, nzmax)
-        columnIndexesSorted = other.columnIndexesSorted
+        System.arraycopy(other.getColumnIndexes, 0, columnIndexes, 0, nzmax)
+        System.arraycopy(other.getValues, 0, values, 0, nzmax)
+        columnIndexesSorted = other.hasColumnIndexesSorted
       }
       case other: SparseCCMatrix2D[T] => {
         rowPointers = other.getColumnPointers
@@ -337,7 +336,7 @@ class SparseRCMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax:
    */
   def getColumnCompressed: SparseCCMatrix2D[T] = {
     val tr = getTranspose
-    val cc = new SparseCCMatrix2D[T](rows, columns, tr.columnIndexes, tr.rowPointers, tr.values, true)
+    val cc = new SparseCCMatrix2D[T](rows, columns, tr.getColumnIndexes, tr.getRowPointers, tr.getValues, true)
     cc
   }
 
@@ -405,10 +404,7 @@ class SparseRCMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax:
         valuesT(q) = values(p)
       }
     }
-    val T = new SparseRCMatrix2D[T](columns, rows)
-    T.rowPointers = rowPointersT
-    T.columnIndexes = columnIndexesT
-    T.values = valuesT
+    val T = new SparseRCMatrix2D[T](columns, rows, rowPointersT, columnIndexesT, valuesT)
     T
   }
 
