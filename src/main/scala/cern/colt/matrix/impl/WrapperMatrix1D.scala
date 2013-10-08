@@ -21,6 +21,10 @@ class WrapperMatrix1D[@specialized T: Manifest: Numeric](protected val content1D
     this.sizeVar = size
   }
 
+  override def allCellsAreSettable = content1D.allCellsAreSettable
+
+  override def canSetCellAt(index: Int): Boolean = content1D.canSetCellAt(remapIndex(index))
+
   override def getStorageMatrix = this.content1D.getStorageMatrix
 
   protected def remapIndex(index: Int): Int = index
@@ -92,25 +96,4 @@ class WrapperMatrix1D[@specialized T: Manifest: Numeric](protected val content1D
   def like1D(size: Int): Matrix1D[T] = content1D.like1D(size)
 
   def like2D(rows: Int, columns: Int): Matrix2D[T] = content1D.like2D(rows, columns)
-
-  /**
-   * @return Return the MatrixFactory which can produce more matrices like this one.
-   *         TODO: Should this be available as a type class instead? Since it is based on the
-   *         creation context, instead of operation-calling context, probably not.
-   */
-  override def getFactory: MatrixFactory = content1D.getFactory
-
-  override protected def setFactory(f: MatrixFactory) {}
-
-  /**
-   * @return Return the ParallelStrategy object used by this matrix.
-   *         The ParallelStrategy manages the division of matrix operations into
-   *         rows/columns.
-   *         TODO: Should this be available as a type class instead?
-   *         TODO: Is there a way to make the implicit type class lookup resolve to this
-   *         method?
-   */
-  override def getParallelStrategy: ParallelStrategy = content1D.getParallelStrategy
-
-  override def setParallelStrategy(s: ParallelStrategy) {}
 }

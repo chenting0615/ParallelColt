@@ -25,7 +25,7 @@ import cern.colt.matrix._
  *
  * @param size_p
  *            the number of cells the matrix shall have.
- * @param elements_p
+ * @param elementsVar
  *            the cells.
  * @param zero_p
  *            the index of the first element.
@@ -38,12 +38,10 @@ import cern.colt.matrix._
  *             if <tt>size<0</tt>.
  */
 @SerialVersionUID(1L)
-class DenseMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, elements_p: Array[T], zero_p: Int, stride_p: Int, isView: Boolean) extends StrideMatrix1D[T] {
+class DenseMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, protected var elementsVar: Array[T], zero_p: Int, stride_p: Int, isView: Boolean) extends StrideMatrix1D[T] {
 
-  protected var elementsVar: Array[T] = elements_p
-
+  isNoView = ! isView
   setUp(size_p, zero_p, stride_p)
-  this.isNoView = ! isView
 
   /**
    * Constructs an empty matrix with the given size.
@@ -177,8 +175,11 @@ class DenseMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, elements_p: 
   }
 
   override def toArray(values: Array[T]): Array[T] = {
-    if (values.length < sizeVar) throw new IllegalArgumentException("destination array too small (length = " + values.length + ", but requires " + sizeVar + ")")
-    if (this.isNoView) System.arraycopy(this.elementsVar, 0, values, 0, this.elementsVar.length) else super.toArray(values)
+    checkSize(values.length)
+    if (this.isNoView)
+      System.arraycopy(this.elementsVar, 0, values, 0, this.elementsVar.length)
+    else
+      super.toArray(values)
     values
   }
 }

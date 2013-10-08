@@ -451,9 +451,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
 
   def testZMultDoubleMatrix1DDoubleMatrix1DDoubleDoubleBoolean() {
     var y = new DenseDoubleMatrix1D(A.columns)
-    for (i <- 0 until y.size.toInt) {
-      y.setQuick(i, Math.random())
-    }
+    y.assign(DoubleFunctions.random())
     val alpha = 3.0
     val beta = 5.0
     var z: DoubleMatrix1D = new DenseDoubleMatrix1D(A.rows)
@@ -484,9 +482,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
       assertEquals(expected(r), z.getQuick(r), TOL)
     }
     y = new DenseMatrix1D(A.rows)
-    for (i <- 0 until y.size.toInt) {
-      y.setQuick(i, Math.random())
-    }
+    y.assign(DoubleFunctions.random())
     z = new DenseDoubleMatrix1D(A.columns)
     z.assign(DoubleFunctions.random())
     expected = z.toArray

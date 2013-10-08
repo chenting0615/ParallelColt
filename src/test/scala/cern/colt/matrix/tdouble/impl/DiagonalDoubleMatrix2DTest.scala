@@ -33,7 +33,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
         B.setQuick(r, r + DINDEX, Math.random())
       }
       for (r <- 0 until DLENGTH) {
-        Bt.setQuick(r - DINDEX, r, Math.random())
+        Bt.setQuick(r + DINDEX, r, Math.random())
       }
     } else {
       for (r <- 0 until DLENGTH) {
@@ -43,7 +43,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
         B.setQuick(r - DINDEX, r, Math.random())
       }
       for (r <- 0 until DLENGTH) {
-        Bt.setQuick(r, r + DINDEX, Math.random())
+        Bt.setQuick(r, r - DINDEX, Math.random())
       }
     }
   }
@@ -332,9 +332,9 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
 
   override def testToArray() {
     val array = A.toArray
-    assertTrue(NROWS == array.length)
+    assertEquals(NROWS, array.length)
     for (r <- 0 until NROWS) {
-      assertTrue(NCOLUMNS == array(r).length)
+      assertEquals(NCOLUMNS, array(r).length)
       for (c <- 0 until NCOLUMNS) {
         assertEquals(array(r)(c), A.getQuick(r, c), TOL)
       }
@@ -354,7 +354,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
     val col = A.viewColumn(NCOLUMNS / 2)
     assertEquals(NROWS, col.size)
     for (r <- 0 until NROWS) {
-      assertEquals(A.getQuick(r, NCOLUMNS / 2), col.getQuick(r), TOL)
+      assertEquals("idx=" + r, A.getQuick(r, NCOLUMNS / 2), col.getQuick(r), TOL)
     }
   }
 
@@ -362,7 +362,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
     val B = A.viewColumnFlip()
     assertEquals(A.size, B.size)
     for (r <- 0 until NROWS; c <- 0 until NCOLUMNS) {
-      assertEquals(A.getQuick(r, NCOLUMNS - 1 - c), B.getQuick(r, c), TOL)
+      assertEquals("row=" + r + ", col=" + c, A.getQuick(r, NCOLUMNS - 1 - c), B.getQuick(r, c), TOL)
     }
   }
 
@@ -371,7 +371,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
     assertEquals(NROWS, B.columns)
     assertEquals(NCOLUMNS, B.rows)
     for (r <- 0 until NROWS; c <- 0 until NCOLUMNS) {
-      assertEquals(A.getQuick(r, c), B.getQuick(c, r), TOL)
+      assertEquals("row=" + r + ", col=" + c, A.getQuick(r, c), B.getQuick(c, r), TOL)
     }
   }
 
@@ -380,7 +380,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
     assertEquals(NROWS / 3, B.rows)
     assertEquals(NCOLUMNS / 3, B.columns)
     for (r <- 0 until NROWS / 3; c <- 0 until NCOLUMNS / 3) {
-      assertEquals(A.getQuick(NROWS / 2 + r, NCOLUMNS / 2 + c), B.getQuick(r, c), TOL)
+      assertEquals("row=" + r + ", col=" + c, A.getQuick(NROWS / 2 + r, NCOLUMNS / 2 + c), B.getQuick(r, c), TOL)
     }
   }
 
@@ -388,7 +388,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
     val B = A.viewRow(NROWS / 2)
     assertEquals(NCOLUMNS, B.size)
     for (r <- 0 until NCOLUMNS) {
-      assertEquals(A.getQuick(NROWS / 2, r), B.getQuick(r), TOL)
+      assertEquals("idx=" + r, A.getQuick(NROWS / 2, r), B.getQuick(r), TOL)
     }
   }
 
@@ -396,7 +396,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
     val B = A.viewRowFlip()
     assertEquals(A.size, B.size)
     for (r <- 0 until NROWS; c <- 0 until NCOLUMNS) {
-      assertEquals(A.getQuick(NROWS - 1 - r, c), B.getQuick(r, c), TOL)
+      assertEquals("row=" + r + ", col=" + c, A.getQuick(NROWS - 1 - r, c), B.getQuick(r, c), TOL)
     }
   }
 
@@ -455,7 +455,7 @@ class DiagonalDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) 
     val colStride = 5
     val B = A.viewStrides(rowStride, colStride)
     for (r <- 0 until B.rows; c <- 0 until B.columns) {
-      assertEquals(A.getQuick(r * rowStride, c * colStride), B.getQuick(r, c), TOL)
+      assertEquals("row=" + r + ", col=" + c, A.getQuick(r * rowStride, c * colStride), B.getQuick(r, c), TOL)
     }
   }
 

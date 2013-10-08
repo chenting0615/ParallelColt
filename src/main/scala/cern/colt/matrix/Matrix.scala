@@ -1,5 +1,7 @@
 package cern.colt.matrix
 
+import cern.colt.PersistentObject
+
 /**
  * Trait for arbitrary-dimensional matrices holding objects or
  * primitive data types such as <code>double</code>, <code>int</code>, etc. First
@@ -12,7 +14,7 @@ package cern.colt.matrix
  * @version 1.0, 09/24/99
  */
 @SerialVersionUID(1L)
-trait Matrix[T] extends cern.colt.PersistentObject {
+trait Matrix[T] extends PersistentObject {
 
   protected var isNoView: Boolean = true
 
@@ -45,6 +47,13 @@ trait Matrix[T] extends cern.colt.PersistentObject {
    * @return Returns true if this matrix uses a sparse representation for storing cell values
    */
   def isSparse: Boolean
+
+  /**
+   * @return Returns true if all legal cells are setable to a value.
+   *         Returns false if some cells are unsettable, i.e., they always have value 0, such as for diagonal matrices.
+   *         If this method returns false, the caller must use the methods canSetCellAt() in Matrix1D or Matrix2D.
+   */
+  def allCellsAreSettable: Boolean
 
   /**
    * Construct and returns a new empty matrix <i>of the same dynamic type</i>
@@ -127,27 +136,6 @@ trait Matrix[T] extends cern.colt.PersistentObject {
   def getStorageMatrix: Matrix[T] = this
 
   def setStorageMatrix(m: Matrix[T]) {}
-
-  /**
-   * @return Return the MatrixFactory which can produce more matrices like this one.
-   * TODO: Should this be available as a type class instead? Since it is based on the
-   * creation context, instead of operation-calling context, probably not.
-   */
-  def getFactory: MatrixFactory
-
-  protected def setFactory(f: MatrixFactory): Unit
-
-  /**
-   * @return Return the ParallelStrategy object used by this matrix.
-   *         The ParallelStrategy manages the division of matrix operations into
-   *         rows/columns.
-   * TODO: Should this be available as a type class instead?
-   * TODO: Is there a way to make the implicit type class lookup resolve to this
-   * method?
-   */
-  def getParallelStrategy: ParallelStrategy
-
-  def setParallelStrategy(s: ParallelStrategy): Unit
 
   /**
    * Compares this object against the specified object. The result is

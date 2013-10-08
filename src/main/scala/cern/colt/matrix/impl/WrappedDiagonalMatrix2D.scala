@@ -13,8 +13,17 @@ import cern.colt.matrix.{Matrix2D, Matrix1D}
 @SerialVersionUID(1L)
 class WrappedDiagonalMatrix2D[@specialized T: Manifest: Numeric](content1D: Matrix1D[T]) extends RemappedMatrix2D[T] {
 
-  this.isNoView = false
+  isNoView = false
   setUp(content1D.size.toInt, content1D.size.toInt)
+
+  /**
+   * @return Returns true if this matrix uses a sparse representation for storing cell values
+   */
+  override def isSparse: Boolean = true
+
+  override def allCellsAreSettable = false
+
+  override def canSetCellAt(row: Int, column: Int): Boolean = row == column
 
   def getQuick(row: Int, column: Int): T = {
     if (row != column)
@@ -57,11 +66,6 @@ class WrappedDiagonalMatrix2D[@specialized T: Manifest: Numeric](content1D: Matr
   override def forEachNonZeroColumnMajor(f: Function3[Int, Int, T, T]) = {
     forEachNonZeroRowMajor(f)
   }
-
-  /**
-   * @return Returns true if this matrix uses a sparse representation for storing cell values
-   */
-  override def isSparse: Boolean = true
 
   override def like1D(size: Int) = content1D.like1D(size)
 

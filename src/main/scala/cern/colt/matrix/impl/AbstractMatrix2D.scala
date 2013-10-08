@@ -18,7 +18,8 @@ import cern.colt.list.impl.ArrayList
 @SerialVersionUID(1L)
 abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matrix2D[T] {
 
-  val zero = implicitly[Numeric[T]].zero
+  val numeric = implicitly[Numeric[T]]
+  val zero = numeric.zero
 
   /**
    the number of colums and rows this matrix (view) has
@@ -296,8 +297,11 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
    *         <tt>false</tt> otherwise.
    */
   def everyCellEquals(value: T, tolerance: Double): Boolean = {
-    for (r <- 0 until rowsVar; c <- 0 until columnsVar)
-      if (getQuick(r, c).asInstanceOf[Double] - value.asInstanceOf[Double] > tolerance) return false
+    val doubleValue = numeric.toDouble(value)
+    for (r <- 0 until rowsVar; c <- 0 until columnsVar) {
+      if (numeric.toDouble(getQuick(r, c)) - doubleValue > tolerance)
+        return false
+    }
     true
   }
 
@@ -354,7 +358,8 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
       return false
     for(row <- 0 until rowsVar) {
       for(col <- 0 until columnsVar) {
-        if (getQuick(row, col).asInstanceOf[Double] - other2D.getQuick(row, col).asInstanceOf[Double] > tolerance) return false
+        if (numeric.toDouble(getQuick(row, col)) - numeric.toDouble(other2D.getQuick(row, col)) > tolerance)
+          return false
       }
     }
     true
@@ -537,20 +542,23 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
     var colIdx = 0
     var maxRowIdx = rowsVar
     var maxColumnIdx = columnsVar
-    if ( ! checkIndex() )
+    if ( ! hasValue )
       increment()
 
     protected def checkIndex(): Boolean
 
-    def hasValue: Boolean = rowIdx < maxRowIdx && colIdx < maxColumnIdx && checkIndex()
+    def hasValue: Boolean = moreValues && checkIndex()
+
+    def moreValues: Boolean = rowIdx < maxRowIdx && colIdx < maxColumnIdx
 
     private def incrIndex(): Boolean = {
       if (byRows) {
-        if (colIdx < maxColumnIdx-1) {
+        if (colIdx < maxColumnIdx) {
           colIdx += 1
-          return true
+          if (colIdx < maxColumnIdx)
+            return true
         }
-        else if (rowIdx < maxRowIdx) {
+        if (rowIdx < maxRowIdx) {
           rowIdx += 1
           if (rowIdx < maxRowIdx) {
             colIdx = 0
@@ -559,11 +567,12 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
         }
       }
       else {
-        if (rowIdx < maxRowIdx-1) {
+        if (rowIdx < maxRowIdx) {
           rowIdx += 1
-          return true
+          if (rowIdx < maxRowIdx)
+            return true
         }
-        else if (colIdx < maxColumnIdx) {
+        if (colIdx < maxColumnIdx) {
           colIdx += 1
           if (colIdx < maxColumnIdx) {
             rowIdx = 0
@@ -584,7 +593,17 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
 
     def row: Int = rowIdx
 
+    def setRow(r: Int): Boolean = {
+      rowIdx = r
+      hasValue
+    }
+
     def column: Int = colIdx
+
+    def setColumn(c: Int): Boolean = {
+      colIdx = c
+      hasValue
+    }
 
     def value: T = getQuick(rowIdx, colIdx)
   }
@@ -631,6 +650,8 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
   def iteratorNonZerosInRow(row_p: Int): IndexIterator2D[T] = new AbstractIterator2D(true) {
     rowIdx = row_p
     maxRowIdx = math.min(row_p+1, rowsVar)
+    if (! hasValue)
+      increment()
 
     protected def checkIndex(): Boolean = {
       val value = getQuick(rowIdx, colIdx)
@@ -644,6 +665,8 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
   def iteratorNonZerosInColumn(column_p: Int): IndexIterator2D[T] = new AbstractIterator2D(false) {
     colIdx = column_p
     maxColumnIdx = math.min(column_p+1, columnsVar)
+    if (! hasValue)
+      increment()
 
     protected def checkIndex(): Boolean = {
       val value = getQuick(rowIdx, colIdx)
@@ -797,24 +820,19 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
   }
 
   /**
-   * @return Return the ParallelStrategy object used by this matrix.
-   *         The ParallelStrategy manages the division of matrix operations into
-   *         rows/columns.
-   */
-  def getParallelStrategy: ParallelStrategy = null
-
-  def setParallelStrategy(s: ParallelStrategy) {}
-
-  /**
    * @return Returns true if this matrix uses a sparse representation for storing cell values
    */
   def isSparse: Boolean = false
 
-  /**
-   * @return Return the MatrixFactory which can produce more matrices like this one.
-   */
-  def getFactory: MatrixFactory = null
+  def allCellsAreSettable = true
 
-  protected def setFactory(f: MatrixFactory) {}
+  /**
+   * Can the cell at the given index be set to a non-zero value.
+   * @param row The cell row
+   * @param column The cell column
+   * @return Returns true if the cell can be set to any value.  Returns false if the cell value will always be zero,
+   *         as in diagonal matrices.
+   */
+  def canSetCellAt(row: Int, column: Int): Boolean = true
 
 }

@@ -22,6 +22,10 @@ class WrappedColumnMatrix1D[@specialized T: Manifest: Numeric](protected val con
    */
   override def isSparse: Boolean = content2D.isSparse
 
+  override def allCellsAreSettable = content2D.allCellsAreSettable
+
+  override def canSetCellAt(index: Int): Boolean = content2D.canSetCellAt(index, column)
+
   def getQuick(index: Int): T = {
     content2D.getQuick(index, column)
   }

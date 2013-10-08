@@ -195,20 +195,11 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
    * @return this matrix in a column-compressed form
    */
   def getColumnCompressed(sortRowIndexes: Boolean): SparseCCMatrix2D[T] = {
-    val keyList = elementsVar.keys().elements()
-    Sorting.quickSort(keyList)
-    val nnz = numNonZero.toInt
-    val rowIndexes = Array.ofDim[Int](nnz)
-    val columnIndexes = Array.ofDim[Int](nnz)
-    val values = Array.ofDim[T](nnz)
-    var k = 0
-    for(key <- keyList) {
-      rowIndexes(k) = (key / columns).toInt
-      columnIndexes(k) = (key % columns).toInt
-      values(k) = elementsVar.get(key)
-      k += 1
-    }
-    new SparseCCMatrix2D[T](rows, columns, rowIndexes, columnIndexes, values, false, false, sortRowIndexes)
+    val v = new SparseCCMatrix2D[T](rows, columns)
+    v.assign(this)
+    if (sortRowIndexes)
+      v.sortRowIndexes()
+    v
   }
 
   /**
@@ -243,6 +234,7 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
    * @return this matrix in a row-compressed form
    */
   def getRowCompressed(sortColumnIndexes: Boolean): SparseRCMatrix2D[T] = {
+/*
     val nnz = numNonZero.toInt
     val rowIndexes = Array.ofDim[Int](nnz)
     val columnIndexes = Array.ofDim[Int](nnz)
@@ -256,7 +248,12 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
       values(k) = elementsVar.get(key)
       k += 1
     }
-    new SparseRCMatrix2D[T](rows, columns, rowIndexes, columnIndexes, values, sortColumnIndexes)
+*/
+    val v = new SparseRCMatrix2D[T](rows, columns)
+    v.assign(this)
+    if (sortColumnIndexes)
+      v.sortColumnIndexes()
+    v
   }
 
   /**

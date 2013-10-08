@@ -39,6 +39,10 @@ class WrapperMatrix2D[@specialized T: Manifest: Numeric](protected val content: 
     this(content, content.rows, content.columns)
   }
 
+  override def allCellsAreSettable = content.allCellsAreSettable
+
+  override def canSetCellAt(row: Int, column: Int): Boolean = { val t = remapIndexes(row, column); content.canSetCellAt(t._1, t._2) }
+
   protected def remapIndexes(row: Int, column: Int): Tuple2[Int, Int] = (row, column)
 
   def getQuick(row: Int, column: Int): T = {
@@ -68,30 +72,9 @@ class WrapperMatrix2D[@specialized T: Manifest: Numeric](protected val content: 
   override def getStorageMatrix = content.getStorageMatrix
 
   /**
-   * @return Return the ParallelStrategy object used by this matrix.
-   *         The ParallelStrategy manages the division of matrix operations into
-   *         rows/columns.
-   *         TODO: Should this be available as a type class instead?
-   *         TODO: Is there a way to make the implicit type class lookup resolve to this
-   *         method?
-   */
-  override def getParallelStrategy = content.getParallelStrategy
-
-  override def setParallelStrategy(s: ParallelStrategy) {}
-
-  /**
    * @return Returns true if this matrix uses a sparse representation for storing cell values
    */
   override def isSparse: Boolean = content.isSparse
 
   override def isRowMajor: Boolean = content.isRowMajor
-
-  /**
-   * @return Return the MatrixFactory which can produce more matrices like this one.
-   *         TODO: Should this be available as a type class instead? Since it is based on the
-   *         creation context, instead of operation-calling context, probably not.
-   */
-  override def getFactory: MatrixFactory = content.getFactory
-
-  override protected def setFactory(f: MatrixFactory) {}
 }

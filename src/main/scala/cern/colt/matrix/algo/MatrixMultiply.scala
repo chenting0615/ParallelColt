@@ -569,10 +569,16 @@ object MatrixMultiply {
       val iterA = A.iteratorNonZeros
       val iterB = B.iteratorNonZeros
       var sum = 0.0
-      while(iterA.hasValue || iterB.hasValue) {
+      while(iterA.moreValues && iterB.moreValues) {
         compareIndexToIndex(iterA, iterB) match {
-          case -1 => iterA.increment()
-          case 1 => iterB.increment()
+          case -1 => {
+            if ( ! iterA.setIndex(iterB.index) )
+              iterA.increment()
+          }
+          case 1 => {
+            if ( ! iterB.setIndex(iterA.index) )
+              iterB.increment()
+          }
           case 0 => {
             sum += iterA.value * iterB.value
             iterA.increment()
@@ -585,15 +591,22 @@ object MatrixMultiply {
 
     def dot(A: DoubleMatrix1D, B: DoubleMatrix1D, start: Int, end: Int): Double = {
       val iterA = A.iteratorNonZeros
+      iterA.setIndex(start)
       val iterB = B.iteratorNonZeros
+      iterB.setIndex(start)
       var sum = 0.0
-      while(iterA.hasValue || iterB.hasValue) {
+      while(iterA.moreValues && iterB.moreValues && iterA.index < end && iterB.index < end) {
         compareIndexToIndex(iterA, iterB) match {
-          case -1 => iterA.increment()
-          case 1 => iterB.increment()
+          case -1 => {
+            if ( ! iterA.setIndex(iterB.index) )
+              iterA.increment()
+          }
+          case 1 => {
+            if ( ! iterB.setIndex(iterA.index) )
+              iterB.increment()
+          }
           case 0 => {
-            if (iterA.index >= start && iterA.index < end)
-              sum += iterA.value * iterB.value
+            sum += iterA.value * iterB.value
             iterA.increment()
             iterB.increment()
           }
@@ -611,10 +624,16 @@ object MatrixMultiply {
           val iterA = A.iteratorNonZerosInRow(rowIdx)
           val iterB = B.iteratorNonZeros
           var sum = 0.0
-          while(iterA.hasValue || iterB.hasValue) {
+          while(iterA.moreValues && iterB.moreValues) {
             compareColumnToIndex(iterA, iterB) match {
-              case -1 => iterA.increment()
-              case 1 => iterB.increment()
+              case -1 => {
+                if ( ! iterA.setColumn(iterB.index) )
+                  iterA.increment()
+              }
+              case 1 => {
+                if ( ! iterB.setIndex(iterA.column) )
+                  iterB.increment()
+              }
               case 0 => {
                 sum += iterA.value * iterB.value
                 iterA.increment()
@@ -640,10 +659,16 @@ object MatrixMultiply {
           val iterA = A.iteratorNonZerosInRow(rowIdx)
           val iterB = B.iteratorNonZerosInColumn(colIdx)
           var sum = 0.0
-          while(iterA.hasValue || iterB.hasValue) {
+          while(iterA.moreValues && iterB.moreValues) {
             compareColumnToRow(iterA, iterB) match {
-              case -1 => iterA.increment()
-              case 1 => iterB.increment()
+              case -1 => {
+                if ( ! iterA.setColumn(iterB.row) )
+                  iterA.increment()
+              }
+              case 1 => {
+                if ( ! iterB.setRow(iterA.column) )
+                  iterB.increment()
+              }
               case 0 => {
                 sum += iterA.value * iterB.value
                 iterA.increment()

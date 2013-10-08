@@ -12,13 +12,22 @@ import cern.colt.function.{Matrix1DProcedure, Procedure3}
  * @version 1.0, 09/24/99
  */
 @SerialVersionUID(1L)
-trait Matrix2D[T] extends Matrix[T] {
+trait Matrix2D[@specialized T] extends Matrix[T] {
 
   /**
    * @return Returns true if this matrix stores cells in row-major order.  Returns false if this
    *         matrix stores cells in column-major order.
    */
   def isRowMajor: Boolean
+
+  /**
+   * Can the cell at the given row, column be set to a non-zero value.
+   * @param row The cell row
+   * @param column The cell column
+   * @return Returns true if the cell can be set to any value.  Returns false if the cell value will always be zero,
+   *         as in diagonal matrices.
+   */
+  def canSetCellAt(row: Int, column: Int): Boolean
 
   /**
    * TODO: Should we remove the ()?

@@ -127,13 +127,13 @@ object SparseRCMatrix2D {
  * @version 0.9, 04/14/2000
  */
 @SerialVersionUID(1L)
-class SparseRCMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
+class SparseRCMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
 
-  protected var rowPointers: Array[Int] = new Array[Int](rows_p + 1)
+  protected var rowPointers = Array.ofDim[Int](rows_p + 1)
 
-  protected var columnIndexes: Array[Int] = new Array[Int](nzmax)
+  protected var columnIndexes = Array.ofDim[Int](nzmax)
 
-  protected var values: Array[T] = new Array[T](nzmax)
+  protected var values = Array.ofDim[T](nzmax)
 
   protected var columnIndexesSorted: Boolean = false
 
@@ -178,57 +178,6 @@ class SparseRCMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p
   def this(values: Array[Array[T]]) {
     this(values.length, if (values.length == 0) 0 else values(0).length)
     assign(values)
-  }
-
-  /**
-   * Constructs a matrix with indexes and values given in the coordinate
-   * format.
-   *
-   * @param rows
-   *            the number of rows the matrix shall have.
-   * @param columns
-   *            the number of columns the matrix shall have.
-   * @param rowIndexes
-   *            row indexes
-   * @param columnIndexes
-   *            column indexes
-   * @param values
-   *            numerical values
-   * @param sortColumnIndexes_p
-   *            if true, then column indexes are sorted
-   */
-  def this(rows: Int,
-      columns: Int,
-      rowIndexes: Array[Int],
-      columnIndexes: Array[Int],
-      values: Array[T],
-      sortColumnIndexes_p: Boolean) {
-
-    this(rows, columns, Math.max(rowIndexes.length, 1))
-    if (rowIndexes.length != columnIndexes.length) {
-      throw new IllegalArgumentException("rowIndexes.length != columnIndexes.length")
-    } else if (rowIndexes.length != values.length) {
-      throw new IllegalArgumentException("rowIndexes.length != values.length")
-    }
-    val nz = nzmax
-    this.columnIndexes = Array.ofDim[Int](nz)
-    this.values = Array.ofDim[T](nz)
-    this.rowPointers = Array.ofDim[Int](rows + 1)
-    val w = Array.ofDim[Int](rows)
-    var r: Int = 0
-    for (k <- 0 until nz) {
-      w(rowIndexes(k)) += 1
-    }
-    cumsum(this.rowPointers, w, rows)
-    for (k <- 0 until nz) {
-      r = w(rowIndexes(k))
-      w(rowIndexes(k)) += 1
-      this.columnIndexes(r) = columnIndexes(k)
-      this.values(r) = values(k)
-    }
-    if (sortColumnIndexes_p) {
-      sortColumnIndexes()
-    }
   }
 
   /**
@@ -335,8 +284,8 @@ class SparseRCMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p
    * @return this matrix in a column-compressed form
    */
   def getColumnCompressed: SparseCCMatrix2D[T] = {
-    val tr = getTranspose
-    val cc = new SparseCCMatrix2D[T](rows, columns, tr.getColumnIndexes, tr.getRowPointers, tr.getValues, true)
+    val cc = new SparseCCMatrix2D[T](rows, columns)
+    cc.assign(this)
     cc
   }
 
@@ -385,26 +334,8 @@ class SparseRCMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p
    * @return the transpose of this matrix
    */
   def getTranspose: SparseRCMatrix2D[T] = {
-    val nnz = rowPointers(rows)
-    val w = Array.ofDim[Int](columns)
-    val rowPointersT = Array.ofDim[Int](columns + 1)
-    val columnIndexesT = Array.ofDim[Int](nnz)
-    val valuesT = Array.ofDim[T](nnz)
-    for (p <- 0 until nnz) {
-      w(columnIndexes(p)) += 1
-    }
-    cumsum(rowPointersT, w, columns)
-    var q: Int = 0
-    for (j <- 0 until rows) {
-      val high = rowPointers(j + 1)
-      for (p <- rowPointers(j) until high) {
-        q = w(columnIndexes(p))
-        w(columnIndexes(p)) += 1
-        columnIndexesT(q) = j
-        valuesT(q) = values(p)
-      }
-    }
-    val T = new SparseRCMatrix2D[T](columns, rows, rowPointersT, columnIndexesT, valuesT)
+    val T = new SparseRCMatrix2D[T](columns, rows)
+    T.assign(this.viewTranspose())
     T
   }
 
@@ -442,7 +373,7 @@ class SparseRCMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p
       for (p <- rowPointers(j) until rowPointers(j + 1)) {
         i = columnIndexes(p)
         if (w(i) >= q) {
-          values.asInstanceOf[Array[Double]](w(i)) += values(p).asInstanceOf[Double]
+          values.asInstanceOf[Array[Double]](w(i)) += numeric.toDouble(values(p))
         } else {
           w(i) = nz
           columnIndexes(nz) = i
@@ -537,19 +468,6 @@ class SparseRCMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p
     length = Math.min(nzmax, values.length)
     System.arraycopy(values, 0, valuesNew, 0, length)
     values = valuesNew
-  }
-
-  private def cumsum(p: Array[Int], c: Array[Int], n: Int): Double = {
-    var nz = 0
-    var nz2 = 0
-    for (k <- 0 until n) {
-      p(k) = nz
-      nz += c(k)
-      nz2 += c(k)
-      c(k) = p(k)
-    }
-    p(n) = nz
-    nz2
   }
 
   protected def insert(row: Int, column: Int, index: Int, value: T) {

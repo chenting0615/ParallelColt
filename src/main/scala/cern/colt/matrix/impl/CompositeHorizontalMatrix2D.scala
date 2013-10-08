@@ -10,6 +10,8 @@ import cern.colt.matrix.Matrix2D
 @SerialVersionUID(1L)
 class CompositeHorizontalMatrix2D[@specialized T: Manifest: Numeric](numberOfRows: Int) extends RemappedMatrix2D[T] {
 
+  isNoView = false
+
   private val columnOffsets = new IntArrayList()
 
   private val matrices = new util.ArrayList[Matrix2D[T]]()

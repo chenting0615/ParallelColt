@@ -18,7 +18,8 @@ import cern.colt.list.impl.ArrayList
 @SerialVersionUID(1L)
 abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matrix1D[T] {
 
-  val zero = implicitly[Numeric[T]].zero
+  val numeric = implicitly[Numeric[T]]
+  val zero = numeric.zero
 
   /**
    the number of cells this matrix (view) has
@@ -163,9 +164,17 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
    *         <tt>false</tt> otherwise.
    */
   def everyCellEquals(value: T): Boolean = {
-    for (i <- 0 until size.toInt) {
-      if (getQuick(i) != value)
-        return false
+    if (allCellsAreSettable) {
+      for (i <- 0 until size.toInt) {
+        if (getQuick(i) != value)
+          return false
+      }
+    }
+    else {
+      for (i <- 0 until size.toInt) {
+        if (canSetCellAt(i) && getQuick(i) != value)
+          return false
+      }
     }
     true
   }
@@ -179,8 +188,19 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
    *         <tt>false</tt> otherwise.
    */
   def everyCellEquals(value: T, tolerance: Double): Boolean = {
-    for (i <- 0 until size.toInt)
-      if (getQuick(i).asInstanceOf[Double] - value.asInstanceOf[Double] > tolerance) return false
+    val doubleValue = numeric.toDouble(value)
+    if (allCellsAreSettable) {
+      for (i <- 0 until size.toInt) {
+        if (numeric.toDouble(getQuick(i)) - doubleValue > tolerance)
+          return false
+      }
+    }
+    else {
+      for (i <- 0 until size.toInt) {
+        if (canSetCellAt(i) && numeric.toDouble(getQuick(i)) - doubleValue > tolerance)
+          return false
+      }
+    }
     true
   }
   /**
@@ -230,7 +250,8 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
     if (other1D.size != sizeVar)
       return false
     for(i <- 0 until sizeVar) {
-      if (getQuick(i).asInstanceOf[Double] - other1D.getQuick(i).asInstanceOf[Double] > tolerance) return false
+      if (numeric.toDouble(getQuick(i)) - numeric.toDouble(other1D.getQuick(i)) > tolerance)
+        return false
     }
     true
   }
@@ -360,7 +381,9 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
 
     protected def checkIndex(): Boolean
 
-    def hasValue: Boolean = indexVar < sizeVar && checkIndex()
+    def hasValue: Boolean = moreValues && checkIndex()
+
+    def moreValues: Boolean = indexVar < sizeVar
 
     def increment(): Boolean = {
       while(indexVar < sizeVar) {
@@ -372,6 +395,11 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
     }
 
     def index: Int = indexVar
+
+    def setIndex(i: Int): Boolean = {
+      indexVar = i
+      hasValue
+    }
 
     def value: T = getQuick(indexVar)
   }
@@ -416,23 +444,18 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
   }
 
   /**
-   * @return Return the ParallelStrategy object used by this matrix.
-   *         The ParallelStrategy manages the division of matrix operations into
-   *         rows/columns.
-   */
-  def getParallelStrategy: ParallelStrategy = null
-
-  def setParallelStrategy(s: ParallelStrategy) {}
-
-  /**
    * @return Returns true if this matrix uses a sparse representation for storing cell values
    */
   def isSparse: Boolean = false
 
-  /**
-   * @return Return the MatrixFactory which can produce more matrices like this one.
-   */
-  def getFactory: MatrixFactory = null
 
-  protected def setFactory(f: MatrixFactory) {}
+  def allCellsAreSettable = true
+
+  /**
+   * Can the cell at the given index be set to a non-zero value.
+   * @param index The cell index
+   * @return Returns true if the cell can be set to any value.  Returns false if the cell value will always be zero,
+   *         as in diagonal matrices.
+   */
+  def canSetCellAt(index: Int): Boolean = true
 }

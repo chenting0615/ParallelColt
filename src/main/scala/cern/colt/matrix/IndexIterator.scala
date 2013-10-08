@@ -7,6 +7,8 @@ trait IndexIterator[T] {
 
   def hasValue: Boolean
 
+  def moreValues: Boolean
+
   def increment(): Boolean
 
   def value: T

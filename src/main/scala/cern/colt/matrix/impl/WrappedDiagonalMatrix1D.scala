@@ -16,6 +16,10 @@ class WrappedDiagonalMatrix1D[@specialized T: Manifest: Numeric](content2D: Matr
   this.sizeVar = Math.min(content2D.rows, content2D.columns)
   this.isNoView = false
 
+  override def allCellsAreSettable = content2D.allCellsAreSettable
+
+  override def canSetCellAt(index: Int): Boolean = content2D.canSetCellAt(index, index)
+
   def getQuick(index: Int): T = content2D.getQuick(index, index)
 
   def setQuick(index: Int, value: T) {

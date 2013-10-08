@@ -206,7 +206,7 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
    * <tt>A.cardinality() / A.size()</tt>.
    */
   def density(A: Matrix[_]): Double = {
-    A.numNonZero / A.size.asInstanceOf[Double]
+    A.numNonZero / A.size.toDouble
   }
 
   /**

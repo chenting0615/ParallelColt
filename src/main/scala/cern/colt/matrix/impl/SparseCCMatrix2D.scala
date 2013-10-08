@@ -191,146 +191,6 @@ class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
     assign(values)
   }
 
-  /**
-   * Constructs a matrix with indexes given in the coordinate format and a
-   * single value.
-   *
-   * @param rows
-   *            the number of rows the matrix shall have.
-   * @param columns
-   *            the number of columns the matrix shall have.
-   * @param rowIndexes
-   *            row indexes
-   * @param columnIndexes
-   *            column indexes
-   * @param value
-   *            numerical value
-   * @param removeDuplicates
-   *            if true, then duplicates (if any) are removed
-   * @param sortRowIndexes
-   *            if true, then row indexes are sorted
-   */
-  def this(rows: Int,
-      columns: Int,
-      rowIndexes: Array[Int],
-      columnIndexes: Array[Int],
-      value: T,
-      removeDuplicates: Boolean,
-      sortRowIndexes: Boolean) {
-
-    this(rows, columns, Math.max(rowIndexes.length, 1))
-    if (rowIndexes.length != columnIndexes.length) {
-      throw new IllegalArgumentException("rowIndexes.length != columnIndexes.length")
-    }
-    if (value == zero) {
-      throw new IllegalArgumentException("value cannot be 0")
-    }
-    val nz = this.nzmax
-    val w = Array.ofDim[Int](columns)
-    val Cp = dcs.p
-    val Ci = dcs.i
-    val Cx = dcs.x
-    for (k <- 0 until nz) w(columnIndexes(k)) += 1
-    Dcs_cumsum.cs_cumsum(Cp, w, columns)
-    var p: Int = 0
-    for (k <- 0 until nz) {
-      p = w(columnIndexes(k))
-      w(columnIndexes(k)) += 1
-      Ci(p) = rowIndexes(k)
-      if (Cx != null) Cx(p) = value.asInstanceOf[Double]
-    }
-    if (removeDuplicates) {
-      if (!Dcs_dupl.cs_dupl(dcs)) {
-        throw new IllegalArgumentException("Exception occured in cs_dupl()!")
-      }
-    }
-    if (sortRowIndexes) {
-      dcs = Dcs_transpose.cs_transpose(dcs, true)
-      dcs = Dcs_transpose.cs_transpose(dcs, true)
-      if (dcs == null) {
-        throw new IllegalArgumentException("Exception occured in cs_transpose()!")
-      }
-      rowIndexesSorted = true
-    }
-  }
-
-  /**
-   * Constructs a matrix with indexes and values given in the coordinate
-   * format.
-   *
-   * @param rows
-   *            the number of rows the matrix shall have.
-   * @param columns
-   *            the number of columns the matrix shall have.
-   * @param rowIndexes
-   *            row indexes
-   * @param columnIndexes
-   *            column indexes
-   * @param values
-   *            numerical values
-   * @param removeDuplicates
-   *            if true, then duplicates (if any) are removed
-   * @param removeZeroes
-   *            if true, then zeroes (if any) are removed
-   * @param sortRowIndexes
-   *            if true, then row indexes are sorted
-   */
-  def this(rows: Int,
-      columns: Int,
-      rowIndexes: Array[Int],
-      columnIndexes: Array[Int],
-      values: Array[T],
-      removeDuplicates: Boolean,
-      removeZeroes: Boolean,
-      sortRowIndexes: Boolean) {
-
-    this(rows, columns, Math.max(rowIndexes.length, 1))
-    if (rowIndexes.length != columnIndexes.length) {
-      throw new IllegalArgumentException("rowIndexes.length != columnIndexes.length")
-    } else if (rowIndexes.length != values.length) {
-      throw new IllegalArgumentException("rowIndexes.length != values.length")
-    }
-    val nz = this.nzmax
-    val w = Array.ofDim[Int](columns)
-    val Cp = dcs.p
-    val Ci = dcs.i
-    val Cx = dcs.x
-    for (k <- 0 until nz) w(columnIndexes(k)) += 1
-    Dcs_cumsum.cs_cumsum(Cp, w, columns)
-    var p: Int = 0
-    for (k <- 0 until nz) {
-      p = w(columnIndexes(k))
-      w(columnIndexes(k)) += 1
-      Ci(p) = rowIndexes(k)
-      if (Cx != null) Cx(p) = values(k).asInstanceOf[Double]
-    }
-    if (removeZeroes) {
-      Dcs_dropzeros.cs_dropzeros(dcs)
-    }
-    if (removeDuplicates) {
-      if (!Dcs_dupl.cs_dupl(dcs)) {
-        throw new IllegalArgumentException("Exception occured in cs_dupl()!")
-      }
-    }
-    if (sortRowIndexes) {
-      dcs = Dcs_transpose.cs_transpose(dcs, true)
-      dcs = Dcs_transpose.cs_transpose(dcs, true)
-      if (dcs == null) {
-        throw new IllegalArgumentException("Exception occured in cs_transpose()!")
-      }
-      rowIndexesSorted = true
-    }
-  }
-
-  def this(rows: Int, columns: Int, columnIndexes: Array[Int], rowPointers: Array[Int], values: Array[T], rowIndexesSorted_p: Boolean) {
-    this(rows, columns, Math.max(values.length, 1))
-
-    dcs.i = columnIndexes
-    dcs.p = rowPointers
-    dcs.x = values.asInstanceOf[Array[Double]]
-    rowIndexesSorted = rowIndexesSorted_p
-  }
-
   override def assignConstant(value: T) = {
     if (value == zero) {
       util.Arrays.fill(dcs.i, 0)
@@ -392,9 +252,9 @@ class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
       var k = columnPointersA(j + 1)
       while (k >= low) {
         val i = rowIndexesA(k)
-        val value = valuesA(k)
-        val r = function.apply(i, j, value.asInstanceOf[T])
-        valuesA(k) = r.asInstanceOf[Double]
+        val value = valuesA(k).asInstanceOf[T]
+        val r = function.apply(i, j, value)
+        valuesA(k) = numeric.toDouble(r)
       }
     }
     this
@@ -438,8 +298,9 @@ class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
    * @return this matrix in a row-compressed form
    */
   def getRowCompressed: SparseRCMatrix2D[T] = {
-    val dcst = Dcs_transpose.cs_transpose(dcs, true)
-    new SparseRCMatrix2D[T](rows, columns, dcst.i, dcst.p, dcst.x.asInstanceOf[Array[T]])
+    val view = new SparseRCMatrix2D[T](rows, columns)
+    view.assign(this)
+    view
   }
 
   /**
@@ -495,7 +356,7 @@ class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
         if (value == zero)
           remove(column, k)
         else
-          dcs.x(k) = value.asInstanceOf[Double]
+          dcs.x(k) = numeric.toDouble(value)
       }
       else if (value != zero) {
         k = -k - 1
@@ -560,7 +421,7 @@ class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
     val values = new ArrayList[Double](dcs.x)
     values.setSize(dcs.p(columns))
     rowIndexes.set(index, row)
-    values.set(index, value.asInstanceOf[Double])
+    values.set(index, numeric.toDouble(value))
     var i = dcs.p.length
     while (i > column) {dcs.p(i); i += 1}
     dcs.i = rowIndexes.elements()

@@ -6,4 +6,6 @@ package cern.colt.matrix
 trait IndexIterator1D[T] extends IndexIterator[T] {
 
   def index: Int
+
+  def setIndex(index: Int): Boolean
 }

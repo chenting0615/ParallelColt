@@ -14,7 +14,7 @@ import cern.colt.function.{Procedure2, Procedure1}
  * @version 1.0, 09/24/99
  */
 @SerialVersionUID(1L)
-trait Matrix1D[T] extends Matrix[T] {
+trait Matrix1D[@specialized T] extends Matrix[T] {
 
   /**
    * Sanity check for operations requiring an index to be within bounds.
@@ -197,6 +197,14 @@ trait Matrix1D[T] extends Matrix[T] {
    *            the value to be filled into the specified cell.
    */
   def setQuick(index: Int, value: T): Unit
+
+  /**
+   * Can the cell at the given index be set to a non-zero value.
+   * @param index The cell index
+   * @return Returns true if the cell can be set to any value.  Returns false if the cell value will always be zero,
+   *         as in diagonal matrices.
+   */
+  def canSetCellAt(index: Int): Boolean
 
   /**
    * Assigns the result of a function to each <i>non-zero</i> cell;
