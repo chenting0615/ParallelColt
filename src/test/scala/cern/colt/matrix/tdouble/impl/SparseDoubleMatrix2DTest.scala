@@ -22,11 +22,7 @@ class SparseDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) {
       values(i) = Math.random()
     }
     val A = new SparseDoubleMatrix2D(NROWS, NCOLUMNS, rowindexes, columnindexes, values)
-    var B = A.getRowCompressed(sortColumnIndexes=false)
-    for (r <- 0 until A.rows; c <- 0 until A.columns) {
-      assertEquals(A.getQuick(r, c), B.getQuick(r, c), TOL)
-    }
-    B = A.getRowCompressed(sortColumnIndexes=true)
+    var B = A.getRowCompressed
     for (r <- 0 until A.rows; c <- 0 until A.columns) {
       assertEquals(A.getQuick(r, c), B.getQuick(r, c), TOL)
     }
@@ -60,11 +56,7 @@ class SparseDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg0) {
       values(i) = Math.random()
     }
     val S = new SparseDoubleMatrix2D(A.rows, A.columns, rowindexes, columnindexes, values)
-    var B = S.getColumnCompressed(sortRowIndexes=false)
-    for (r <- 0 until A.rows; c <- 0 until A.columns) {
-      assertEquals(S.getQuick(r, c), B.getQuick(r, c), TOL)
-    }
-    B = S.getColumnCompressed(sortRowIndexes=true)
+    var B = S.getColumnCompressed
     for (r <- 0 until A.rows; c <- 0 until A.columns) {
       assertEquals(S.getQuick(r, c), B.getQuick(r, c), TOL)
     }

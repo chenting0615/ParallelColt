@@ -28,6 +28,11 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
   protected var B: Matrix2D[Double] = _
 
   /**
+   * Matrix of the same size as A
+   */
+  protected var B_diffType: Matrix2D[Double] = null
+
+  /**
    * Matrix of the size A.columns x A.rows
    */
   protected var Bt: Matrix2D[Double] = _
@@ -62,6 +67,7 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
     A = null
     B = null
     Bt = null
+    B_diffType = null
   }
 
   def testAggregateDoubleDoubleFunctionDoubleFunction() {
@@ -149,8 +155,16 @@ abstract class DoubleMatrix2DTest(arg0: String) extends TestCase(arg0) {
 
   def testAssignDoubleMatrix2D() {
     A.assign(B)
-    for (r <- 0 until A.rows; c <- 0 until A.columns) assertEquals(B.getQuick(r, c), A.getQuick(r,
-      c), TOL)
+    for (r <- 0 until A.rows; c <- 0 until A.columns)
+      assertEquals(B.getQuick(r, c), A.getQuick(r, c), TOL)
+    if (B_diffType != null) {
+      B_diffType.assign(B)
+      for (r <- 0 until B.rows; c <- 0 until B.columns)
+        assertEquals(B.getQuick(r, c), B_diffType.getQuick(r, c), TOL)
+      A.assign(B_diffType)
+      for (r <- 0 until A.rows; c <- 0 until A.columns)
+        assertEquals(B_diffType.getQuick(r, c), A.getQuick(r, c), TOL)
+    }
   }
 
   def testAssignDoubleMatrix2DDoubleDoubleFunction() {

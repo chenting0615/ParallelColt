@@ -1,25 +1,6 @@
 package cern.colt.matrix.impl
 
-import java.util
-import edu.emory.mathcs.csparsej.tdouble._
-import SparseCCMatrix2D._
-import cern.colt.matrix.{Matrix1D, Matrix2D}
-import cern.colt.list.impl.ArrayList
-
-object SparseCCMatrix2D {
-
-  private def searchFromTo(list: Array[Int], key: Int, from_p: Int, to: Int): Int = {
-    var from = from_p
-    while (from <= to) {
-      if (list(from) == key) {
-        return from
-      } else {
-        from += 1
-      }
-    }
-    -(from + 1)
-  }
-}
+import cern.colt.matrix.Matrix2D
 
 /**
  * Sparse column-compressed 2-d matrix holding <tt>double</tt> elements. First
@@ -129,16 +110,7 @@ object SparseCCMatrix2D {
  *             if <tt>rows<0 || columns<0</tt> .
  */
 @SerialVersionUID(1L)
-class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
-
-  protected var rowIndexesSorted: Boolean = false
-
-  try {
-    setUp(rows, columns)
-  } catch {
-    case exc: IllegalArgumentException => if ("matrix too large" != exc.getMessage) throw exc
-  }
-  protected var dcs = Dcs_util.cs_spalloc(rows, columns, nzmax, true, false)
+class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: Int, nzmax: Int) extends SparsePointerIndexMatrix2D[T](false, rows, columns, nzmax) {
 
   /**
    * Constructs a matrix with a given number of rows and columns. All entries
@@ -153,22 +125,6 @@ class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
    */
   def this(rows: Int, columns: Int) {
     this(rows, columns, Math.min(10l * rows, Integer.MAX_VALUE).toInt)
-  }
-
-  /**
-   * Constructs a matrix with a given number of rows and columns. All entries
-   * are initially <tt>0</tt>.
-   *
-   * @param rows
-   *            the number of rows the matrix shall have.
-   * @param columns
-   *            the number of columns the matrix shall have.
-   * @throws IllegalArgumentException
-   *             if <tt>rows<0 || columns<0</tt> .
-   */
-  def this(dcs_p: Dcs_common.Dcs, rows: Int, columns: Int) {
-    this(rows, columns, Math.min(10l * rows, Integer.MAX_VALUE).toInt)
-    this.dcs = dcs_p
   }
 
   /**
@@ -191,43 +147,16 @@ class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
     assign(values)
   }
 
-  override def assignConstant(value: T) = {
-    if (value == zero) {
-      util.Arrays.fill(dcs.i, 0)
-      util.Arrays.fill(dcs.p, 0)
-      util.Arrays.fill(dcs.x, 0)
-    }
-    else {
-      super.assignConstant(value)
-    }
-    this
-  }
-
   override def assign(source: Matrix2D[T]) = {
     if (source ne this) {
       checkShape(source)
       source match {
         case other: SparseCCMatrix2D[T] => {
-          System.arraycopy(other.getColumnPointers, 0, this.dcs.p, 0, columns + 1)
-          val nzmax = other.getRowIndexes.length
-          if (dcs.nzmax < nzmax) {
-            dcs.i = Array.ofDim[Int](nzmax)
-            dcs.x = Array.ofDim[Double](nzmax)
-          }
-          System.arraycopy(other.getRowIndexes, 0, this.dcs.i, 0, nzmax)
-          System.arraycopy(other.getValues, 0, this.dcs.x, 0, nzmax)
-          rowIndexesSorted = other.hasRowIndexesSorted
-        }
-        case other: SparseRCMatrix2D[T] => {
-          this.dcs.p = other.getRowPointers
-          this.dcs.i = other.getColumnIndexes
-          this.dcs.x = other.getValues.asInstanceOf[Array[Double]]
-          this.dcs.nzmax = this.dcs.x.length
-          rowIndexesSorted = true
+          copyOther(other)
         }
         case _ => {
           assignConstant(zero)
-          source.forEachNonZeroRowMajor(new Function3[Int, Int, T, T]() {
+          source.forEachNonZeroColumnMajor(new Function3[Int, Int, T, T]() {
             def apply(i: Int, j: Int, value: T): T = {
               setQuick(i, j, value)
               value
@@ -239,57 +168,6 @@ class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
     this
   }
 
-  override def numNonZero = dcs.p(columns)
-
-  /* We don't over-ride the row-major version of this, because it doesn't save much */
-  override def forEachNonZeroColumnMajor(function: Function3[Int, Int, T, T]): Matrix2D[T] = {
-    val rowIndexesA = dcs.i
-    val columnPointersA = dcs.p
-    val valuesA = dcs.x
-    var j = columns
-    while (j >= 0) {
-      val low = columnPointersA(j)
-      var k = columnPointersA(j + 1)
-      while (k >= low) {
-        val i = rowIndexesA(k)
-        val value = valuesA(k).asInstanceOf[T]
-        val r = function.apply(i, j, value)
-        valuesA(k) = numeric.toDouble(r)
-      }
-    }
-    this
-  }
-
-  /**
-   * Returns column pointers
-   *
-   * @return column pointers
-   */
-  def getColumnPointers: Array[Int] = dcs.p
-
-  /**
-   * Returns a new matrix that has the same elements as this matrix, but is in
-   * a dense form. This method creates a new object (not a view), so changes
-   * in the returned matrix are NOT reflected in this matrix.
-   *
-   * @return this matrix in a dense form
-   */
-  def getDense: DenseMatrix2D[T] = {
-    val dense = new DenseMatrix2D[T](rows, columns)
-    forEachNonZeroRowMajor(new Function3[Int, Int, T, T]() {
-      def apply(i: Int, j: Int, value: T): T = {
-        dense.setQuick(i, j, getQuick(i, j))
-        value
-      }
-    })
-    dense
-  }
-
-  override def getQuick(row: Int, column: Int): T = {
-    val k = searchFromTo(dcs.i, row, dcs.p(column), dcs.p(column + 1) - 1)
-    if (k >= 0) dcs.x(k).asInstanceOf[T] else zero
-  }
-
   /**
    * Returns a new matrix that has the same elements as this matrix, but is in
    * a row-compressed form. This method creates a new object (not a view), so
@@ -298,146 +176,10 @@ class SparseCCMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
    * @return this matrix in a row-compressed form
    */
   def getRowCompressed: SparseRCMatrix2D[T] = {
-    val view = new SparseRCMatrix2D[T](rows, columns)
-    view.assign(this)
-    view
+    val cc = new SparseRCMatrix2D[T](rows, columns)
+    cc.assign(this)
+    cc
   }
-
-  /**
-   * Returns row indexes;
-   *
-   * @return row indexes
-   */
-  def getRowIndexes: Array[Int] = dcs.i
-
-  /**
-   * Returns a new matrix that is the transpose of this matrix. This method
-   * creates a new object (not a view), so changes in the returned matrix are
-   * NOT reflected in this matrix.
-   *
-   * @return the transpose of this matrix
-   */
-  def getTranspose: SparseCCMatrix2D[T] = {
-    val dcst = Dcs_transpose.cs_transpose(dcs, true)
-    val tr = new SparseCCMatrix2D[T](dcst, columns, rows)
-    tr
-  }
-
-  /**
-   * Returns numerical values
-   *
-   * @return numerical values
-   */
-  def getValues: Array[T] = {
-    val values = Array.ofDim[T](dcs.x.length)
-    var idx = 0
-    for(x <- dcs.x) {
-      values(idx) = x.asInstanceOf[T]
-      idx == 1
-    }
-    values
-  }
-
-  /**
-   * Returns true if row indexes are sorted, false otherwise
-   *
-   * @return true if row indexes are sorted, false otherwise
-   */
-  def hasRowIndexesSorted: Boolean = rowIndexesSorted
 
   override def like2D(rows: Int, columns: Int): Matrix2D[T] = new SparseCCMatrix2D(rows, columns)
-
-  override def like1D(size: Int): Matrix1D[T] = new SparseHashMatrix1D[T](size)
-
-  override def setQuick(row: Int, column: Int, value: T) {
-    synchronized {
-      var k = searchFromTo(dcs.i, row, dcs.p(column), dcs.p(column + 1) - 1)
-      if (k >= 0) {
-        if (value == zero)
-          remove(column, k)
-        else
-          dcs.x(k) = numeric.toDouble(value)
-      }
-      else if (value != zero) {
-        k = -k - 1
-        insert(row, column, k, value)
-      }
-    }
-  }
-
-  /**
-   * Sorts row indexes
-   */
-  def sortRowIndexes() {
-    dcs = Dcs_transpose.cs_transpose(dcs, true)
-    dcs = Dcs_transpose.cs_transpose(dcs, true)
-    if (dcs == null) {
-      throw new IllegalArgumentException("Exception occured in cs_transpose()!")
-    }
-    rowIndexesSorted = true
-  }
-
-  /**
-   * Removes (sums) duplicate entries (if any}
-   */
-  def removeDuplicates() {
-    if (!Dcs_dupl.cs_dupl(dcs)) {
-      throw new IllegalArgumentException("Exception occured in cs_dupl()!")
-    }
-  }
-
-  /**
-   * Removes zero entries (if any)
-   */
-  def removeZeroes() {
-    Dcs_dropzeros.cs_dropzeros(dcs)
-  }
-
-  override def trimToSize() {
-    Dcs_util.cs_sprealloc(dcs, 0)
-  }
-
-  override def toString: String = {
-    val builder = new StringBuilder()
-    builder.append(rows).append(" x ").append(columns).append(" sparse matrix, nnz = ")
-      .append(numNonZero)
-      .append('\n')
-    for (i <- 0 until columns) {
-      val high = dcs.p(i + 1)
-      for (j <- dcs.p(i) until high) {
-        builder.append('(').append(dcs.i(j)).append(',').append(i)
-          .append(')')
-          .append('\t')
-          .append(dcs.x(j))
-          .append('\n')
-      }
-    }
-    builder.toString()
-  }
-
-  protected def insert(row: Int, column: Int, index: Int, value: T) {
-    val rowIndexes = new ArrayList[Int](dcs.i)
-    rowIndexes.setSize(dcs.p(columns))
-    val values = new ArrayList[Double](dcs.x)
-    values.setSize(dcs.p(columns))
-    rowIndexes.set(index, row)
-    values.set(index, numeric.toDouble(value))
-    var i = dcs.p.length
-    while (i > column) {dcs.p(i); i += 1}
-    dcs.i = rowIndexes.elements()
-    dcs.x = values.elements()
-    dcs.nzmax = rowIndexes.elements().length
-  }
-
-  protected def remove(column: Int, index: Int) {
-    val rowIndexes = new ArrayList[Int](dcs.i)
-    val values = new ArrayList[Double](dcs.x)
-    rowIndexes.remove(index)
-    values.remove(index)
-    var i = dcs.p.length
-    while (i > column) {dcs.p(i); i -= 1}
-    dcs.i = rowIndexes.elements()
-    dcs.x = values.elements()
-    dcs.nzmax = rowIndexes.elements().length
-  }
 }

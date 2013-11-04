@@ -255,8 +255,28 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
     if (other ne this) {
       checkShape(other)
       val source = if (haveSharedCells(other)) other.copy() else other
-      for (r <- 0 until rowsVar; c <- 0 until columnsVar) {
-        setQuick(r, c, source.getQuick(r, c))
+      if (! this.isSparse) {
+        for (r <- 0 until rowsVar; c <- 0 until columnsVar) {
+          setQuick(r, c, source.getQuick(r, c))
+        }
+      }
+      else if (this.isRowMajor) {
+        this.assignConstant(zero)
+        source.forEachNonZeroRowMajor(new Function3[Int, Int, T, T]() {
+          def apply(r: Int, c: Int, value: T) = {
+            setQuick(r, c, value)
+            value
+          }
+        })
+      }
+      else {
+        this.assignConstant(zero)
+        source.forEachNonZeroColumnMajor(new Function3[Int, Int, T, T]() {
+          def apply(r: Int, c: Int, value: T) = {
+            setQuick(r, c, value)
+            value
+          }
+        })
       }
     }
     this

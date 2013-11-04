@@ -188,17 +188,11 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
    * a column-compressed form. This method creates a new object (not a view),
    * so changes in the returned matrix are NOT reflected in this matrix.
    *
-   * @param sortRowIndexes
-   *            if true, then row indexes in column compressed matrix are
-   *            sorted
-   *
    * @return this matrix in a column-compressed form
    */
-  def getColumnCompressed(sortRowIndexes: Boolean): SparseCCMatrix2D[T] = {
+  def getColumnCompressed: SparseCCMatrix2D[T] = {
     val v = new SparseCCMatrix2D[T](rows, columns)
     v.assign(this)
-    if (sortRowIndexes)
-      v.sortRowIndexes()
     v
   }
 
@@ -227,32 +221,11 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
    * a row-compressed form. This method creates a new object (not a view), so
    * changes in the returned matrix are NOT reflected in this matrix.
    *
-   * @param sortColumnIndexes
-   *            if true, then column indexes in row compressed matrix are
-   *            sorted
-   *
    * @return this matrix in a row-compressed form
    */
-  def getRowCompressed(sortColumnIndexes: Boolean): SparseRCMatrix2D[T] = {
-/*
-    val nnz = numNonZero.toInt
-    val rowIndexes = Array.ofDim[Int](nnz)
-    val columnIndexes = Array.ofDim[Int](nnz)
-    val values = Array.ofDim[T](nnz)
-    val keys = elementsVar.keys().elements()
-    Sorting.quickSort(keys)
-    var k = 0
-    for (key <- keys) {
-      rowIndexes(k) = (key / columns).toInt
-      columnIndexes(k) = (key % columns).toInt
-      values(k) = elementsVar.get(key)
-      k += 1
-    }
-*/
+  def getRowCompressed: SparseRCMatrix2D[T] = {
     val v = new SparseRCMatrix2D[T](rows, columns)
     v.assign(this)
-    if (sortColumnIndexes)
-      v.sortColumnIndexes()
     v
   }
 

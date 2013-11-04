@@ -131,6 +131,10 @@ class ArrayList[@specialized T: Manifest](elements_p: Array[T]) extends Abstract
     this.sizeVar = elements.length
   }
 
+  def setSizeRaw(newSize: Int) {
+    this.sizeVar = newSize
+  }
+
   /**
    * Ensures that the receiver can hold at least the specified number of
    * elements without needing to allocate new internal memory. If necessary,
@@ -397,7 +401,7 @@ class ArrayList[@specialized T: Manifest](elements_p: Array[T]) extends Abstract
     if (length > 0) {
       ensureCapacity(sizeVar + length)
       sizeVar += length
-      replaceFromToWithFrom(index + length, sizeVar, this, index)
+      replaceFromToWithFrom(index, sizeVar, this, index + length)
     }
   }
 
@@ -492,8 +496,13 @@ class ArrayList[@specialized T: Manifest](elements_p: Array[T]) extends Abstract
     checkRangeFromTo(from, to-1)
     val numMoved = sizeVar - to
     if (numMoved > 0) {
-      replaceFromToWithFrom(from, from + numMoved, this, to)
-      sizeVar -= numMoved
+        replaceFromToWithFrom(from, from + numMoved, this, to)
+    }
+    val width = to - from
+    if (width > 0) {
+      sizeVar -= width
+      if (sizeVar < 0)
+        sizeVar = 0
     }
   }
 
@@ -516,7 +525,7 @@ class ArrayList[@specialized T: Manifest](elements_p: Array[T]) extends Abstract
    *            position of first element within other list to be copied.
    */
   def replaceFromToWithFrom(from_p: Int, to_p: Int, other: AbstractList[T], otherFrom_p: Int) {
-    checkRangeFromTo(from_p, to_p)
+    checkRangeFromTo(from_p, to_p-1)
 
     var from = from_p
     var otherFrom = otherFrom_p

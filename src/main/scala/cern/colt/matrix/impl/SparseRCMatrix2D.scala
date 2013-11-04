@@ -1,24 +1,6 @@
 package cern.colt.matrix.impl
 
-import java.util
-import SparseRCMatrix2D._
 import cern.colt.matrix.Matrix2D
-import cern.colt.list.impl.ArrayList
-
-object SparseRCMatrix2D {
-
-  private def searchFromTo(list: Array[Int], key: Int, from_p: Int, to: Int): Int = {
-    var from = from_p
-    while (from <= to) {
-      if (list(from) == key) {
-        return from
-      } else {
-        from += 1
-      }
-    }
-    -(from + 1)
-  }
-}
 
 /**
  * Sparse row-compressed 2-d matrix holding <tt>double</tt> elements. First see
@@ -127,21 +109,7 @@ object SparseRCMatrix2D {
  * @version 0.9, 04/14/2000
  */
 @SerialVersionUID(1L)
-class SparseRCMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax: Int) extends WrapperMatrix2D[T](null) {
-
-  protected var rowPointers = Array.ofDim[Int](rows_p + 1)
-
-  protected var columnIndexes = Array.ofDim[Int](nzmax)
-
-  protected var values = Array.ofDim[T](nzmax)
-
-  protected var columnIndexesSorted: Boolean = false
-
-  try {
-    setUp(rows_p, columns_p)
-  } catch {
-    case exc: IllegalArgumentException => if ("matrix too large" != exc.getMessage) throw exc
-  }
+class SparseRCMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int, nzmax: Int) extends SparsePointerIndexMatrix2D[T](true, rows, columns, nzmax) {
 
   /**
    * Constructs a matrix with a given number of rows and columns. All entries
@@ -180,97 +148,21 @@ class SparseRCMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax:
     assign(values)
   }
 
-  /**
-   * Constructs a matrix with given parameters. The arrays are not copied.
-   *
-   * @param rows
-   *            the number of rows the matrix shall have.
-   * @param columns
-   *            the number of columns the matrix shall have.
-   * @param rowPointers
-   *            row pointers
-   * @param columnIndexes
-   *            column indexes
-   * @param values
-   *            numerical values
-   */
-  def this(rows: Int,
-      columns: Int,
-      rowPointers: Array[Int],
-      columnIndexes: Array[Int],
-      values: Array[T]) {
-    this(rows, columns)
-    if (rowPointers.length != rows + 1) {
-      throw new IllegalArgumentException("rowPointers.length != rows + 1")
-    }
-    this.rowPointers = rowPointers
-    this.columnIndexes = columnIndexes
-    this.values = values
-  }
-
-  override def assignConstant(value: T) = {
-    if (value == zero) {
-      util.Arrays.fill(rowPointers, 0)
-      util.Arrays.fill(columnIndexes, 0)
-      for(i <- 0 until values.length)
-        values(i) = value
-    }
-    else {
-      val nnz = numNonZero.toInt
-      for (i <- 0 until nnz) {
-        values(i) = value
-      }
-    }
-    this
-  }
-
   override def assign(source: Matrix2D[T]): SparseRCMatrix2D[T] = {
     if (source eq this) return this
     checkShape(source)
     source match {
       case other: SparseRCMatrix2D[T] => {
-        System.arraycopy(other.getRowPointers, 0, rowPointers, 0, rows + 1)
-        val nzmax = other.getColumnIndexes.length
-        if (columnIndexes.length < nzmax) {
-          columnIndexes = Array.ofDim[Int](nzmax)
-          values = Array.ofDim[T](nzmax)
-        }
-        System.arraycopy(other.getColumnIndexes, 0, columnIndexes, 0, nzmax)
-        System.arraycopy(other.getValues, 0, values, 0, nzmax)
-        columnIndexesSorted = other.hasColumnIndexesSorted
-      }
-      case other: SparseCCMatrix2D[T] => {
-        rowPointers = other.getColumnPointers
-        columnIndexes = other.getRowIndexes
-        values = other.getValues
-        columnIndexesSorted = true
+        copyOther(other)
       }
       case _ => {
         assignConstant(zero)
         source.forEachNonZeroRowMajor(new Function3[Int, Int, T, T]() {
-          def apply(i: Int, j: Int, value: T): T = {
-            setQuick(i, j, value)
+          def apply(r: Int, c: Int, value: T): T = {
+            setQuick(r, c, value)
             value
           }
         })
-      }
-    }
-    this
-  }
-
-  override def numNonZero = rowPointers(rows)
-
-  /* We don't over-ride the column-major version of this, because it doesn't same much */
-  override def forEachNonZeroRowMajor(function: Function3[Int, Int, T, T]) = {
-    var i = rows
-    while (i >= 0) {
-      val low = rowPointers(i)
-      var k = rowPointers(i + 1)
-      while (k >= low) {
-        val j = columnIndexes(k)
-        val value = values(k)
-        val r = function.apply(i, j, value)
-        if (r != value) values(k) = r
       }
     }
     this
@@ -284,215 +176,10 @@ class SparseRCMatrix2D[T: Manifest: Numeric](rows_p: Int, columns_p: Int, nzmax:
    * @return this matrix in a column-compressed form
    */
   def getColumnCompressed: SparseCCMatrix2D[T] = {
-    val cc = new SparseCCMatrix2D[T](rows, columns)
+    val cc = new SparseCCMatrix2D[T](rowsVar, columnsVar)
     cc.assign(this)
     cc
   }
 
-  /**
-   * Returns column indexes
-   *
-   * @return column indexes
-   */
-  def getColumnIndexes: Array[Int] = columnIndexes
-
-  /**
-   * Returns a new matrix that has the same elements as this matrix, but is in
-   * a dense form. This method creates a new object (not a view), so changes
-   * in the returned matrix are NOT reflected in this matrix.
-   *
-   * @return this matrix in a dense form
-   */
-  def getDense: DenseMatrix2D[T] = {
-    val dense = new DenseMatrix2D[T](rows, columns)
-    forEachNonZeroRowMajor(new Function3[Int, Int, T, T]() {
-      def apply(i: Int, j: Int, value: T): T = {
-        dense.setQuick(i, j, value)
-        value
-      }
-    })
-    dense
-  }
-
-  override def getQuick(row: Int, column: Int): T = {
-    val k = searchFromTo(columnIndexes, column, rowPointers(row), rowPointers(row + 1) - 1)
-    if (k >= 0) values(k) else zero
-  }
-
-  /**
-   * Returns row pointers
-   *
-   * @return row pointers
-   */
-  def getRowPointers: Array[Int] = rowPointers
-
-  /**
-   * Returns a new matrix that is the transpose of this matrix. This method
-   * creates a new object (not a view), so changes in the returned matrix are
-   * NOT reflected in this matrix.
-   *
-   * @return the transpose of this matrix
-   */
-  def getTranspose: SparseRCMatrix2D[T] = {
-    val T = new SparseRCMatrix2D[T](columns, rows)
-    T.assign(this.viewTranspose())
-    T
-  }
-
-  /**
-   * Returns numerical values
-   *
-   * @return numerical values
-   */
-  def getValues: Array[T] = values
-
-  /**
-   * Returns true if column indexes are sorted, false otherwise
-   *
-   * @return true if column indexes are sorted, false otherwise
-   */
-  def hasColumnIndexesSorted: Boolean = columnIndexesSorted
-
   override def like2D(rows: Int, columns: Int) = new SparseRCMatrix2D(rows, columns)
-
-  override def like1D(size: Int) = new SparseHashMatrix1D[T](size)
-
-  /**
-   * Removes (sums) duplicate entries (if any}
-   */
-  def removeDuplicates() {
-    var nz = 0
-    var q: Int = 0
-    var i: Int = 0
-    val w = Array.ofDim[Int](columns)
-    i = 0
-    while (i < columns) {w(i) = -1; i += 1
-    }
-    for (j <- 0 until rows) {
-      q = nz
-      for (p <- rowPointers(j) until rowPointers(j + 1)) {
-        i = columnIndexes(p)
-        if (w(i) >= q) {
-          values.asInstanceOf[Array[Double]](w(i)) += numeric.toDouble(values(p))
-        } else {
-          w(i) = nz
-          columnIndexes(nz) = i
-          values(nz) = values(p)
-          nz += 1
-        }
-      }
-      rowPointers(j) = q
-    }
-    rowPointers(rows) = nz
-  }
-
-  /**
-   * Removes zero entries (if any)
-   */
-  def removeZeroes() {
-    var nz = 0
-    val eps = Math.pow(2, -52)
-    for (j <- 0 until rows) {
-      var p = rowPointers(j)
-      rowPointers(j) = nz
-      while (p < rowPointers(j + 1)) {
-        if (Math.abs(values(p).asInstanceOf[Double]) > eps) {
-          values(nz) = values(p)
-          columnIndexes(nz) = columnIndexes(p)
-          nz += 1
-        }
-        p += 1
-      }
-    }
-    rowPointers(rows) = nz
-  }
-
-  override def setQuick(row: Int, column: Int, value: T) {
-    var k = searchFromTo(columnIndexes, column, rowPointers(row), rowPointers(row + 1) - 1)
-    if (k >= 0) {
-      if (value == zero)
-        remove(row, k)
-      else
-        values(k) = value
-    }
-    else if (value != zero) {
-      k = -k - 1
-      insert(row, column, k, value)
-    }
-  }
-
-  /**
-   * Sorts column indexes
-   */
-  def sortColumnIndexes() {
-    var T = getTranspose
-    this.rowsVar = T.rows
-    this.columnsVar = T.columns
-    this.columnIndexes = T.columnIndexes
-    this.rowPointers = T.rowPointers
-    this.values = T.values
-    T = getTranspose
-    this.rowsVar = T.rows
-    this.columnsVar = T.columns
-    this.columnIndexes = T.columnIndexes
-    this.rowPointers = T.rowPointers
-    this.values = T.values
-    columnIndexesSorted = true
-  }
-
-  override def toString: String = {
-    val builder = new StringBuilder()
-    builder.append(rows).append(" x ").append(columns).append(" sparse matrix, nnz = ")
-      .append(numNonZero)
-      .append('\n')
-    for (i <- 0 until rows) {
-      val high = rowPointers(i + 1)
-      for (j <- rowPointers(i) until high) {
-        builder.append('(').append(i).append(',').append(columnIndexes(j))
-          .append(')')
-          .append('\t')
-          .append(values(j))
-          .append('\n')
-      }
-    }
-    builder.toString()
-  }
-
-  override def trimToSize() {
-    val nzmax = rowPointers(rows)
-    val columnIndexesNew = Array.ofDim[Int](nzmax)
-    var length = Math.min(nzmax, columnIndexes.length)
-    System.arraycopy(columnIndexes, 0, columnIndexesNew, 0, length)
-    columnIndexes = columnIndexesNew
-    val valuesNew = Array.ofDim[T](nzmax)
-    length = Math.min(nzmax, values.length)
-    System.arraycopy(values, 0, valuesNew, 0, length)
-    values = valuesNew
-  }
-
-  protected def insert(row: Int, column: Int, index: Int, value: T) {
-    val columnIndexesList = new ArrayList[Int](columnIndexes)
-    columnIndexesList.setSize(rowPointers(rows))
-    val valuesList = new ArrayList[Double](values.asInstanceOf[Array[Double]])
-    valuesList.setSize(rowPointers(rows))
-    columnIndexesList.set(index, column)
-    valuesList.set(index, value.asInstanceOf[Double])
-    var i = rowPointers.length-1
-    while (i > row) {rowPointers(i) += 1; i -= 1}
-    columnIndexes = columnIndexesList.elements()
-    values = valuesList.elements().asInstanceOf[Array[T]]
-  }
-
-  protected def remove(row: Int, index: Int) {
-    val columnIndexesList = new ArrayList[Int](columnIndexes)
-    columnIndexesList.setSize(rowPointers(rows))
-    val valuesList = new ArrayList[Double](values.asInstanceOf[Array[Double]])
-    valuesList.setSize(rowPointers(rows))
-    columnIndexesList.remove(index)
-    valuesList.remove(index)
-    var i = rowPointers.length-1
-    while (i > row) {rowPointers(i) += 1; i -= 1}
-    columnIndexes = columnIndexesList.elements()
-    values = valuesList.elements().asInstanceOf[Array[T]]
-  }
 }

@@ -100,7 +100,7 @@ abstract class AbstractList[@specialized T: Manifest] extends AbstractCollection
    * this call returns, but keep its current capacity.
    */
   def clear() {
-    removeFromTo(0, size - 1)
+    removeFromTo(0, size)
   }
 
   /**
@@ -174,8 +174,8 @@ abstract class AbstractList[@specialized T: Manifest] extends AbstractCollection
     if (newSize != currentSize) {
       if (newSize > currentSize)
         beforeInsertDummies(currentSize, newSize - currentSize)
-      else if (newSize < currentSize)
-        removeFromTo(newSize, currentSize - 1)
+      else
+        removeFromTo(newSize, currentSize)
     }
   }
 
