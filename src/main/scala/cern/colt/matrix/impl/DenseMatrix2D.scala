@@ -74,7 +74,14 @@ import cern.colt.function.Matrix1DProcedure
 @SerialVersionUID(1L)
 class DenseMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p: Int, elements_p: Array[T], rowZero_p: Int, columnZero_p: Int, rowStride_p: Int, columnStride_p: Int, isView: Boolean) extends StrideMatrix2D[T] {
 
-  protected var elementsVar: Array[T] = elements_p
+  protected var elementsVar: Array[T] = if (elements_p != null) elements_p else {
+    if (isView || rowZero_p != 0 || columnZero_p != 0)
+      throw new IllegalArgumentException("Non-standard matrix setup, but no elements given")
+    if ( ! ((rowStride_p == 1 && columnStride_p == rows_p) || (rowStride_p == columns_p && columnStride_p == 1)))
+      throw new IllegalArgumentException("Non-standard matrix stride setup, but no elements given")
+    Array.ofDim[T](rows_p*columns_p)
+  }
+
   setUp(rows_p, columns_p, rowZero_p, columnZero_p, rowStride_p, columnStride_p)
   this.isNoView = !isView
 
@@ -123,7 +130,7 @@ class DenseMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p: I
   override def assign(values: Array[T]) = {
     if (values.length < size)
       throw new IllegalArgumentException("Must have same length: length=" + values.length + " rows*columns=" + rowsVar * columnsVar)
-    if (this.isNoView) {
+    if (this.isNoView && this.isRowMajor) {
       System.arraycopy(values, 0, this.elementsVar, 0, values.length)
     }
     else {

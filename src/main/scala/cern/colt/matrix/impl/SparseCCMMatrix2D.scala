@@ -1,8 +1,8 @@
 package cern.colt.matrix.impl
 
 /**
- * Sparse column-compressed-modified 2-d matrix holding typed
- * elements. Each column is stored as SparseDoubleMatrix1D.
+ * Sparse column-compressed-modified 2-d matrix holding typed elements.
+ * Each column is stored as SparseDoubleMatrix1D.
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  *
@@ -27,20 +27,8 @@ class SparseCCMMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: I
 
   override def setQuick(row: Int, column: Int, value: T) {
     if (elements(column) == null)
-      elements(column) = new SparseHashMatrix1D[T](rows)
+      elements(column) = new SparseHashMatrix1D[T](rowsVar)
     elements(column).setQuick(row, value)
-  }
-
-  override def trimToSize() {
-    for (c <- 0 until columns) {
-      val col = elements(c)
-      if (col != null) {
-        if (col.numNonZero == 0)
-          elements(c) == null
-        else
-          col.trimToSize()
-      }
-    }
   }
 
   override def viewColumn(column: Int) = {
@@ -48,6 +36,18 @@ class SparseCCMMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: I
     if (elements(column) == null)
       elements(column) = new SparseHashMatrix1D[T](rowsVar)
     elements(column)
+  }
+
+  override def trimToSize() {
+    for (i <- 0 until columnsVar) {
+      val mtrx = elements(i)
+      if (mtrx != null) {
+        if (mtrx.numNonZero == 0)
+          elements(i) == null
+        else
+          mtrx.trimToSize()
+      }
+    }
   }
 
   def like2D(rows: Int, columns: Int) = new SparseCCMMatrix2D(rows, columns)

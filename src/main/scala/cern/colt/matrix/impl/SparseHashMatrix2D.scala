@@ -144,8 +144,13 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
   override def assignConstant(value: T) = {
     if (this.isNoView && value == zero)
       this.elementsVar.clear()
-    else
-      super.assignConstant(value)
+    else {
+      // This next line causes infinite loop in scala 2.10.  Compiler bug.
+      //super.assignConstant(value)
+      for (r <- 0 until rowsVar; c <- 0 until columnsVar) {
+        setQuick(r, c, value)
+      }
+    }
     this
   }
 
@@ -266,7 +271,15 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
       }
     }
     else {
-      super.forEachNonZeroRowMajor(function)
+      //Compiler bug
+      //super.forEachNonZeroRowMajor(function)
+      for (r <- 0 until rowsVar; c <- 0 until columnsVar) {
+        val value = getQuick(r, c)
+        if (value != zero) {
+          val a = function.apply(r, c, value)
+          if (a != value) setQuick(r, c, a)
+        }
+      }
     }
     this
   }

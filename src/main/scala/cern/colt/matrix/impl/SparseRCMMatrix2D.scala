@@ -1,7 +1,7 @@
 package cern.colt.matrix.impl
 
 /**
- * Sparse row-compressed-modified 2-d matrix holding <tt>double</tt> elements.
+ * Sparse row-compressed-modified 2-d matrix holding typed elements.
  * Each row is stored as SparseDoubleMatrix1D.
  *
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
@@ -28,7 +28,7 @@ class SparseRCMMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: I
   override def setQuick(row: Int, column: Int, value: T) {
     if (elements(row) == null)
       elements(row) = new SparseHashMatrix1D[T](columnsVar)
-    elements(column).setQuick(row, value)
+    elements(row).setQuick(column, value)
   }
 
   override def viewRow(row: Int) = {
@@ -53,5 +53,4 @@ class SparseRCMMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: I
   def like2D(rows: Int, columns: Int) = new SparseRCMMatrix2D(rows, columns)
 
   def like1D(size: Int) = new SparseHashMatrix1D[T](size)
-
 }

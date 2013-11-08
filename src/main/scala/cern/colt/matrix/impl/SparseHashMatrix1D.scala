@@ -93,7 +93,13 @@ class SparseHashMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, initial
    * @return <tt>this</tt> (for convenience only).
    */
   override def assignConstant(value: T): SparseHashMatrix1D[T] = {
-    if (this.isNoView && value == zero) this.elements.clear() else super.assignConstant(value)
+    if (this.isNoView && value == zero)
+      this.elements.clear()
+    else {
+      // Can't call super.assignConstant(value).  It causes infinite recursion in scala.  Compiler bug.
+      for(i <- 0 until sizeVar)
+        setQuick(i, value)
+    }
     this
   }
 

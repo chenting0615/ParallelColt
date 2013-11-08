@@ -2,6 +2,8 @@ package cern.colt
 
 import junit.framework.Test
 import junit.framework.TestSuite
+import cern.colt.matrix.tdouble.AllDoubleMatrixTests
+
 //import cern.colt.matrix.tfloat.AllFloatMatrixTests
 //import cern.colt.matrix.tlong.AllLongMatrixTests
 //import cern.colt.matrix.tint.AllIntMatrixTests
@@ -12,7 +14,6 @@ import junit.framework.TestSuite
 //import cern.colt.matrix.tint.AllIntMatrixTests
 //import cern.colt.matrix.tlong.AllLongMatrixTests
 import edu.emory.mathcs.utils.ConcurrencyUtils
-import cern.colt.matrix.tdouble.impl.AllDoubleMatrixTests
 
 object AllTests {
 

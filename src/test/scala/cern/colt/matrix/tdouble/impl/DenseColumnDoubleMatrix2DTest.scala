@@ -18,7 +18,7 @@ class DenseColumnDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg
     }
     A.assign(expected)
     var idx = 0
-    for (c <- 0 until A.columns; r <- 0 until A.rows) {
+    for (r <- 0 until A.rows; c <- 0 until A.columns) {
       assertEquals(0, Math.abs(expected(idx) - A.getQuick(r, c)), TOL)
       idx += 1
     }
@@ -32,8 +32,9 @@ class DenseColumnDoubleMatrix2DTest(arg0: String) extends DoubleMatrix2DTest(arg
     }
     A.assign(expected)
     var idx = 0
-    for (c <- 0 until A.columns; r <- 0 until A.rows) {
-      assertEquals(expected(idx += 1), A.getQuick(r, c), TOL)
+    for (r <- 0 until A.rows; c <- 0 until A.columns) {
+      assertEquals(expected(idx), A.getQuick(r, c), TOL)
+      idx += 1
     }
   }
 */

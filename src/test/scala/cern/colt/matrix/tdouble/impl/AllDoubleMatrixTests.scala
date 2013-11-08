@@ -1,9 +1,8 @@
 package cern.colt.matrix.tdouble.impl
 
-import junit.framework.Test
-import junit.framework.TestSuite
+import junit.framework.{TestCase, Test, TestSuite}
 
-object AllDoubleMatrixTests {
+object AllDoubleMatrixTests extends TestCase {
 
   def suite(): Test = {
     val suite = new TestSuite("cern.colt.matrix.tdouble tests")

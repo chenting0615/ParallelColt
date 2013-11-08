@@ -113,22 +113,22 @@ abstract class AbstractList[@specialized T: Manifest] extends AbstractCollection
    *             if <tt>index &lt; 0 || index &gt;= size()</tt>.
    */
   def remove(index: Int) {
-    removeFromTo(index, index)
+    removeFromTo(index, index+1)
   }
 
   /**
    * Removes from the receiver all elements whose index is between
-   * <code>from</code>, inclusive and <code>to</code>, inclusive. Shifts any
+   * <code>from</code>, inclusive and <code>to</code>, exclusive. Shifts any
    * succeeding elements to the left (reduces their index). This call shortens
-   * the list by <tt>(to - from + 1)</tt> elements.
+   * the list by <tt>(to - from)</tt> elements.
    *
    * @param fromIndex
    *            index of first element to be removed.
    * @param toIndex
-   *            index of last element to be removed.
+   *            index one past the last element to be removed.
    * @throws IndexOutOfBoundsException
    *             if
-   *             <tt>(from&lt;0 || from&gt;to || to&gt;=size()) && to!=from-1</tt>
+   *             <tt>(from&lt;0 || from&gt;to || to&gt;size()) && to!=from</tt>
    *             .
    */
   def removeFromTo(fromIndex: Int, toIndex: Int): Unit

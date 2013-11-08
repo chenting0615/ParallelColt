@@ -479,9 +479,9 @@ class ArrayList[@specialized T: Manifest](elements_p: Array[T]) extends Abstract
 
   /**
    * Removes from the receiver all elements whose index is between
-   * <code>from</code>, inclusive and <code>to</code>, inclusive. Shifts any
+   * <code>from</code>, inclusive and <code>to</code>, exclusive. Shifts any
    * succeeding elements to the left (reduces their index). This call shortens
-   * the list by <tt>(to - from + 1)</tt> elements.
+   * the list by <tt>(to - from)</tt> elements.
    *
    * @param from
    *            index of first element to be removed.
@@ -509,7 +509,7 @@ class ArrayList[@specialized T: Manifest](elements_p: Array[T]) extends Abstract
   /**
    * Replaces a number of elements in the receiver with the same number of
    * elements of another list. Replaces elements in the receiver, between
-   * <code>from</code> (inclusive) and <code>to</code> (inclusive), with
+   * <code>from</code> (inclusive) and <code>to</code> (exclusive), with
    * elements of <code>other</code>, starting from <code>otherFrom</code>
    * (inclusive).
    *
@@ -517,7 +517,7 @@ class ArrayList[@specialized T: Manifest](elements_p: Array[T]) extends Abstract
    *            the position of the first element to be replaced in the
    *            receiver
    * @param to_p
-   *            the position of the last element to be replaced in the
+   *            the position after the last element to be replaced in the
    *            receiver
    * @param other
    *            list holding elements to be copied into the receiver.
@@ -531,16 +531,16 @@ class ArrayList[@specialized T: Manifest](elements_p: Array[T]) extends Abstract
     var otherFrom = otherFrom_p
     var to = to_p
 
-    val length = to - from
+    var length = to - from
     other.checkRangeFromTo(otherFrom, otherFrom+length-1)
 
     if (length > 0) {
       if (from <= otherFrom) {
-        while (length >= 0) {setQuick(from, other.getQuick(otherFrom)); from += 1; otherFrom += 1}
+        while (length >= 0) {setQuick(from, other.getQuick(otherFrom)); from += 1; otherFrom += 1; length -= 1;}
       }
       else {
         var otherTo = otherFrom + length - 1
-        while (length >= 0) {setQuick(to, other.getQuick(otherTo)); to -= 1; otherTo -= 1}
+        while (length >= 0) {setQuick(to, other.getQuick(otherTo)); to -= 1; otherTo -= 1; length -= 1;}
       }
     }
   }
