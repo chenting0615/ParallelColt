@@ -75,6 +75,13 @@ class WrapperMatrix1D[@specialized T: Manifest: Numeric](protected val content1D
     view
   }
 
+  def numeric = implicitly[Numeric[T]]
+
+  def toArray: Array[T] = {
+    val values = Array.ofDim[T](size.toInt)
+    toArray(values)
+  }
+
   /**
    * @return Returns true if this matrix uses a sparse representation for storing cell values
    */

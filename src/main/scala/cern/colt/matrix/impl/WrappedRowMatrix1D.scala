@@ -158,4 +158,12 @@ class WrappedRowMatrix1D[@specialized T: Manifest: Numeric](protected val conten
   def viewFlip() = {
     new WrappedRowMatrix1D[T](content2D.viewColumnFlip(), row)
   }
+
+  def numeric = implicitly[Numeric[T]]
+
+  def toArray: Array[T] = {
+    val values = Array.ofDim[T](size.toInt)
+    toArray(values)
+  }
+
 }

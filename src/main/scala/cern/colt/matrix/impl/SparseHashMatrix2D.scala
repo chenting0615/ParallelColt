@@ -75,12 +75,12 @@ import cern.colt.map.impl.OpenHashMap
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
 @SerialVersionUID(1L)
-class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: Int, initialCapacity: Int, minLoadFactor: Double, maxLoadFactor: Double) extends StrideMatrix2D[T] {
+class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p: Int, initialCapacity: Int, minLoadFactor: Double, maxLoadFactor: Double) extends StrideMatrix2D[T] {
 
   private var elementsVar = new OpenHashMap[Long, T](initialCapacity, minLoadFactor, maxLoadFactor)
 
   try {
-    setUp(rows, columns)
+    setUp(rows_p, columns_p)
   } catch {
     case exc: IllegalArgumentException => if ("matrix too large" != exc.getMessage) throw exc
   }
@@ -89,17 +89,17 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
    * Constructs a matrix with a given number of rows and columns and default
    * memory usage. All entries are initially <tt>0</tt>.
    *
-   * @param rows
+   * @param rows_p
    *            the number of rows the matrix shall have.
-   * @param columns
+   * @param columns_p
    *            the number of columns the matrix shall have.
    * @throws IllegalArgumentException
    *             if
    *             <tt>rows<0 || columns<0 || (double)columns*rows > Integer.MAX_VALUE</tt>
    *             .
    */
-  def this(rows: Int, columns: Int) {
-    this(rows, columns, rows * columns / 1000, 0.2, 0.5)
+  def this(rows_p: Int, columns_p: Int) {
+    this(rows_p, columns_p, rows_p * columns_p / 1000, 0.2, 0.5)
   }
 
   /**
@@ -125,9 +125,9 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
   /**
    * Constructs a matrix with a copy of the given indexes and values.
    *
-   * @param rows
+   * @param rows_p
    *            the number of rows the matrix shall have.
-   * @param columns
+   * @param columns_p
    *            the number of columns the matrix shall have.
    * @param rowIndexes
    *            row indexes
@@ -136,13 +136,15 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
    * @param values
    *            numerical values
    */
-  def this(rows: Int, columns: Int, rowIndexes: Array[Int], columnIndexes: Array[Int], values: Array[T]) {
-    this(rows, columns)
+  def this(rows_p: Int, columns_p: Int, rowIndexes: Array[Int], columnIndexes: Array[Int], values: Array[T]) {
+    this(rows_p, columns_p)
     insert(rowIndexes, columnIndexes, values)
   }
 
+  def numeric = implicitly[Numeric[T]]
+
   override def assignConstant(value: T) = {
-    if (this.isNoView && value == zero)
+    if (this.isNoView && value == numeric.zero)
       this.elementsVar.clear()
     else {
       // This next line causes infinite loop in scala 2.10.  Compiler bug.
@@ -275,7 +277,7 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
       //super.forEachNonZeroRowMajor(function)
       for (r <- 0 until rowsVar; c <- 0 until columnsVar) {
         val value = getQuick(r, c)
-        if (value != zero) {
+        if (value != numeric.zero) {
           val a = function.apply(r, c, value)
           if (a != value) setQuick(r, c, a)
         }
@@ -297,7 +299,7 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
   def setQuick(row: Int, column: Int, value: T) {
     synchronized {
       val index = toRawIndex(row, column).toLong
-      if (value == zero)
+      if (value == numeric.zero)
         elementsVar.remove(index)
       else
         elementsVar.put(index, value)
@@ -311,7 +313,7 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
       .append('\n')
     for (r <- 0 until rows; c <- 0 until columns) {
       val elem = getQuick(r, c)
-      if (elem != zero) {
+      if (elem != numeric.zero) {
         builder.append('(').append(r).append(',').append(c)
           .append(')')
           .append('\t')
@@ -336,12 +338,12 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
         throw new IndexOutOfBoundsException("row: " + row + ", column: " + column + "rowsxcolumns=" + rows + "x" + columns)
       }
       val index = toRawIndex(row, column).toLong
-      if (value != zero) {
+      if (value != numeric.zero) {
         elementsVar.put(index, value)
       }
       else {
         val elem = elementsVar.get(index)
-        if (elem != zero) {
+        if (elem != numeric.zero) {
           elementsVar.remove(index)
         }
       }
@@ -408,5 +410,21 @@ class SparseHashMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: 
   def viewColumn(column: Int) = {
     checkColumn(column)
     viewTranspose().viewRow(column)
+  }
+
+  def viewSelection(rowIndexes: Array[Int], columnIndexes: Array[Int]): AbstractMatrix2D[T] = {
+    val viewRows = if (rowIndexes == null) rowsVar else rowIndexes.length
+    val viewColumns = if (columnIndexes == null) columnsVar else columnIndexes.length
+    val view = new WrapperMatrix2D[T](this, viewRows, viewColumns) {
+      override def remapIndexes(row: Int, column: Int) = {
+        (if (rowIndexes == null) row else rowIndexes(row), if (columnIndexes == null) column else columnIndexes(column))
+      }
+    }
+    view
+  }
+
+  def toArray: Array[Array[T]] = {
+    val values = Array.ofDim[T](rows, columns)
+    toArray(values)
   }
 }

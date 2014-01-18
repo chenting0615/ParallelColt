@@ -16,10 +16,7 @@ import cern.colt.list.impl.ArrayList
  * @version 1.0, 09/24/99
  */
 @SerialVersionUID(1L)
-abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matrix1D[T] {
-
-  val numeric = implicitly[Numeric[T]]
-  val zero = numeric.zero
+trait AbstractMatrix1D[@specialized T] extends Matrix1D[T] {
 
   /**
    the number of cells this matrix (view) has
@@ -142,7 +139,7 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
    */
   def numNonZero: Long = {
     var cardinality = 0L
-    for (i <- 0 until size.toInt) if (getQuick(i) != zero) cardinality += 1
+    for (i <- 0 until size.toInt) if (getQuick(i) != numeric.zero) cardinality += 1
     cardinality
   }
 
@@ -257,20 +254,6 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
   }
 
   /**
-   * Constructs and returns a 1-dimensional array containing the cell values.
-   * The values are copied. So subsequent changes in <tt>values</tt> are not
-   * reflected in the matrix, and vice-versa. The returned array
-   * <tt>values</tt> has the form <br>
-   * <tt>for (int i=0; i < size(); i++) values[i] = get(i);</tt>
-   *
-   * @return an array filled with the values of the cells.
-   */
-  def toArray: Array[T] = {
-    val values = Array.ofDim[T](size.toInt)
-    toArray(values)
-  }
-
-  /**
    * Fills the cell values into the specified 1-dimensional array. The values
    * are copied. So subsequent changes in <tt>values</tt> are not reflected in
    * the matrix, and vice-versa. After this call returns the array
@@ -365,7 +348,7 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
   override def forEachNonZero(function: Function2[Int, T, T]) = {
     for(idx <- 0 until sizeVar) {
       val oldValue = getQuick(idx)
-      if (oldValue != zero) {
+      if (oldValue != numeric.zero) {
         val newValue = function(idx, oldValue)
         if (newValue != oldValue)
           setQuick(idx, newValue)
@@ -410,7 +393,7 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
   def iteratorNonZeros: IndexIterator1D[T] = new AbstractIndexIterator1D() {
     def checkIndex(): Boolean = {
       val value = getQuick(indexVar)
-      value != zero
+      value != numeric.zero
     }
   }
 
@@ -421,7 +404,7 @@ abstract class AbstractMatrix1D[@specialized T: Manifest: Numeric] extends Matri
   def iteratorNonZeros(condition: Procedure2[Int, T]): IndexIterator1D[T] = new AbstractIndexIterator1D() {
     def checkIndex(): Boolean = {
       val value = getQuick(indexVar)
-      value != zero && condition(indexVar, value)
+      value != numeric.zero && condition(indexVar, value)
     }
   }
 

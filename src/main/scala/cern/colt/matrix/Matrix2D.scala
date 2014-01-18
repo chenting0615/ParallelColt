@@ -14,6 +14,8 @@ import cern.colt.function.{Matrix1DProcedure, Procedure3}
 @SerialVersionUID(1L)
 trait Matrix2D[@specialized T] extends Matrix[T] {
 
+  def numeric: Numeric[T]
+
   /**
    * @return Returns true if this matrix stores cells in row-major order.  Returns false if this
    *         matrix stores cells in column-major order.
@@ -684,6 +686,12 @@ trait Matrix2D[@specialized T] extends Matrix[T] {
    * @return a vector of columns of this matrix.
    */
   def vectorize(): Matrix1D[T]
+
+  /**
+   * Returns a string representation of the matrix's shape.
+   */
+  def toShapeString: String = rows + " x " + columns + " matrix"
+
 
   /**
    * Sanity check for operations requiring a column index to be within bounds.

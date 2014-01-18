@@ -6,7 +6,7 @@ import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
 
 /**
  * Function objects to be passed to generic methods. Contains the functions of
- * java.lang.Math as function objects, as well as a few more basic
+ * java.lang.math as function objects, as well as a few more basic
  * functions.
  * <p>
  * Function objects conveniently allow to express arbitrary functions in a
@@ -80,7 +80,7 @@ import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
  * <pre>
  * new DoubleDoubleFunction() {
  *     public final double apply(double a, double b) {
- *         return Math.sin(a) + Math.pow(Math.cos(b), 2);
+ *         return math.sin(a) + math.pow(math.cos(b), 2);
  *     }
  * }
  * </pre>
@@ -92,14 +92,14 @@ import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
  * // should yield 1.4399560356056456 in all cases
  * double a = 0.5;
  * double b = 0.2;
- * double v = Math.sin(a) + Math.pow(Math.cos(b), 2);
+ * double v = math.sin(a) + math.pow(math.cos(b), 2);
  * System.out.println(v);
  * Functions F = Functions.functions;
  * DoubleDoubleFunction f = F.chain(F.plus, F.sin, F.chain(F.square, F.cos));
  * System.out.println(f.apply(a, b));
  * DoubleDoubleFunction g = new DoubleDoubleFunction() {
  *     public double apply(double a, double b) {
- *         return Math.sin(a) + Math.pow(Math.cos(b), 2);
+ *         return math.sin(a) + math.pow(math.cos(b), 2);
  *     }
  * };
  * System.out.println(g.apply(a, b));
@@ -141,7 +141,7 @@ import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
  * <td bgcolor="#FF9966">
  * <tt>F.chain(F.abs,F.chain(F.plus,F.sin,F.chain(F.square,F.cos)))</tt></td>
  * <td bgcolor="#FF9966">
- * <tt>Math.abs(Math.sin(a) + Math.pow(Math.cos(b),2))</tt></td>
+ * <tt>math.abs(math.sin(a) + math.pow(math.cos(b),2))</tt></td>
  * <td bgcolor="#FF9966">&nbsp;</td>
  * <td bgcolor="#FF9966">&nbsp;</td>
  * </tr>
@@ -164,67 +164,67 @@ import cern.colt.function.ProcedureTypes.DoubleDoubleProcedure
 object DoubleFunctions {
 
   /**
-   * Function that returns <tt>Math.abs(a)</tt>.
+   * Function that returns <tt>math.abs(a)</tt>.
    */
   val abs = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.abs(a)
+    def apply(a: Double): Double = math.abs(a)
   }
 
   /**
-   * Function that returns <tt>Math.acos(a)</tt>.
+   * Function that returns <tt>math.acos(a)</tt>.
    */
   val acos = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.acos(a)
+    def apply(a: Double): Double = math.acos(a)
   }
 
   /**
-   * Function that returns <tt>Math.asin(a)</tt>.
+   * Function that returns <tt>math.asin(a)</tt>.
    */
   val asin = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.asin(a)
+    def apply(a: Double): Double = math.asin(a)
   }
 
   /**
-   * Function that returns <tt>Math.atan(a)</tt>.
+   * Function that returns <tt>math.atan(a)</tt>.
    */
   val atan = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.atan(a)
+    def apply(a: Double): Double = math.atan(a)
   }
 
   /**
-   * Function that returns <tt>Math.ceil(a)</tt>.
+   * Function that returns <tt>math.ceil(a)</tt>.
    */
   val ceil = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.ceil(a)
+    def apply(a: Double): Double = math.ceil(a)
   }
 
   /**
-   * Function that returns <tt>Math.cos(a)</tt>.
+   * Function that returns <tt>math.cos(a)</tt>.
    */
   val cos = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.cos(a)
+    def apply(a: Double): Double = math.cos(a)
   }
 
   /**
-   * Function that returns <tt>Math.exp(a)</tt>.
+   * Function that returns <tt>math.exp(a)</tt>.
    */
   val exp = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.exp(a)
+    def apply(a: Double): Double = math.exp(a)
   }
 
   /**
-   * Function that returns <tt>Math.floor(a)</tt>.
+   * Function that returns <tt>math.floor(a)</tt>.
    */
   val floor = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.floor(a)
+    def apply(a: Double): Double = math.floor(a)
   }
 
   /**
@@ -244,19 +244,19 @@ object DoubleFunctions {
   }
 
   /**
-   * Function that returns <tt>Math.log(a)</tt>.
+   * Function that returns <tt>math.log(a)</tt>.
    */
   val log = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.log(a)
+    def apply(a: Double): Double = math.log(a)
   }
 
   /**
-   * Function that returns <tt>Math.log(a) / Math.log(2)</tt>.
+   * Function that returns <tt>math.log(a) / math.log(2)</tt>.
    */
   val log2 = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.log(a) * 1.4426950408889634
+    def apply(a: Double): Double = math.log(a) * 1.4426950408889634
   }
 
   /**
@@ -268,11 +268,11 @@ object DoubleFunctions {
   }
 
   /**
-   * Function that returns <tt>Math.rint(a)</tt>.
+   * Function that returns <tt>math.rint(a)</tt>.
    */
   val rint = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.rint(a)
+    def apply(a: Double): Double = math.rint(a)
   }
 
   /**
@@ -284,19 +284,19 @@ object DoubleFunctions {
   }
 
   /**
-   * Function that returns <tt>Math.sin(a)</tt>.
+   * Function that returns <tt>math.sin(a)</tt>.
    */
   val sin = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.sin(a)
+    def apply(a: Double): Double = math.sin(a)
   }
 
   /**
-   * Function that returns <tt>Math.sqrt(a)</tt>.
+   * Function that returns <tt>math.sqrt(a)</tt>.
    */
   val sqrt = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.sqrt(a)
+    def apply(a: Double): Double = math.sqrt(a)
   }
 
   /**
@@ -308,19 +308,19 @@ object DoubleFunctions {
   }
 
   /**
-   * Function that returns <tt>Math.tan(a)</tt>.
+   * Function that returns <tt>math.tan(a)</tt>.
    */
   val tan = new Function1[Double, Double]() {
 
-    def apply(a: Double): Double = Math.tan(a)
+    def apply(a: Double): Double = math.tan(a)
   }
 
   /**
-   * Function that returns <tt>Math.atan2(a,b)</tt>.
+   * Function that returns <tt>math.atan2(a,b)</tt>.
    */
   val atan2 = new DoubleDoubleFunction() {
 
-    def apply(a: Double, b: Double): Double = Math.atan2(a, b)
+    def apply(a: Double, b: Double): Double = math.atan2(a, b)
   }
 
   /**
@@ -364,11 +364,11 @@ object DoubleFunctions {
   }
 
   /**
-   * Function that returns <tt>Math.IEEEremainder(a,b)</tt>.
+   * Function that returns <tt>math.IEEEremainder(a,b)</tt>.
    */
   val IEEEremainder = new DoubleDoubleFunction() {
 
-    def apply(a: Double, b: Double): Double = Math.IEEEremainder(a, b)
+    def apply(a: Double, b: Double): Double = math.IEEEremainder(a, b)
   }
 
   /**
@@ -404,27 +404,27 @@ object DoubleFunctions {
   }
 
   /**
-   * Function that returns <tt>Math.log(a) / Math.log(b)</tt>.
+   * Function that returns <tt>math.log(a) / math.log(b)</tt>.
    */
   val lg = new DoubleDoubleFunction() {
 
-    def apply(a: Double, b: Double): Double = Math.log(a) / Math.log(b)
+    def apply(a: Double, b: Double): Double = math.log(a) / math.log(b)
   }
 
   /**
-   * Function that returns <tt>Math.max(a,b)</tt>.
+   * Function that returns <tt>math.max(a,b)</tt>.
    */
   val max = new DoubleDoubleFunction() {
 
-    def apply(a: Double, b: Double): Double = Math.max(a, b)
+    def apply(a: Double, b: Double): Double = math.max(a, b)
   }
 
   /**
-   * Function that returns <tt>Math.min(a,b)</tt>.
+   * Function that returns <tt>math.min(a,b)</tt>.
    */
   val min = new DoubleDoubleFunction() {
 
-    def apply(a: Double, b: Double): Double = Math.min(a, b)
+    def apply(a: Double, b: Double): Double = math.min(a, b)
   }
 
   /**
@@ -470,19 +470,19 @@ object DoubleFunctions {
   val plus = plusMultSecond(1)
 
   /**
-   * Function that returns <tt>Math.abs(a) + Math.abs(b)</tt>.
+   * Function that returns <tt>math.abs(a) + math.abs(b)</tt>.
    */
   val plusAbs = new DoubleDoubleFunction() {
 
-    def apply(a: Double, b: Double): Double = Math.abs(a) + Math.abs(b)
+    def apply(a: Double, b: Double): Double = math.abs(a) + math.abs(b)
   }
 
   /**
-   * Function that returns <tt>Math.pow(a,b)</tt>.
+   * Function that returns <tt>math.pow(a,b)</tt>.
    */
   val pow = new DoubleDoubleFunction() {
 
-    def apply(a: Double, b: Double): Double = Math.pow(a, b)
+    def apply(a: Double, b: Double): Double = math.pow(a, b)
   }
 
   /**
@@ -490,13 +490,13 @@ object DoubleFunctions {
    */
   val hypot =  new DoubleDoubleFunction() {
     def apply(a: Double, b: Double) = {
-      if (Math.abs(a) > Math.abs(b)) {
+      if (math.abs(a) > math.abs(b)) {
         val r = b / a
-        Math.abs(a) * Math.sqrt(1 + r * r)
+        math.abs(a) * math.sqrt(1 + r * r)
       }
       else if (b != 0) {
         val r = a / b
-        Math.abs(b) * Math.sqrt(1 + r * r)
+        math.abs(b) * math.sqrt(1 + r * r)
       }
       else
         0.0
@@ -625,7 +625,7 @@ object DoubleFunctions {
   def demo1() {
     val a = 0.5
     val b = 0.2
-    val v = Math.sin(a) + Math.pow(Math.cos(b), 2)
+    val v = math.sin(a) + math.pow(math.cos(b), 2)
     println(v)
     val f = DoubleFunctions.chain(DoubleFunctions.plus, DoubleFunctions.sin, DoubleFunctions.chain(DoubleFunctions.square,
       DoubleFunctions.cos))
@@ -633,7 +633,7 @@ object DoubleFunctions {
     val g = new DoubleDoubleFunction() {
 
       def apply(x: Double, y: Double): Double = {
-        Math.sin(x) + Math.pow(Math.cos(y), 2)
+        math.sin(x) + math.pow(math.cos(y), 2)
       }
     }
     println(g.apply(a, b))
@@ -650,7 +650,7 @@ object DoubleFunctions {
     println("\n\n")
     var a = 0.0
     var b = 0.0
-    val v = Math.abs(Math.sin(a) + Math.pow(Math.cos(b), 2))
+    val v = math.abs(math.sin(a) + math.pow(math.cos(b), 2))
     println(v)
     val f = DoubleFunctions.chain(DoubleFunctions.abs, DoubleFunctions.chain(DoubleFunctions.plus, DoubleFunctions.sin,
       DoubleFunctions.chain(DoubleFunctions.square, DoubleFunctions.cos)))
@@ -658,7 +658,7 @@ object DoubleFunctions {
     val g = new DoubleDoubleFunction() {
 
       def apply(x: Double, y: Double): Double = {
-        Math.abs(Math.sin(x) + Math.pow(Math.cos(y), 2))
+        math.abs(math.sin(x) + math.pow(math.cos(y), 2))
       }
     }
     println(g.apply(a, b))
@@ -681,7 +681,7 @@ object DoubleFunctions {
     sum = 0
     i = size
     while (i >= 0) {
-      sum += Math.abs(Math.sin(a) + Math.pow(Math.cos(b), 2))
+      sum += math.abs(math.sin(a) + math.pow(math.cos(b), 2))
       a += 1
       b += 1
       i -= 1
@@ -750,13 +750,13 @@ object DoubleFunctions {
   }
 
   /**
-   * Constructs a function that returns <tt>Math.IEEEremainder(a,b)</tt>.
+   * Constructs a function that returns <tt>math.IEEEremainder(a,b)</tt>.
    * <tt>a</tt> is a variable, <tt>b</tt> is fixed.
    */
   def IEEEremainder(b: Double): Function1[Double, Double] = {
     new Function1[Double, Double]() {
 
-      def apply(a: Double): Double = Math.IEEEremainder(a, b)
+      def apply(a: Double): Double = math.IEEEremainder(a, b)
     }
   }
 
@@ -811,15 +811,15 @@ object DoubleFunctions {
   }
 
   /**
-   * Constructs a function that returns <tt><tt>Math.log(a) / Math.log(b)</tt>
+   * Constructs a function that returns <tt><tt>math.log(a) / math.log(b)</tt>
    * </tt>. <tt>a</tt> is a variable, <tt>b</tt> is fixed.
    */
   def lg(b: Double): Function1[Double, Double] = {
     new Function1[Double, Double]() {
 
-      private val logInv = 1 / Math.log(b)
+      private val logInv = 1 / math.log(b)
 
-      def apply(a: Double): Double = Math.log(a) * logInv
+      def apply(a: Double): Double = math.log(a) * logInv
     }
   }
 
@@ -832,24 +832,24 @@ object DoubleFunctions {
   }
 
   /**
-   * Constructs a function that returns <tt>Math.max(a,b)</tt>. <tt>a</tt> is
+   * Constructs a function that returns <tt>math.max(a,b)</tt>. <tt>a</tt> is
    * a variable, <tt>b</tt> is fixed.
    */
   def max(b: Double): Function1[Double, Double] = {
     new Function1[Double, Double]() {
 
-      def apply(a: Double): Double = Math.max(a, b)
+      def apply(a: Double): Double = math.max(a, b)
     }
   }
 
   /**
-   * Constructs a function that returns <tt>Math.min(a,b)</tt>. <tt>a</tt> is
+   * Constructs a function that returns <tt>math.min(a,b)</tt>. <tt>a</tt> is
    * a variable, <tt>b</tt> is fixed.
    */
   def min(b: Double): Function1[Double, Double] = {
     new Function1[Double, Double]() {
 
-      def apply(a: Double): Double = Math.min(a, b)
+      def apply(a: Double): Double = math.min(a, b)
     }
   }
 
@@ -917,13 +917,13 @@ object DoubleFunctions {
   def plusMultFirst(constant: Double): DoubleDoubleFunction = new DoublePlusMultFirst(constant)
 
   /**
-   * Constructs a function that returns <tt>Math.pow(a,b)</tt>. <tt>a</tt> is
+   * Constructs a function that returns <tt>math.pow(a,b)</tt>. <tt>a</tt> is
    * a variable, <tt>b</tt> is fixed.
    */
   def pow(b: Double): Function1[Double, Double] = {
     new Function1[Double, Double]() {
 
-      def apply(a: Double): Double = Math.pow(a, b)
+      def apply(a: Double): Double = math.pow(a, b)
     }
   }
 
@@ -943,12 +943,12 @@ object DoubleFunctions {
    * function evaluating methods.
    */
   def random(): Function1[Double, Double] = new Function1[Double, Double] {
-    def apply(argument: Double): Double = Math.random()
+    def apply(argument: Double): Double = math.random
   }
 
   /**
    * Constructs a function that returns the number rounded to the given
-   * precision; <tt>Math.rint(a/precision)*precision</tt>. Examples:
+   * precision; <tt>math.rint(a/precision)*precision</tt>. Examples:
    *
    * <pre>
    * precision = 0.01 rounds 0.012 --&gt; 0.01, 0.018 --&gt; 0.02
@@ -957,7 +957,7 @@ object DoubleFunctions {
    */
   def round(precision: Double): Function1[Double, Double] = {
     new Function1[Double, Double]() {
-      def apply(a: Double): Double = Math.rint(a / precision) * precision
+      def apply(a: Double): Double = math.rint(a / precision) * precision
     }
   }
 

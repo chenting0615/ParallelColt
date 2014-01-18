@@ -2,11 +2,9 @@ package cern.colt.matrix
 
 import java.util.concurrent.{Callable, Future}
 import java.util.logging.Logger
-import cern.colt.function.{VectorFunction, VectorVectorFunction}
+import cern.colt.function.{Procedure1, VectorFunction, VectorVectorFunction}
 import cern.colt.function.ProcedureTypes._
-import MatrixOperators._
-import cern.colt.matrix.MatrixTypes.{DoubleMatrix1D, DoubleMatrix2D}
-import cern.colt.function.FunctionTypes.{IntDoubleFunction, DoubleFunction, IntIntDoubleFunction, DoubleDoubleFunction}
+import MatrixChecks._
 
 /**
  * This class contains logic for processing rows and/or columns of a matrix.
@@ -834,22 +832,22 @@ class MatrixProcessor {
     }
   }
 
-  def aggregateCells(m: DoubleMatrix1D, aggr: DoubleDoubleFunction, cellFunction: DoubleFunction, cond: DoubleProcedure): Double = {
+  def aggregateCells[T: Manifest: Numeric](m: Matrix1D[T], aggr: Function2[T, T, T], cellFunction: Function1[T, T], cond: Procedure1[T]): T = {
     val totalItemCount = m.size.toInt
     if (calculateIndexesInParallel(totalItemCount) && canReadInParallel(m)) {
       logger.finest("Processing in parallel (" + totalItemCount + ")...")
 
       val threadCount = math.min(ConcurrencyParams.getNumberOfThreads, totalItemCount)
-      val futures = new Array[Future[_]](threadCount)
+      val futures = new Array[Future[T]](threadCount)
       // This rounds down items-per-iteration.  It leaves any extra items in the last iteration.
       val itemsPerIteration = totalItemCount / threadCount
 
       (0 until threadCount).foreach(threadIdx => {
         val iterationStart = threadIdx * itemsPerIteration
         val iterationEnd = if (threadIdx == threadCount - 1) totalItemCount else iterationStart + itemsPerIteration
-        futures(threadIdx) = ConcurrencyParams.submit(new Callable[Double]() {
-          def call(): Double = {
-            var aggrValue = Double.NaN
+        futures(threadIdx) = ConcurrencyParams.submit(new Callable[T]() {
+          def call(): T = {
+            var aggrValue = m.numeric.zero
             var doAggregation = false
             (iterationStart until iterationEnd).foreach(rawIdx => {
               val value = m.getQuick(rawIdx)
@@ -872,7 +870,7 @@ class MatrixProcessor {
     else {
       logger.finest("Processing sequentially (" + totalItemCount + ")...")
 
-      var aggrValue = Double.NaN
+      var aggrValue = m.numeric.zero
       var doAggregation = false
       for (idx <- 0 until totalItemCount) {
         val value = m.getQuick(idx)
@@ -890,22 +888,22 @@ class MatrixProcessor {
     }
   }
 
-  def aggregateCells(m: DoubleMatrix1D, aggr: DoubleDoubleFunction, cellFunction: IntDoubleFunction, cond: DoubleProcedure): Double = {
+  def aggregateCells[T: Manifest: Numeric](m: Matrix1D[T], aggr: Function2[T, T, T], cellFunction: Function2[Int, T, T], cond: Procedure1[T]): T = {
     val totalItemCount = m.size.toInt
     if (calculateIndexesInParallel(totalItemCount) && canReadInParallel(m)) {
       logger.finest("Processing in parallel (" + totalItemCount + ")...")
 
       val threadCount = math.min(ConcurrencyParams.getNumberOfThreads, totalItemCount)
-      val futures = new Array[Future[_]](threadCount)
+      val futures = new Array[Future[T]](threadCount)
       // This rounds down items-per-iteration.  It leaves any extra items in the last iteration.
       val itemsPerIteration = totalItemCount / threadCount
 
       (0 until threadCount).foreach(threadIdx => {
         val iterationStart = threadIdx * itemsPerIteration
         val iterationEnd = if (threadIdx == threadCount - 1) totalItemCount else iterationStart + itemsPerIteration
-        futures(threadIdx) = ConcurrencyParams.submit(new Callable[Double]() {
-          def call(): Double = {
-            var aggrValue = Double.NaN
+        futures(threadIdx) = ConcurrencyParams.submit(new Callable[T]() {
+          def call(): T = {
+            var aggrValue = m.numeric.zero
             var doAggregation = false
             (iterationStart until iterationEnd).foreach(rawIdx => {
               val value = m.getQuick(rawIdx)
@@ -928,7 +926,7 @@ class MatrixProcessor {
     else {
       logger.finest("Processing sequentially (" + totalItemCount + ")...")
 
-      var aggrValue = Double.NaN
+      var aggrValue = m.numeric.zero
       var doAggregation = false
       for (idx <- 0 until totalItemCount) {
         val value = m.getQuick(idx)
@@ -946,7 +944,7 @@ class MatrixProcessor {
     }
   }
 
-  def aggregateCells(m: DoubleMatrix2D, aggr: DoubleDoubleFunction, cellFunction: DoubleFunction, cond: DoubleProcedure): Double = {
+  def aggregateCells[T: Manifest: Numeric](m: Matrix2D[T], aggr: Function2[T, T, T], cellFunction: Function1[T, T], cond: Procedure1[T]): T = {
     val xItemCount = m.rows
     val yItemCount = m.columns
     val totalItemCount = xItemCount*yItemCount
@@ -954,16 +952,16 @@ class MatrixProcessor {
       logger.finest("Processing in parallel (" + m.rows + "x" + m.columns + ")...")
 
       val threadCount = math.min(ConcurrencyParams.getNumberOfThreads, totalItemCount)
-      val futures = new Array[Future[_]](threadCount)
+      val futures = new Array[Future[T]](threadCount)
       // This rounds down items-per-iteration.  It leaves any extra items in the last iteration.
       val itemsPerIteration = totalItemCount / threadCount
 
       (0 until threadCount).foreach(threadIdx => {
         val iterationStart = threadIdx * itemsPerIteration
         val iterationEnd = if (threadIdx == threadCount - 1) totalItemCount else iterationStart + itemsPerIteration
-        futures(threadIdx) = ConcurrencyParams.submit(new Callable[Double]() {
-          def call(): Double = {
-            var aggrValue = Double.NaN
+        futures(threadIdx) = ConcurrencyParams.submit(new Callable[T]() {
+          def call(): T = {
+            var aggrValue = m.numeric.zero
             var doAggregation = false
             (iterationStart until iterationEnd).foreach(rawIdx => {
               val xIndex = rawIdx / yItemCount
@@ -988,7 +986,7 @@ class MatrixProcessor {
     else {
       logger.finest("Processing sequentially (" + xItemCount + "x" + yItemCount + ")...")
 
-      var aggrValue = Double.NaN
+      var aggrValue = m.numeric.zero
       var doAggregation = false
       for (r <- 0 until xItemCount) {
           for (c <- 0 until yItemCount) {
@@ -1008,7 +1006,7 @@ class MatrixProcessor {
     }
   }
 
-  def aggregateCells(m: DoubleMatrix2D, aggr: DoubleDoubleFunction, cellFunction: IntIntDoubleFunction, cond: DoubleProcedure): Double = {
+  def aggregateCells[T: Manifest: Numeric](m: Matrix2D[T], aggr: Function2[T, T, T], cellFunction: Function3[Int, Int, T, T], cond: Procedure1[T]): T = {
     val xItemCount = m.rows
     val yItemCount = m.columns
     val totalItemCount = xItemCount*yItemCount
@@ -1016,16 +1014,16 @@ class MatrixProcessor {
       logger.finest("Processing in parallel (" + m.rows + "x" + m.columns + ")...")
 
       val threadCount = math.min(ConcurrencyParams.getNumberOfThreads, totalItemCount)
-      val futures = new Array[Future[_]](threadCount)
+      val futures = new Array[Future[T]](threadCount)
       // This rounds down items-per-iteration.  It leaves any extra items in the last iteration.
       val itemsPerIteration = totalItemCount / threadCount
 
       (0 until threadCount).foreach(threadIdx => {
         val iterationStart = threadIdx * itemsPerIteration
         val iterationEnd = if (threadIdx == threadCount - 1) totalItemCount else iterationStart + itemsPerIteration
-        futures(threadIdx) = ConcurrencyParams.submit(new Callable[Double]() {
-          def call(): Double = {
-            var aggrValue = Double.NaN
+        futures(threadIdx) = ConcurrencyParams.submit(new Callable[T]() {
+          def call(): T = {
+            var aggrValue = m.numeric.zero
             var doAggregation = false
             (iterationStart until iterationEnd).foreach(rawIdx => {
               val xIndex = rawIdx / yItemCount
@@ -1050,7 +1048,7 @@ class MatrixProcessor {
     else {
       logger.finest("Processing sequentially (" + xItemCount + "x" + yItemCount + ")...")
 
-      var aggrValue = Double.NaN
+      var aggrValue = m.numeric.zero
       var doAggregation = false
       for (r <- 0 until xItemCount) {
           for (c <- 0 until yItemCount) {

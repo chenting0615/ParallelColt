@@ -111,7 +111,7 @@ import cern.colt.matrix.Matrix2D
  * @version 0.9, 04/14/2000
  */
 @SerialVersionUID(1L)
-abstract class SparsePointerIndexMatrix2D[T: Manifest: Numeric](rowMajor: Boolean, rows_p: Int, columns_p: Int, nzmax: Int) extends RemappedMatrix2D[T] {
+abstract class SparsePointerIndexMatrix2D[T: Manifest: Numeric](rowMajor: Boolean, rows_p: Int, columns_p: Int, nzmax: Int) extends AbstractMatrix2D[T] {
 
   protected var majorDimPointers = Array.ofDim[Int](if (rowMajor) rows_p + 1 else columns_p + 1)
 
@@ -145,7 +145,7 @@ abstract class SparsePointerIndexMatrix2D[T: Manifest: Numeric](rowMajor: Boolea
   override def isRowMajor = rowMajor
 
   override def assignConstant(value: T) = {
-    if (value == zero) {
+    if (value == numeric.zero) {
       util.Arrays.fill(majorDimPointers, 0)
       minorDimIndexes.clear()
       values.clear()
@@ -253,7 +253,7 @@ abstract class SparsePointerIndexMatrix2D[T: Manifest: Numeric](rowMajor: Boolea
       minor = row
     }
     val idx = searchForIndex(major, minor)
-    if (idx >= 0) values.getQuick(idx) else zero
+    if (idx >= 0) values.getQuick(idx) else numeric.zero
   }
 
   override def setQuick(row: Int, column: Int, value: T) {
@@ -269,7 +269,7 @@ abstract class SparsePointerIndexMatrix2D[T: Manifest: Numeric](rowMajor: Boolea
     }
     var idx = searchForIndex(major, minor)
     if (idx >= 0) {
-      if (value == zero) {
+      if (value == numeric.zero) {
         minorDimIndexes.remove(idx)
         values.remove(idx)
         for(i <- major+1 until majorDimPointers.length) {
@@ -279,7 +279,7 @@ abstract class SparsePointerIndexMatrix2D[T: Manifest: Numeric](rowMajor: Boolea
       else
         values.setQuick(idx, value)
     }
-    else if (value != zero) {
+    else if (value != numeric.zero) {
       idx = -idx - 1
       minorDimIndexes.beforeInsert(idx, minor)
       values.beforeInsert(idx, value)

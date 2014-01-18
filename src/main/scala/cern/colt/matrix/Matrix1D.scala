@@ -16,6 +16,8 @@ import cern.colt.function.{Procedure2, Procedure1}
 @SerialVersionUID(1L)
 trait Matrix1D[@specialized T] extends Matrix[T] {
 
+  def numeric: Numeric[T]
+
   /**
    * Sanity check for operations requiring an index to be within bounds.
    *
@@ -81,7 +83,7 @@ trait Matrix1D[@specialized T] extends Matrix[T] {
   /**
    * Returns a string representation of the receiver's shape.
    */
-  def toShapeString: String = AbstractFormatter.shape(this)
+  def toShapeString: String = size + " matrix"
 
   /**
    * Sets all cells to the state specified by <tt>value</tt>.

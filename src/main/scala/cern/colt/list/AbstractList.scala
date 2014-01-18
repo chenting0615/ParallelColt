@@ -14,9 +14,8 @@ package cern.colt.list
  * @see java.util.Vector
  * @see java.util.Arrays
  */
-@specialized
 @SerialVersionUID(1L)
-abstract class AbstractList[@specialized T: Manifest] extends AbstractCollection[T] {
+trait AbstractList[@specialized T] extends AbstractCollection[T] {
 
   /**
    * Checks if the given index is in range.

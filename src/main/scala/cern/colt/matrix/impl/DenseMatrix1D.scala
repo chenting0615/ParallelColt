@@ -40,6 +40,9 @@ import cern.colt.matrix._
 @SerialVersionUID(1L)
 class DenseMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, protected var elementsVar: Array[T], zero_p: Int, stride_p: Int, isView: Boolean) extends StrideMatrix1D[T] {
 
+  // This has to be defined because can't have nested @specialized classes.
+  def numeric = implicitly[Numeric[T]]
+
   isNoView = ! isView
   setUp(size_p, zero_p, stride_p)
 
@@ -126,7 +129,7 @@ class DenseMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, protected va
   override def numNonZero: Long = {
     var cardinality = 0
     for (i <- 0 until sizeVar)
-      if (elementsVar(toRawIndex(i)) != zero) cardinality += 1
+      if (elementsVar(toRawIndex(i)) != numeric.zero) cardinality += 1
     cardinality
   }
 
@@ -135,7 +138,7 @@ class DenseMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, protected va
     var idx = zeroVar
     if (rem == 1) {
       val value = elementsVar(idx)
-      if (value != zero) {
+      if (value != numeric.zero) {
         elementsVar(idx) = f.apply(0, value)
       }
       idx += stride
@@ -143,11 +146,11 @@ class DenseMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, protected va
     var i = rem
     while (i < sizeVar) {
       var value = elementsVar(idx)
-      if (value != zero)
+      if (value != numeric.zero)
         elementsVar(idx) = f.apply(i, value)
       idx += strideVar
       value = elementsVar(idx)
-      if (value != zero)
+      if (value != numeric.zero)
         elementsVar(idx) = f.apply(i + 1, value)
       idx += strideVar
       i += 2
@@ -174,12 +177,30 @@ class DenseMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, protected va
     elementsVar(zeroVar + index * strideVar) = value
   }
 
+  def toArray: Array[T] = {
+    val values = Array.ofDim[T](size.toInt)
+    toArray(values)
+  }
+
   override def toArray(values: Array[T]): Array[T] = {
     checkSize(values.length)
     if (this.isNoView)
       System.arraycopy(this.elementsVar, 0, values, 0, this.elementsVar.length)
-    else
-      super.toArray(values)
+    else {
+      for (i <- 0 until size.toInt) {
+        values(i) = getQuick(i)
+      }
+    }
     values
+  }
+
+  def viewSelection(indexes: Array[Int]): Matrix1D[T] = {
+    if (indexes == null)
+      return this
+    checkIndexes(indexes)
+    new WrapperMatrix1D[T](this) {
+      sizeVar = indexes.size
+      override def remapIndex(index: Int) = indexes(index)
+    }
   }
 }

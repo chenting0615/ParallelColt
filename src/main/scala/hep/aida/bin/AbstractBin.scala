@@ -16,7 +16,9 @@ package hep.aida.bin
  * @version 0.9, 03-Jul-99
  */
 @SerialVersionUID(1L)
-abstract class AbstractBin[@specialized T: Numeric] extends cern.colt.PersistentObject {
+trait AbstractBin[@specialized T] extends cern.colt.PersistentObject {
+
+  def numeric: Numeric[T]
 
   /**
    * Returns <tt>center(0)</tt>.
@@ -38,7 +40,7 @@ abstract class AbstractBin[@specialized T: Numeric] extends cern.colt.Persistent
    * @param dimension
    *            the dimension to be considered (zero based).
    */
-  def center(dimension: Int): T = implicitly[Numeric[T]].one
+  def center(dimension: Int): T = numeric.one
 
   /**
    * Removes all elements from the receiver. The receiver will be empty after
@@ -74,7 +76,7 @@ abstract class AbstractBin[@specialized T: Numeric] extends cern.colt.Persistent
    * @param dimension
    *            the dimension to be considered.
    */
-  def error(dimension: Int): T = implicitly[Numeric[T]].zero
+  def error(dimension: Int): T = numeric.zero
 
   /**
    * Returns whether a client can obtain all elements added to the receiver.
@@ -101,7 +103,7 @@ abstract class AbstractBin[@specialized T: Numeric] extends cern.colt.Persistent
    * @param dimension
    *            the index of the considered dimension (zero based);
    */
-  def offset(dimension: Int): T = implicitly[Numeric[T]].one
+  def offset(dimension: Int): T = numeric.one
 
   /**
    * Returns the number of elements contained.
@@ -145,5 +147,5 @@ abstract class AbstractBin[@specialized T: Numeric] extends cern.colt.Persistent
    * @param dimension
    *            the dimension to be considered.
    */
-  def value(dimension: Int): T = implicitly[Numeric[T]].zero
+  def value(dimension: Int): T = numeric.zero
 }

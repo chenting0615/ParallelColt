@@ -1,7 +1,6 @@
 package cern.colt.matrix.algo
 
 import org.netlib.lapack.LAPACK
-import scala.beans.BeanProperty
 import cern.colt.matrix.MatrixTypes.{DiagonalDoubleMatrix2D, DenseColumnDoubleMatrix2D, DoubleMatrix2D, DenseDoubleMatrix2D}
 
 /**
@@ -33,14 +32,13 @@ class DenseDoubleSingularValueDecomposition(A: DoubleMatrix2D, var wantUV: Boole
 
   private var elementsVt: Array[Double] = _
 
-  @BeanProperty
   var info: org.netlib.util.intW = new org.netlib.util.intW(2)
 
   private var m: Int = A.rows
 
   private var n: Int = A.columns
 
-  private var mn: Int = Math.min(m, n)
+  private var mn: Int = math.min(m, n)
 
   private var elementsS: Array[Double] = Array.ofDim[Double](mn)
 
@@ -55,7 +53,7 @@ class DenseDoubleSingularValueDecomposition(A: DoubleMatrix2D, var wantUV: Boole
     elementsA = A.viewTranspose().vectorize().toArray
   }
 
-  val maxmn = Math.max(m, n)
+  val maxmn = math.max(m, n)
 
   var lwork: Int = 0
 
@@ -67,19 +65,19 @@ class DenseDoubleSingularValueDecomposition(A: DoubleMatrix2D, var wantUV: Boole
     if (wantWholeUV) {
       elementsU = Array.ofDim[Double](m * m)
       elementsVt = Array.ofDim[Double](n * n)
-      lwork = 3 * mn * mn + Math.max(maxmn, 4 * mn * mn + 4 * mn) +
+      lwork = 3 * mn * mn + math.max(maxmn, 4 * mn * mn + 4 * mn) +
         maxmn
       work = Array.ofDim[Double](lwork)
       LAPACK.getInstance.dgesdd("A", m, n, elementsA, m, elementsS, elementsU, m, elementsVt, n, work, lwork, iwork, info)
     } else {
       elementsU = Array.ofDim[Double](m * mn)
       elementsVt = Array.ofDim[Double](mn * n)
-      lwork = 3 * mn * mn + Math.max(maxmn, 4 * mn * mn + 4 * mn) + maxmn
+      lwork = 3 * mn * mn + math.max(maxmn, 4 * mn * mn + 4 * mn) + maxmn
       work = Array.ofDim[Double](lwork)
       LAPACK.getInstance.dgesdd("S", m, n, elementsA, m, elementsS, elementsU, m, elementsVt, mn, work, lwork, iwork, info)
     }
   } else {
-    lwork = 3 * mn + Math.max(maxmn, 6 * mn) + maxmn
+    lwork = 3 * mn + math.max(maxmn, 6 * mn) + maxmn
     work = Array.ofDim[Double](lwork)
     LAPACK.getInstance.dgesdd("N", m, n, elementsA, m, elementsS, null, m, null, n, work, lwork, iwork, info)
   }
@@ -174,8 +172,8 @@ class DenseDoubleSingularValueDecomposition(A: DoubleMatrix2D, var wantUV: Boole
    * nonnegligible singular values.
    */
   def rank: Int = {
-    val eps = Math.pow(2.0, -52.0)
-    val tol = Math.max(m, n) * elementsS(0) * eps
+    val eps = math.pow(2.0, -52.0)
+    val tol = math.max(m, n) * elementsS(0) * eps
     var r = 0
     for (i <- 0 until elementsS.length if elementsS(i) > tol) {
       r += 1

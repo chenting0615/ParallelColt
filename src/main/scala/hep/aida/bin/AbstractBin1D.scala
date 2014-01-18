@@ -18,7 +18,7 @@ import cern.jet.stat.tdouble.DoubleDescriptive
  * @version 0.9, 03-Jul-99
  */
 @SerialVersionUID(1L)
-abstract class AbstractBin1D[@specialized T: Numeric] extends AbstractBin[T] {
+trait AbstractBin1D[@specialized T] extends AbstractBin[T] {
 
   /**
    * Adds the specified element to the receiver.
@@ -70,8 +70,8 @@ abstract class AbstractBin1D[@specialized T: Numeric] extends AbstractBin[T] {
     val buf = new StringBuffer()
     buf.append("\nDifferences [percent]")
     buf.append("\nSize: " + relError(size, other.size) + " %")
-    buf.append("\nSum: " + relError(sum, other.sum) + " %")
-    buf.append("\nSumOfSquares: " + relError(sumOfSquares, other.sumOfSquares) +
+    buf.append("\nSum: " + relError(numeric.toDouble(sum), numeric.toDouble(other.sum)) + " %")
+    buf.append("\nSumOfSquares: " + relError(numeric.toDouble(sumOfSquares), numeric.toDouble(other.sumOfSquares)) +
       " %")
     buf.append("\nMin: " + relError(min.toString.toDouble, other.min.toString.toDouble) + " %")
     buf.append("\nMax: " + relError(max.toString.toDouble, other.max.toString.toDouble) + " %")
@@ -104,17 +104,17 @@ abstract class AbstractBin1D[@specialized T: Numeric] extends AbstractBin[T] {
   /**
    * Returns the maximum.
    */
-  def max: Double
+  def max: T
 
   /**
    * Returns the arithmetic mean, which is <tt>Sum( x[i] ) / size()</tt>.
    */
-  def mean: Double = sum / size
+  def mean: Double = numeric.toDouble(sum) / size
 
   /**
    * Returns the minimum.
    */
-  def min: Double
+  def min: T
 
   /**
    * Computes the relative error (in percent) from one measure to another.
@@ -126,7 +126,7 @@ abstract class AbstractBin1D[@specialized T: Numeric] extends AbstractBin[T] {
    * <tt>Math.sqrt( Sum( x[i]*x[i] ) / size() )</tt>.
    */
   def rms: Double = {
-    DoubleDescriptive.rms(size, sumOfSquares)
+    DoubleDescriptive.rms(size, numeric.toDouble(sumOfSquares))
   }
 
   /**
@@ -148,12 +148,12 @@ abstract class AbstractBin1D[@specialized T: Numeric] extends AbstractBin[T] {
   /**
    * Returns the sum of all elements, which is <tt>Sum( x[i] )</tt>.
    */
-  def sum: Double
+  def sum: T
 
   /**
    * Returns the sum of squares, which is <tt>Sum( x[i] * x[i] )</tt>.
    */
-  def sumOfSquares: Double
+  def sumOfSquares: T
 
   /**
    * Returns a String representation of the receiver.
@@ -183,6 +183,6 @@ abstract class AbstractBin1D[@specialized T: Numeric] extends AbstractBin[T] {
    * <tt>Sum( (x[i]-mean())<sup>2</sup> )  /  (size()-1)</tt>.
    */
   def variance: Double = {
-    DoubleDescriptive.sampleVariance(size, sum, sumOfSquares)
+    DoubleDescriptive.sampleVariance(size, numeric.toDouble(sum), numeric.toDouble(sumOfSquares))
   }
 }

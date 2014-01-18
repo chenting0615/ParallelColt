@@ -163,7 +163,7 @@ object DoubleProperty {
 
 class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
 
-  private var toleranceVar: Double = Math.abs(tolerance_p)
+  private var toleranceVar: Double = math.abs(tolerance_p)
 
   /**
    * Checks whether the given matrix <tt>A</tt> is <i>rectangular</i>.
@@ -259,20 +259,20 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
    */
   def generateNonSingular(A: Matrix2D[Double]) {
     checkSquare(A)
-    val min: Int = Math.min(A.rows, A.columns)
+    val min: Int = math.min(A.rows, A.columns)
     for(i <- 0 until min) {
       A.setQuick(i, i, 0.0)
     }
     for(i <- 0 until min) {
-      val rowSum: Double = A.viewRow(i).aggregate(DoubleFunctions.plus, DoubleFunctions.abs)
-      val colSum: Double = A.viewColumn(i).aggregate(DoubleFunctions.plus, DoubleFunctions.abs)
-      A.setQuick(i, i, Math.max(rowSum, colSum) + i + 1)
+      val rowSum = A.viewRow(i).aggregate(DoubleFunctions.plus, DoubleFunctions.abs)
+      val colSum = A.viewColumn(i).aggregate(DoubleFunctions.plus, DoubleFunctions.abs)
+      A.setQuick(i, i, math.max(rowSum, colSum) + i + 1)
     }
   }
 
   @inline
   private def isNonZero(A: Matrix2D[Double], row: Int, column: Int): Boolean = {
-    Math.abs(A.getQuick(row, column)) > toleranceVar
+    math.abs(A.getQuick(row, column)) > toleranceVar
   }
 
   /**
@@ -297,9 +297,9 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
    * Note: Ignores tolerance.
    */
   def isDiagonallyDominantByColumn(A: Matrix2D[Double]): Boolean = {
-    val min: Int = Math.min(A.rows, A.columns)
+    val min: Int = math.min(A.rows, A.columns)
     for(i <- 0 until min) {
-      var diag = Math.abs(A.getQuick(i, i)) * 2.0
+      var diag = math.abs(A.getQuick(i, i)) * 2.0
       if (diag <= A.viewColumn(i).aggregate(DoubleFunctions.plus, DoubleFunctions.abs)) return false
     }
     true
@@ -315,9 +315,9 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
    * Note: Ignores tolerance.
    */
   def isDiagonallyDominantByRow(A: Matrix2D[Double]): Boolean = {
-    val min: Int = Math.min(A.rows, A.columns)
+    val min: Int = math.min(A.rows, A.columns)
     for(i <- 0 until min) {
-      var diag: Double = Math.abs(A.getQuick(i, i)) * 2.0
+      var diag: Double = math.abs(A.getQuick(i, i)) * 2.0
       if (diag <= A.viewRow(i).aggregate(DoubleFunctions.plus, DoubleFunctions.abs)) return false
     }
     true
@@ -331,9 +331,9 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
     for(row <- 0 until A.rows; column <- 0 until A.columns) {
       val v = A.getQuick(row, column)
       if (row == column) {
-        if (Math.abs(1 - v) > toleranceVar) return false
+        if (math.abs(1 - v) > toleranceVar) return false
       }
-      else if (Math.abs(v) > toleranceVar) return false
+      else if (math.abs(v) > toleranceVar) return false
     }
     true
   }
@@ -356,7 +356,7 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
    * whenever <tt>i &lt; j</tt>. Matrix may but need not be square.
    */
   def isLowerTriangular(A: Matrix2D[Double]): Boolean = {
-    for(column <- 0 until A.columns; row <- 0 until Math.min(column, A.rows)) {
+    for(column <- 0 until A.columns; row <- 0 until math.min(column, A.rows)) {
       if (isNonZero(A, row, column)) return false
     }
     true
@@ -421,7 +421,7 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
   def isSkewSymmetric(A: Matrix2D[Double]): Boolean = {
     checkSquare(A)
     for(row <- 0 until A.rows; column <- 0 until A.columns) {
-      if (Math.abs(A.getQuick(row, column) + A.getQuick(column, row)) > toleranceVar) return false
+      if (math.abs(A.getQuick(row, column) + A.getQuick(column, row)) > toleranceVar) return false
     }
     true
   }
@@ -438,7 +438,7 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
    * be square.
    */
   def isStrictlyLowerTriangular(A: Matrix2D[Double]): Boolean = {
-    for(column <- 0 until A.columns; row <- 0 until Math.min(A.rows, column + 1)) {
+    for(column <- 0 until A.columns; row <- 0 until math.min(A.rows, column + 1)) {
       if (isNonZero(A, row, column)) return false
     }
     true
@@ -450,7 +450,7 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
    */
   def isStrictlyTriangular(A: Matrix2D[Double]): Boolean = {
     if (! isTriangular(A)) return false
-    for(i <- 0 until Math.min(A.rows, A.columns)) {
+    for(i <- 0 until math.min(A.rows, A.columns)) {
       if (isNonZero(A, i, i)) return false
     }
     true
@@ -494,7 +494,7 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
    */
   def isTridiagonal(A: Matrix2D[Double]): Boolean = {
     for(column <- 0 until A.columns; row <- 0 until A.rows) {
-      if (Math.abs(row-column) > 1 && isNonZero(A, row, column)) return false
+      if (math.abs(row-column) > 1 && isNonZero(A, row, column)) return false
     }
     true
   }
@@ -505,8 +505,8 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
    */
   def isUnitTriangular(A: Matrix2D[Double]): Boolean = {
     if (! isTriangular(A)) return false
-    for(i <- 0 until Math.min(A.rows, A.columns)) {
-      if (Math.abs(1.0 - A.getQuick(i, i)) > toleranceVar) return false
+    for(i <- 0 until math.min(A.rows, A.columns)) {
+      if (math.abs(1.0 - A.getQuick(i, i)) > toleranceVar) return false
     }
     true
   }
@@ -693,7 +693,7 @@ class DoubleProperty(tolerance_p: Double) extends cern.colt.PersistentObject {
   def setTolerance(newTolerance: Double) {
     if ((this eq DoubleProperty.DEFAULT) || (this eq DoubleProperty.ZERO) || (this eq DoubleProperty.TWELVE))
       throw new IllegalArgumentException("Attempted to modify immutable object.")
-    toleranceVar = Math.abs(newTolerance)
+    toleranceVar = math.abs(newTolerance)
   }
 
   /**

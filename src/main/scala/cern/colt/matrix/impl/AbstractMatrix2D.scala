@@ -16,10 +16,7 @@ import cern.colt.list.impl.ArrayList
  * @version 1.0, 09/24/99
  */
 @SerialVersionUID(1L)
-abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matrix2D[T] {
-
-  val numeric = implicitly[Numeric[T]]
-  val zero = numeric.zero
+trait AbstractMatrix2D[@specialized T] extends Matrix2D[T] {
 
   /**
    the number of colums and rows this matrix (view) has
@@ -261,7 +258,7 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
         }
       }
       else if (this.isRowMajor) {
-        this.assignConstant(zero)
+        this.assignConstant(numeric.zero)
         source.forEachNonZeroRowMajor(new Function3[Int, Int, T, T]() {
           def apply(r: Int, c: Int, value: T) = {
             setQuick(r, c, value)
@@ -270,7 +267,7 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
         })
       }
       else {
-        this.assignConstant(zero)
+        this.assignConstant(numeric.zero)
         source.forEachNonZeroColumnMajor(new Function3[Int, Int, T, T]() {
           def apply(r: Int, c: Int, value: T) = {
             setQuick(r, c, value)
@@ -290,7 +287,7 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
   def numNonZero: Long = {
     var cardinality = 0
     for (r <- 0 until rowsVar; c <- 0 until columnsVar)
-      if (getQuick(r, c) != zero) cardinality += 1
+      if (getQuick(r, c) != numeric.zero) cardinality += 1
     cardinality
   }
 
@@ -414,7 +411,7 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
   def forEachNonZeroRowMajor(function: Function3[Int, Int, T, T]): Matrix2D[T] = {
     for (r <- 0 until rows; c <- 0 until columns) {
       val value = getQuick(r, c)
-      if (value != zero) {
+      if (value != numeric.zero) {
         val a = function.apply(r, c, value)
         if (a != value) setQuick(r, c, a)
       }
@@ -440,7 +437,7 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
   def forEachNonZeroColumnMajor(function: Function3[Int, Int, T, T]): Matrix2D[T] = {
     for (c <- 0 until columns; r <- 0 until rows) {
       val value = getQuick(r, c)
-      if (value != zero) {
+      if (value != numeric.zero) {
         val a = function.apply(r, c, value)
         if (a != value) setQuick(r, c, a)
       }
@@ -466,7 +463,7 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
   def forEachNonZeroInRow(rowIdx: Int, function: Function3[Int, Int, T, T]): Matrix2D[T] = {
     for (c <- 0 until columns) {
       val value = getQuick(rowIdx, c)
-      if (value != zero) {
+      if (value != numeric.zero) {
         val a = function.apply(rowIdx, c, value)
         if (a != value) setQuick(rowIdx, c, a)
       }
@@ -492,18 +489,13 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
   def forEachNonZeroInColumn(colIdx: Int, function: Function3[Int, Int, T, T]): Matrix2D[T] = {
     for (r <- 0 until rows) {
       val value = getQuick(r, colIdx)
-      if (value != zero) {
+      if (value != numeric.zero) {
         val a = function.apply(r, colIdx, value)
         if (a != value) setQuick(r, colIdx, a)
       }
     }
     this
   }
-
-  /**
-   * Returns a string representation of the receiver's shape.
-   */
-  def toShapeString: String = AbstractFormatter.shape(this)
 
   /**
    * Constructs and returns a new <i>selection view</i> that is a matrix
@@ -632,7 +624,7 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
    * Returns an iterator that can traverse all non-zero values in the matrix.
    */
   def iteratorNonZeros(byRows: Boolean): IndexIterator2D[T] = new AbstractIterator2D(byRows) {
-    protected def checkIndex(): Boolean = getQuick(rowIdx, colIdx) != zero
+    protected def checkIndex(): Boolean = getQuick(rowIdx, colIdx) != numeric.zero
   }
 
   /**
@@ -642,7 +634,7 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
   def iteratorNonZeros(byRows: Boolean, condition: Procedure3[Int, Int, T]): IndexIterator2D[T] = new AbstractIterator2D(byRows) {
     protected def checkIndex(): Boolean = {
       val value = getQuick(rowIdx, colIdx)
-      value != zero && condition(rowIdx, colIdx, value)
+      value != numeric.zero && condition(rowIdx, colIdx, value)
     }
   }
 
@@ -675,7 +667,7 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
 
     protected def checkIndex(): Boolean = {
       val value = getQuick(rowIdx, colIdx)
-      value != zero
+      value != numeric.zero
     }
   }
 
@@ -690,7 +682,7 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
 
     protected def checkIndex(): Boolean = {
       val value = getQuick(rowIdx, colIdx)
-      value != zero
+      value != numeric.zero
     }
   }
 
@@ -799,22 +791,6 @@ abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matri
       }
     })
     view
-  }
-
-  /**
-   * Constructs and returns a 2-dimensional array containing the cell values.
-   * The returned array <tt>values</tt> has the form
-   * <tt>values[row][column]</tt> and has the same number of rows and columns
-   * as the receiver.
-   * <p>
-   * The values are copied. So subsequent changes in <tt>values</tt> are not
-   * reflected in the matrix, and vice-versa.
-   *
-   * @return an array filled with the values of the cells.
-   */
-  def toArray: Array[Array[T]] = {
-    val values = Array.ofDim[T](rows, columns)
-    toArray(values)
   }
 
   /**

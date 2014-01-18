@@ -1,15 +1,6 @@
 package edu.emory.mathcs.utils
 
-import java.util.concurrent.Callable
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
-import java.util.concurrent.ThreadFactory
-
 object ConcurrencyUtils {
-
-  private var THREAD_POOL: ExecutorService = Executors.newCachedThreadPool(new CustomThreadFactory(new CustomExceptionHandler()))
 
   private var NTHREADS: Int = getNumberOfProcessors
 
@@ -22,29 +13,6 @@ object ConcurrencyUtils {
   private var THREADS_BEGIN_N_2D: Int = 65536
 
   private var THREADS_BEGIN_N_3D: Int = 65536
-
-  private class CustomExceptionHandler extends Thread.UncaughtExceptionHandler {
-
-    def uncaughtException(t: Thread, e: Throwable) {
-      e.printStackTrace()
-    }
-  }
-
-  object CustomThreadFactory {
-
-    private val defaultFactory = Executors.defaultThreadFactory()
-  }
-
-  private class CustomThreadFactory(val handler: Thread.UncaughtExceptionHandler)
-      extends ThreadFactory {
-
-    def newThread(r: Runnable): Thread = {
-      val t = CustomThreadFactory.defaultFactory.newThread(r)
-      t.setUncaughtExceptionHandler(handler)
-      t.setDaemon(true)
-      t
-    }
-  }
 
   /**
    * Causes the currently executing thread to sleep (temporarily cease
@@ -59,44 +27,6 @@ object ConcurrencyUtils {
       case e: InterruptedException => e.printStackTrace()
     }
   }
-
-  /**
-   * Shutdowns the thread pool.
-   */
-  def shutdown() {
-    THREAD_POOL.shutdown()
-  }
-
-  /**
-   * Submits a value-returning task for execution and returns a Future
-   * representing the pending results of the task.
-   *
-   * @param task
-   *            task for execution
-   * @return a handle to the task submitted for execution
-   */
-  def submit[T](task: Callable[T]): Future[T] = {
-    if (THREAD_POOL.isShutdown || THREAD_POOL.isTerminated) {
-      THREAD_POOL = Executors.newCachedThreadPool(new CustomThreadFactory(new CustomExceptionHandler()))
-    }
-    THREAD_POOL.submit(task)
-  }
-
-  /**
-   * Submits a Runnable task for execution and returns a Future representing
-   * that task.
-   *
-   * @param task
-   *            task for execution
-   * @return a handle to the task submitted for execution
-   */
-  def submit(task: Runnable): Future[_] = {
-    if (THREAD_POOL.isShutdown || THREAD_POOL.isTerminated) {
-      THREAD_POOL = Executors.newCachedThreadPool(new CustomThreadFactory(new CustomExceptionHandler()))
-    }
-    THREAD_POOL.submit(task)
-  }
-
   /**
    * Returns the number of available processors
    *
@@ -112,164 +42,6 @@ object ConcurrencyUtils {
    * @return the current number of threads.
    */
   def getNumberOfThreads: Int = NTHREADS
-
-  /**
-   * Waits for all threads to complete computation.
-   *
-   * @param futures
-   *            handles to running threads
-   */
-  def waitForCompletion(futures: Array[Future[_]]) {
-    val size = futures.length
-    try {
-      for (j <- 0 until size) {
-        futures(j).get
-      }
-    } catch {
-      case ex: ExecutionException => ex.printStackTrace()
-      case e: InterruptedException => e.printStackTrace()
-    }
-  }
-
-  /**
-   * Waits for all threads to complete computation and aggregates the result.
-   *
-   * @param futures
-   *            handles to running threads
-   * @param aggr
-   *            an aggregation function
-   * @return the result of aggregation
-   */
-  def waitForCompletion(futures: Array[Future[_]], aggr: Function2[Double, Double, Double]): Double = {
-    val size = futures.length
-    val results = Array.ofDim[Double](size)
-    var a = 0.0
-    try {
-      for (j <- 0 until size) {
-        results(j) = futures(j).get.asInstanceOf[java.lang.Double]
-      }
-      a = results(0)
-      for (j <- 1 until size) {
-        a = aggr.apply(a, results(j))
-      }
-    } catch {
-      case ex: ExecutionException => ex.printStackTrace()
-      case e: InterruptedException => e.printStackTrace()
-    }
-    a
-  }
-
-  /**
-   * Waits for all threads to complete computation and aggregates the result.
-   *
-   * @param futures
-   *            handles to running threads
-   * @param aggr
-   *            an aggregation function
-   * @return the result of aggregation
-   */
-  def waitForCompletion(futures: Array[Future[_]], aggr: Function2[Int, Int, Int]): Int = {
-    val size = futures.length
-    val results = Array.ofDim[Integer](size)
-    var a = 0
-    try {
-      for (j <- 0 until size) {
-        results(j) = futures(j).get.asInstanceOf[java.lang.Integer]
-      }
-      a = results(0)
-      for (j <- 1 until size) {
-        a = aggr.apply(a, results(j))
-      }
-    } catch {
-      case ex: ExecutionException => ex.printStackTrace()
-      case e: InterruptedException => e.printStackTrace()
-    }
-    a
-  }
-
-  /**
-   * Waits for all threads to complete computation and aggregates the result.
-   *
-   * @param futures
-   *            handles to running threads
-   * @param aggr
-   *            an aggregation function
-   * @return the result of aggregation
-   */
-  def waitForCompletion(futures: Array[Future[_]], aggr: Function2[Long, Long, Long]): Long = {
-    val size = futures.length
-    val results = Array.ofDim[Long](size)
-    var a = 0L
-    try {
-      for (j <- 0 until size) {
-        results(j) = futures(j).get.asInstanceOf[java.lang.Long]
-      }
-      a = results(0)
-      for (j <- 1 until size) {
-        a = aggr.apply(a, results(j))
-      }
-    } catch {
-      case ex: ExecutionException => ex.printStackTrace()
-      case e: InterruptedException => e.printStackTrace()
-    }
-    a
-  }
-
-  /**
-   * Waits for all threads to complete computation and aggregates the result.
-   *
-   * @param futures
-   *            handles to running threads
-   * @param aggr
-   *            an aggregation function
-   * @return the result of aggregation
-   */
-  def waitForCompletion(futures: Array[Future[_]], aggr: Function2[AnyRef, AnyRef, AnyRef]): AnyRef = {
-    val size = futures.length
-    val results = Array.ofDim[AnyRef](size)
-    var a: AnyRef = null
-    try {
-      for (j <- 0 until size) {
-        results(j) = futures(j).get.asInstanceOf[java.lang.Integer]
-      }
-      a = results(0)
-      for (j <- 1 until size) {
-        a = aggr.apply(a, results(j))
-      }
-    } catch {
-      case ex: ExecutionException => ex.printStackTrace()
-      case e: InterruptedException => e.printStackTrace()
-    }
-    a
-  }
-
-  /**
-   * Waits for all threads to complete computation and aggregates the result.
-   *
-   * @param futures
-   *            handles to running threads
-   * @param aggr
-   *            an aggregation function
-   * @return the result of aggregation
-   */
-  def waitForCompletion(futures: Array[Future[_]], aggr: Function2[Float, Float, Float]): Float = {
-    val size = futures.length
-    val results = Array.ofDim[Float](size)
-    var a = 0f
-    try {
-      for (j <- 0 until size) {
-        results(j) = futures(j).get.asInstanceOf[java.lang.Float]
-      }
-      a = results(0)
-      for (j <- 1 until size) {
-        a = aggr.apply(a, results(j))
-      }
-    } catch {
-      case ex: ExecutionException => ex.printStackTrace()
-      case e: InterruptedException => e.printStackTrace()
-    }
-    a
-  }
 
   /**
    * Returns the minimal size of 1D data for which threads are used.

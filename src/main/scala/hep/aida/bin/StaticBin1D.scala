@@ -1,7 +1,6 @@
 package hep.aida.bin
 
-import cern.jet.stat.tdouble.DoubleDescriptive
-import cern.colt.list.ArrayTypes.DoubleArrayList
+import cern.colt.list.impl.ArrayList
 
 /**
  * 1-dimensional non-rebinnable bin consuming <tt>double</tt> elements;
@@ -31,20 +30,20 @@ import cern.colt.list.ArrayTypes.DoubleArrayList
 @SerialVersionUID(1L)
 class StaticBin1D[@specialized T: Numeric] extends AbstractBin1D[T] {
 
-  val num = implicitly[Numeric[T]]
+  val numeric = implicitly[Numeric[T]]
 
   /**
    * The number of elements consumed by incremental parameter maintainance.
    */
   protected var sizeVar: Int = 0
 
-  protected var minVar: Double = Double.NegativeInfinity
+  protected var minVar: T = numeric.zero
 
-  protected var maxVar: Double = Double.PositiveInfinity
+  protected var maxVar: T = numeric.zero
 
-  protected var sumVar: Double = 0.0
+  protected var sumVar: T = numeric.zero
 
-  protected var sum_xxVar: Double = 0.0
+  protected var sum_xxVar: T = numeric.zero
 
   /**
    * Function arguments used by method addAllOf(...) For memory tuning only.
@@ -68,18 +67,17 @@ class StaticBin1D[@specialized T: Numeric] extends AbstractBin1D[T] {
   /**
    * Adds the specified element to the receiver.
    *
-   * @param element_p
+   * @param value
    *            element to be appended.
    */
-  def add(element_p: T) {
-    val element = num.toDouble(element_p)
-    if (element < minVar)
-      minVar = element
-    if (element > maxVar)
-      maxVar = element
+  def add(value: T) {
+    if (sizeVar == 0 || numeric.lt(value, minVar))
+      minVar = value
+    if (sizeVar == 0 || numeric.gt(value, maxVar))
+      maxVar = value
     sizeVar += 1
-    sumVar += element
-    sum_xxVar += element * element
+    sumVar = numeric.plus(sumVar, value)
+    sum_xxVar = numeric.plus(sum_xxVar, numeric.times(value, value))
   }
 
   /**
@@ -97,17 +95,10 @@ class StaticBin1D[@specialized T: Numeric] extends AbstractBin1D[T] {
    *             <tt>list.size()&gt;0 && (from&lt;0 || from&gt;to || to&gt;=list.size())</tt>
    *             .
    */
-  def addAllOfFromTo(list: DoubleArrayList, from: Int, to: Int) {
-    arguments(0) = this.minVar
-    arguments(1) = this.maxVar
-    arguments(2) = this.sumVar
-    arguments(3) = this.sum_xxVar
-    DoubleDescriptive.incrementalUpdate(list, from, to, arguments)
-    this.minVar = arguments(0)
-    this.maxVar = arguments(1)
-    this.sumVar = arguments(2)
-    this.sum_xxVar = arguments(3)
-    this.sizeVar += to - from + 1
+  def addAllOfFromTo(list: ArrayList[T], from: Int, to: Int) {
+    for(idx <- from until to+1) {
+      add(list.get(idx))
+    }
   }
 
   /**
@@ -123,10 +114,10 @@ class StaticBin1D[@specialized T: Numeric] extends AbstractBin1D[T] {
    * Resets the values of all measures.
    */
   protected def clearAllMeasures() {
-    this.minVar = Double.PositiveInfinity
-    this.maxVar = Double.NegativeInfinity
-    this.sumVar = 0.0
-    this.sum_xxVar = 0.0
+    this.minVar = numeric.zero
+    this.maxVar = numeric.zero
+    this.sumVar = numeric.zero
+    this.sum_xxVar = numeric.zero
   }
 
   /**
@@ -141,12 +132,12 @@ class StaticBin1D[@specialized T: Numeric] extends AbstractBin1D[T] {
   /**
    * Returns the maximum.
    */
-  def max: Double = maxVar
+  def max: T = maxVar
 
   /**
    * Returns the minimum.
    */
-  def min: Double = minVar
+  def min: T = minVar
 
   /**
    * Returns the number of elements contained in the receiver.
@@ -158,10 +149,10 @@ class StaticBin1D[@specialized T: Numeric] extends AbstractBin1D[T] {
   /**
    * Returns the sum of all elements, which is <tt>Sum( x[i] )</tt>.
    */
-  def sum: Double = sumVar
+  def sum: T = sumVar
 
   /**
    * Returns the sum of squares, which is <tt>Sum( x[i] * x[i] )</tt>.
    */
-  def sumOfSquares: Double = sum_xxVar
+  def sumOfSquares: T = sum_xxVar
 }

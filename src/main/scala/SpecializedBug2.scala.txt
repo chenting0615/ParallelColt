@@ -3,6 +3,8 @@ object SpecializedBug2 {
 
   trait Matrix2D[@specialized T]  {
 
+    def numeric: Numeric[T]
+
     protected var isNoView: Boolean = true
 
     def isView: Boolean = !this.isNoView
@@ -114,10 +116,7 @@ object SpecializedBug2 {
     def checkShape(B: Matrix2D[T], C: Matrix2D[T])
   }
 
-  abstract class AbstractMatrix2D[@specialized T: Manifest: Numeric] extends Matrix2D[T] {
-
-    val numeric = implicitly[Numeric[T]]
-    val zero = numeric.zero
+  trait AbstractMatrix2D[@specialized T] extends Matrix2D[T] {
 
     protected var columnsVar: Int = 0
 
@@ -236,7 +235,7 @@ object SpecializedBug2 {
     def numNonZero: Long = {
       var cardinality = 0
       for (r <- 0 until rowsVar; c <- 0 until columnsVar)
-        if (getQuick(r, c) != zero) cardinality += 1
+        if (getQuick(r, c) != numeric.zero) cardinality += 1
       cardinality
     }
 
@@ -285,7 +284,7 @@ object SpecializedBug2 {
     def forEachNonZeroRowMajor(function: Function3[Int, Int, T, T]): Matrix2D[T] = {
       for (r <- 0 until rows; c <- 0 until columns) {
         val value = getQuick(r, c)
-        if (value != zero) {
+        if (value != numeric.zero) {
           val a = function.apply(r, c, value)
           if (a != value) setQuick(r, c, a)
         }
@@ -296,7 +295,7 @@ object SpecializedBug2 {
     def forEachNonZeroColumnMajor(function: Function3[Int, Int, T, T]): Matrix2D[T] = {
       for (c <- 0 until columns; r <- 0 until rows) {
         val value = getQuick(r, c)
-        if (value != zero) {
+        if (value != numeric.zero) {
           val a = function.apply(r, c, value)
           if (a != value) setQuick(r, c, a)
         }
@@ -307,7 +306,7 @@ object SpecializedBug2 {
     def forEachNonZeroInRow(rowIdx: Int, function: Function3[Int, Int, T, T]): Matrix2D[T] = {
       for (c <- 0 until columns) {
         val value = getQuick(rowIdx, c)
-        if (value != zero) {
+        if (value != numeric.zero) {
           val a = function.apply(rowIdx, c, value)
           if (a != value) setQuick(rowIdx, c, a)
         }
@@ -318,7 +317,7 @@ object SpecializedBug2 {
     def forEachNonZeroInColumn(colIdx: Int, function: Function3[Int, Int, T, T]): Matrix2D[T] = {
       for (r <- 0 until rows) {
         val value = getQuick(r, colIdx)
-        if (value != zero) {
+        if (value != numeric.zero) {
           val a = function.apply(r, colIdx, value)
           if (a != value) setQuick(r, colIdx, a)
         }
@@ -327,11 +326,6 @@ object SpecializedBug2 {
     }
 
     def isRowMajor: Boolean = true
-
-    def toArray: Array[Array[T]] = {
-      val values = Array.ofDim[T](rows, columns)
-      toArray(values)
-    }
 
     def toArray(values: Array[Array[T]]) = {
       checkRowShape(values.length)
@@ -347,7 +341,7 @@ object SpecializedBug2 {
     def isSparse: Boolean = false
   }
 
-  abstract class RemappedMatrix2D[@specialized T: Manifest: Numeric] extends AbstractMatrix2D[T] {
+  trait RemappedMatrix2D[@specialized T] extends AbstractMatrix2D[T] {
 
     isNoView = false
 
@@ -434,6 +428,13 @@ object SpecializedBug2 {
     def setQuick(row: Int, column: Int, value: T) {
       val t = remapIndexes(row, column)
       content.setQuick(t._1, t._2, value)
+    }
+
+    def numeric = implicitly[Numeric[T]]
+
+    def toArray: Array[Array[T]] = {
+      val values = Array.ofDim[T](rows, columns)
+      toArray(values)
     }
 
     def like2D(rows: Int, columns: Int): Matrix2D[T] = content.like2D(rows, columns)
@@ -668,7 +669,7 @@ object SpecializedBug2 {
 */
 
     override def getQuick(row: Int, column: Int): T = {
-      zero
+      numeric.zero
     }
 
     override def setQuick(row: Int, column: Int, value: T) {
@@ -676,6 +677,13 @@ object SpecializedBug2 {
 
     override def like2D(rows: Int, columns: Int) = {
       null
+    }
+
+    def numeric = implicitly[Numeric[T]]
+
+    def toArray: Array[Array[T]] = {
+      val values = Array.ofDim[T](rows, columns)
+      toArray(values)
     }
 
   }

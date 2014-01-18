@@ -11,7 +11,7 @@ import cern.jet.math.tdouble.DoubleConstants._
  * HREF="http://www.sci.usq.edu.au/staff/leighb/graph/Top.html">Java 2D Graph
  * Package 2.4</A>, which in turn is a port from the <A
  * HREF="http://people.ne.mediaone.net/moshier/index.html#Cephes">Cephes 2.2</A>
- * Math Library (C). Most Cephes code (missing from the 2D Graph Package)
+ * math Library (C). Most Cephes code (missing from the 2D Graph Package)
  * directly ported.
  *
  * @author wolfgang.hoschek@cern.ch
@@ -55,10 +55,10 @@ object Gamma {
     var p: Double = 0.0
     var z: Double = 0.0
     var i: Int = 0
-    var q = Math.abs(x)
+    var q = math.abs(x)
     if (q > 33.0) {
       if (x < 0.0) {
-        p = Math.floor(q)
+        p = math.floor(q)
         if (p == q) throw new ArithmeticException("gamma: overflow")
         i = p.toInt
         z = q - p
@@ -66,10 +66,10 @@ object Gamma {
           p += 1.0
           z = q - p
         }
-        z = q * Math.sin(Math.PI * z)
+        z = q * math.sin(math.Pi * z)
         if (z == 0.0) throw new ArithmeticException("gamma: overflow")
-        z = Math.abs(z)
-        z = Math.PI / (z * stirlingFormula(q))
+        z = math.abs(z)
+        z = math.Pi / (z * stirlingFormula(q))
         return -z
       } else {
         return stirlingFormula(x)
@@ -156,11 +156,11 @@ object Gamma {
     }
     y = x * (a + b - 2.0) - (a - 1.0)
     w = if (y < 0.0) incompleteBetaFraction1(a, b, x) else incompleteBetaFraction2(a, b, x) / xc
-    y = a * Math.log(x)
-    t = b * Math.log(xc)
-    if ((a + b) < MAXGAM && Math.abs(y) < MAXLOG && Math.abs(t) < MAXLOG) {
-      t = Math.pow(xc, b)
-      t *= Math.pow(x, a)
+    y = a * math.log(x)
+    t = b * math.log(xc)
+    if ((a + b) < MAXGAM && math.abs(y) < MAXLOG && math.abs(t) < MAXLOG) {
+      t = math.pow(xc, b)
+      t *= math.pow(x, a)
       t /= a
       t *= w
       t *= gamma(a + b) / (gamma(a) * gamma(b))
@@ -170,8 +170,8 @@ object Gamma {
       return t
     }
     y += t + logGamma(a + b) - logGamma(a) - logGamma(b)
-    y += Math.log(w / a)
-    t = if (y < MINLOG) 0.0 else Math.exp(y)
+    y += math.log(w / a)
+    t = if (y < MINLOG) 0.0 else math.exp(y)
     if (flag) {
       t = if (t <= MACHEP) 1.0 - MACHEP else 1.0 - t
     }
@@ -236,7 +236,7 @@ object Gamma {
       qkm1 = qk
       if (qk != 0) r = pk / qk
       if (r != 0) {
-        t = Math.abs((ans - r) / r)
+        t = math.abs((ans - r) / r)
         ans = r
       } else t = 1.0
       if (t < thresh) return ans
@@ -248,13 +248,13 @@ object Gamma {
       k6 -= 1.0
       k7 += 2.0
       k8 += 2.0
-      if ((Math.abs(qk) + Math.abs(pk)) > big) {
+      if ((math.abs(qk) + math.abs(pk)) > big) {
         pkm2 *= biginv
         pkm1 *= biginv
         qkm2 *= biginv
         qkm1 *= biginv
       }
-      if ((Math.abs(qk) < biginv) || (Math.abs(pk) < biginv)) {
+      if ((math.abs(qk) < biginv) || (math.abs(pk) < biginv)) {
         pkm2 *= big
         pkm1 *= big
         qkm2 *= big
@@ -325,7 +325,7 @@ object Gamma {
       qkm1 = qk
       if (qk != 0) r = pk / qk
       if (r != 0) {
-        t = Math.abs((ans - r) / r)
+        t = math.abs((ans - r) / r)
         ans = r
       } else t = 1.0
       if (t < thresh) return ans
@@ -337,13 +337,13 @@ object Gamma {
       k6 += 1.0
       k7 += 2.0
       k8 += 2.0
-      if ((Math.abs(qk) + Math.abs(pk)) > big) {
+      if ((math.abs(qk) + math.abs(pk)) > big) {
         pkm2 *= biginv
         pkm1 *= biginv
         qkm2 *= biginv
         qkm1 *= biginv
       }
-      if ((Math.abs(qk) < biginv) || (Math.abs(pk) < biginv)) {
+      if ((math.abs(qk) < biginv) || (math.abs(pk) < biginv)) {
         pkm2 *= big
         pkm1 *= big
         qkm2 *= big
@@ -368,9 +368,9 @@ object Gamma {
     var r: Double = 0.0
     if (x <= 0 || a <= 0) return 0.0
     if (x > 1.0 && x > a) return 1.0 - incompleteGammaComplement(a, x)
-    ax = a * Math.log(x) - x - logGamma(a)
+    ax = a * math.log(x) - x - logGamma(a)
     if (ax < -MAXLOG) return 0.0
-    ax = Math.exp(ax)
+    ax = math.exp(ax)
     r = a
     c = 1.0
     ans = 1.0
@@ -408,9 +408,9 @@ object Gamma {
     var qkm2: Double = 0.0
     if (x <= 0 || a <= 0) return 1.0
     if (x < 1.0 || x < a) return 1.0 - incompleteGamma(a, x)
-    ax = a * Math.log(x) - x - logGamma(a)
+    ax = a * math.log(x) - x - logGamma(a)
     if (ax < -MAXLOG) return 0.0
-    ax = Math.exp(ax)
+    ax = math.exp(ax)
     y = 1.0 - a
     z = x + y + 1.0
     c = 0.0
@@ -428,14 +428,14 @@ object Gamma {
       qk = qkm1 * z - qkm2 * yc
       if (qk != 0) {
         r = pk / qk
-        t = Math.abs((ans - r) / r)
+        t = math.abs((ans - r) / r)
         ans = r
       } else t = 1.0
       pkm2 = pkm1
       pkm1 = pk
       qkm2 = qkm1
       qkm1 = qk
-      if (Math.abs(pk) > big) {
+      if (math.abs(pk) > big) {
         pkm2 *= biginv
         pkm1 *= biginv
         qkm2 *= biginv
@@ -461,16 +461,16 @@ object Gamma {
     if (x < -34.0) {
       q = -x
       w = logGamma(q)
-      p = Math.floor(q)
+      p = math.floor(q)
       if (p == q) throw new ArithmeticException("lgam: Overflow")
       z = q - p
       if (z > 0.5) {
         p += 1.0
         z = p - q
       }
-      z = q * Math.sin(Math.PI * z)
+      z = q * math.sin(math.Pi * z)
       if (z == 0.0) throw new ArithmeticException("lgamma: Overflow")
-      z = LOGPI - Math.log(z) - w
+      z = LOGPI - math.log(z) - w
       return z
     }
     if (x < 13.0) {
@@ -485,13 +485,13 @@ object Gamma {
         x += 1.0
       }
       if (z < 0.0) z = -z
-      if (x == 2.0) return Math.log(z)
+      if (x == 2.0) return math.log(z)
       x -= 2.0
       p = x * Polynomial.polevl(x, B, 5) / Polynomial.p1evl(x, C, 6)
-      return Math.log(z) + p
+      return math.log(z) + p
     }
     if (x > 2.556348e305) throw new ArithmeticException("lgamma: Overflow")
-    q = (x - 0.5) * Math.log(x) - x + 0.91893853320467274178
+    q = (x - 0.5) * math.log(x) - x + 0.91893853320467274178
     if (x > 1.0e8) return q
     p = 1.0 / (x * x)
     if (x >= 1000.0) q += ((7.9365079365079365079365e-4 * p - 2.7777777777777777777778e-3) *
@@ -522,7 +522,7 @@ object Gamma {
     n = 2.0
     s = 0.0
     z = MACHEP * ai
-    while (Math.abs(v) > z) {
+    while (math.abs(v) > z) {
       u = (n - b) * x / n
       t *= u
       v = t / (a + n)
@@ -531,15 +531,15 @@ object Gamma {
     }
     s += t1
     s += ai
-    u = a * Math.log(x)
-    if ((a + b) < MAXGAM && Math.abs(u) < MAXLOG) {
+    u = a * math.log(x)
+    if ((a + b) < MAXGAM && math.abs(u) < MAXLOG) {
       t = Gamma.gamma(a + b) / (Gamma.gamma(a) * Gamma.gamma(b))
-      s = s * t * Math.pow(x, a)
+      s = s * t * math.pow(x, a)
     } else {
       t = Gamma.logGamma(a + b) - Gamma.logGamma(a) - Gamma.logGamma(b) +
         u +
-        Math.log(s)
-      s = if (t < MINLOG) 0.0 else Math.exp(t)
+        math.log(s)
+      s = if (t < MINLOG) 0.0 else math.exp(t)
     }
     s
   }
@@ -552,13 +552,13 @@ object Gamma {
     val STIR = Array(7.87311395793093628397E-4, -2.29549961613378126380E-4, -2.68132617805781232825E-3, 3.47222221605458667310E-3, 8.33333333333482257126E-2)
     val MAXSTIR = 143.01608
     var w = 1.0 / x
-    var y = Math.exp(x)
+    var y = math.exp(x)
     w = 1.0 + w * Polynomial.polevl(w, STIR, 4)
     if (x > MAXSTIR) {
-      val v = Math.pow(x, 0.5 * x - 0.25)
+      val v = math.pow(x, 0.5 * x - 0.25)
       y = v * (v / y)
     } else {
-      y = Math.pow(x, x - 0.5) / y
+      y = math.pow(x, x - 0.5) / y
     }
     y = SQTPI * y * w
     y

@@ -1,6 +1,6 @@
 package cern.colt.matrix.impl
 
-import cern.colt.matrix.{Matrix, Matrix2D}
+import cern.colt.matrix.{Matrix1D, Matrix, Matrix2D}
 
 /**
  * Diagonal 2-d matrix holding <tt>double</tt> elements. First see the <a
@@ -11,7 +11,7 @@ import cern.colt.matrix.{Matrix, Matrix2D}
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
 @SerialVersionUID(1L)
-class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: Int, protected val dindex: Int = 0) extends RemappedMatrix2D[T] {
+class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: Int, protected val dindex: Int = 0) extends AbstractMatrix2D[T] {
 
   if (dindex < -rows + 1 || dindex > columns - 1)
     throw new IllegalArgumentException("index is out of bounds")
@@ -78,6 +78,8 @@ class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
     this.isNoView = false
   }
 
+  def numeric = implicitly[Numeric[T]]
+
   def getElements = elementsVar
 
   override def isSparse = true
@@ -143,7 +145,7 @@ class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
 
   override def numNonZero: Long = {
     var cardinality = 0L
-    for (r <- 0 until dlength) if (elementsVar(r) != zero) cardinality += 1
+    for (r <- 0 until dlength) if (elementsVar(r) != numeric.zero) cardinality += 1
     cardinality
   }
 
@@ -200,7 +202,7 @@ class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
 
     for(i <- 0 until dlength) {
       val value = elementsVar(i)
-      if (value != zero)
+      if (value != numeric.zero)
         elementsVar(i) = function.apply(i+r, i+c, value)
     }
     this
@@ -240,7 +242,7 @@ class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
     if (idx >= 0)
       elementsVar(idx)
     else
-      zero
+      numeric.zero
   }
 
   override def setQuick(row: Int, column: Int, value: T) {
@@ -295,7 +297,7 @@ class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
     true
   }
 
-  override def viewColumnFlip() = {
+  def viewColumnFlip() = {
     if (columnsVar == 0)
       this
     else {
@@ -308,12 +310,12 @@ class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
     }
   }
 
-  override def viewTranspose() = {
+  def viewTranspose() = {
     val view = new DiagonalMatrix2D[T](this, columnsVar, rowsVar, -dindex)
     view
   }
 
-  override def viewPart(boxRow: Int, boxColumn: Int, height: Int, width: Int) = {
+  def viewPart(boxRow: Int, boxColumn: Int, height: Int, width: Int) = {
     checkBox(boxRow, boxColumn, height, width)
     val view = new WrapperMatrix2D[T](this, height, width) {
       override protected def remapIndexes(row: Int, column: Int): Tuple2[Int, Int] = (row+boxRow, column+boxColumn)
@@ -321,7 +323,7 @@ class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
     view
   }
 
-  override def viewRowFlip() = {
+  def viewRowFlip() = {
     if (rowsVar == 0)
       this
     else {
@@ -347,7 +349,7 @@ class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
     view
   }
 
-  override def viewStrides(rowStride: Int, columnStride: Int) = {
+  def viewStrides(rowStride: Int, columnStride: Int) = {
     if (rowStride <= 0 || columnStride <= 0) throw new IndexOutOfBoundsException("illegal stride")
     val viewRows = if (rowsVar != 0) (rowsVar - 1) / rowStride + 1 else rowsVar
     val viewColumns = if (columnsVar != 0) (columnsVar - 1) / columnStride + 1 else columnsVar
@@ -357,5 +359,20 @@ class DiagonalMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: In
       }
     }
     view
+  }
+
+  def toArray: Array[Array[T]] = {
+    val values = Array.ofDim[T](rows, columns)
+    toArray(values)
+  }
+
+  def viewRow(row: Int): Matrix1D[T] = {
+    checkRow(row)
+    new WrappedRowMatrix1D[T](this, row)
+  }
+
+  def viewColumn(column: Int): Matrix1D[T] = {
+    checkColumn(column)
+    new WrappedColumnMatrix1D[T](this, column)
   }
 }

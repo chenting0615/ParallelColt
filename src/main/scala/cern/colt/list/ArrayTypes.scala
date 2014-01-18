@@ -9,5 +9,6 @@ object ArrayTypes {
   type IntArrayList = ArrayList[Int]
   type LongArrayList = ArrayList[Long]
   type DoubleArrayList = ArrayList[Double]
+  type FloatArrayList = ArrayList[Float]
 
 }

@@ -6,8 +6,7 @@ import cern.colt.matrix.Matrix1D
  * Interface that represents a condition or procedure object: takes a single
  * argument and returns a boolean value.
  */
-@specialized
-trait Matrix1DProcedure[T] {
+trait Matrix1DProcedure[@specialized T] {
 
   /**
    * Applies a procedure to an argument. Optionally can return a boolean flag

@@ -54,10 +54,10 @@ object Bessel {
     if (x < 0) x = -x
     if (x <= 8.0) {
       y = (x / 2.0) - 2.0
-      Math.exp(x) * DoubleArithmetic.chbevl(y, A_i0, 30)
+      math.exp(x) * DoubleArithmetic.chbevl(y, A_i0, 30)
     }
     else
-      Math.exp(x) * DoubleArithmetic.chbevl(32.0 / x - 2.0, B_i0, 25) / Math.sqrt(x)
+      math.exp(x) * DoubleArithmetic.chbevl(32.0 / x - 2.0, B_i0, 25) / math.sqrt(x)
   }
 
   /**
@@ -79,7 +79,7 @@ object Bessel {
       DoubleArithmetic.chbevl(y, A_i0, 30)
     }
     else
-      DoubleArithmetic.chbevl(32.0 / x - 2.0, B_i0, 25) / Math.sqrt(x)
+      DoubleArithmetic.chbevl(32.0 / x - 2.0, B_i0, 25) / math.sqrt(x)
   }
 
   /**
@@ -96,13 +96,13 @@ object Bessel {
   def i1(x: Double): Double = {
     var y: Double = 0.0
     var z: Double = 0.0
-    z = Math.abs(x)
+    z = math.abs(x)
     if (z <= 8.0) {
       y = (z / 2.0) - 2.0
-      z = DoubleArithmetic.chbevl(y, A_i1, 29) * z * Math.exp(z)
+      z = DoubleArithmetic.chbevl(y, A_i1, 29) * z * math.exp(z)
     } else {
-      z = Math.exp(z) * DoubleArithmetic.chbevl(32.0 / z - 2.0, B_i1, 25) /
-        Math.sqrt(z)
+      z = math.exp(z) * DoubleArithmetic.chbevl(32.0 / z - 2.0, B_i1, 25) /
+        math.sqrt(z)
     }
     if (x < 0.0) z = -z
     z
@@ -120,12 +120,12 @@ object Bessel {
   def i1e(x: Double): Double = {
     var y: Double = 0.0
     var z: Double = 0.0
-    z = Math.abs(x)
+    z = math.abs(x)
     if (z <= 8.0) {
       y = (z / 2.0) - 2.0
       z = DoubleArithmetic.chbevl(y, A_i1, 29) * z
     } else {
-      z = DoubleArithmetic.chbevl(32.0 / z - 2.0, B_i1, 25) / Math.sqrt(z)
+      z = DoubleArithmetic.chbevl(32.0 / z - 2.0, B_i1, 25) / math.sqrt(z)
     }
     if (x < 0.0) z = -z
     z
@@ -138,7 +138,7 @@ object Bessel {
    *            the value to compute the bessel function of.
    */
   def j0(x: Double): Double = {
-    var ax = Math.abs(x)
+    var ax = math.abs(x)
     if (ax  < 8.0) {
       val y = x * x
       val ans1 = 57568490574.0 +
@@ -168,7 +168,7 @@ object Bessel {
         (0.1430488765e-3 +
         y *
         (-0.6911147651e-5 + y * (0.7621095161e-6 - y * 0.934935152e-7)))
-      Math.sqrt(0.636619772 / ax) * (Math.cos(xx) * ans1 - z * Math.sin(xx) * ans2)
+      math.sqrt(0.636619772 / ax) * (math.cos(xx) * ans1 - z * math.sin(xx) * ans2)
     }
   }
 
@@ -179,7 +179,7 @@ object Bessel {
    *            the value to compute the bessel function of.
    */
   def j1(x: Double): Double = {
-    var ax = Math.abs(x)
+    var ax = math.abs(x)
     var y: Double = 0.0
     var ans1: Double = 0.0
     var ans2: Double = 0.0
@@ -213,7 +213,7 @@ object Bessel {
         (-0.2002690873e-3 +
         y *
         (0.8449199096e-5 + y * (-0.88228987e-6 + y * 0.105787412e-6)))
-      var ans = Math.sqrt(0.636619772 / ax) * (Math.cos(xx) * ans1 - z * Math.sin(xx) * ans2)
+      var ans = math.sqrt(0.636619772 / ax) * (math.cos(xx) * ans1 - z * math.sin(xx) * ans2)
       if (x < 0.0) ans = -ans
       ans
     }
@@ -244,7 +244,7 @@ object Bessel {
     val BIGNI = 1.0e-10
     if (n == 0) return j0(x)
     if (n == 1) return j1(x)
-    ax = Math.abs(x)
+    ax = math.abs(x)
     if (ax == 0.0) return 0.0
     if (ax > n) {
       tox = 2.0 / ax
@@ -260,7 +260,7 @@ object Bessel {
       ans = bj
     } else {
       tox = 2.0 / ax
-      m = 2 * ((n + Math.sqrt(ACC * n).toInt) / 2)
+      m = 2 * ((n + math.sqrt(ACC * n).toInt) / 2)
       jsum = false
       bjp = 0.0; ans = 0.0; sum = 0.0
       bj = 1.0
@@ -269,7 +269,7 @@ object Bessel {
         bjm = j * tox * bj - bjp
         bjp = bj
         bj = bjm
-        if (Math.abs(bj) > BIGNO) {
+        if (math.abs(bj) > BIGNO) {
           bj *= BIGNI
           bjp *= BIGNI
           ans *= BIGNI
@@ -300,11 +300,11 @@ object Bessel {
     if (x <= 0.0) throw new ArithmeticException()
     if (x <= 2.0) {
       val y = x * x - 2.0
-      DoubleArithmetic.chbevl(y, A_k0, 10) - Math.log(0.5 * x) * i0(x)
+      DoubleArithmetic.chbevl(y, A_k0, 10) - math.log(0.5 * x) * i0(x)
     }
     else {
       val z = 8.0 / x - 2.0
-      Math.exp(-x) * DoubleArithmetic.chbevl(z, B_k0, 25) / Math.sqrt(x)
+      math.exp(-x) * DoubleArithmetic.chbevl(z, B_k0, 25) / math.sqrt(x)
     }
   }
 
@@ -320,11 +320,11 @@ object Bessel {
     if (x <= 0.0) throw new ArithmeticException()
     if (x <= 2.0) {
       y = x * x - 2.0
-      y = DoubleArithmetic.chbevl(y, A_k0, 10) - Math.log(0.5 * x) * i0(x)
-      y * Math.exp(x)
+      y = DoubleArithmetic.chbevl(y, A_k0, 10) - math.log(0.5 * x) * i0(x)
+      y * math.exp(x)
     }
     else
-      DoubleArithmetic.chbevl(8.0 / x - 2.0, B_k0, 25) / Math.sqrt(x)
+      DoubleArithmetic.chbevl(8.0 / x - 2.0, B_k0, 25) / math.sqrt(x)
   }
 
   /**
@@ -342,10 +342,10 @@ object Bessel {
     if (z <= 0.0) throw new ArithmeticException()
     if (x <= 2.0) {
       val y = x * x - 2.0
-      Math.log(z) * i1(x) + DoubleArithmetic.chbevl(y, A_k1, 11) / x
+      math.log(z) * i1(x) + DoubleArithmetic.chbevl(y, A_k1, 11) / x
     }
     else
-      Math.exp(-x) * DoubleArithmetic.chbevl(8.0 / x - 2.0, B_k1, 25) / Math.sqrt(x)
+      math.exp(-x) * DoubleArithmetic.chbevl(8.0 / x - 2.0, B_k1, 25) / math.sqrt(x)
   }
 
   /**
@@ -362,11 +362,11 @@ object Bessel {
     if (x <= 0.0) throw new ArithmeticException()
     if (x <= 2.0) {
       y = x * x - 2.0
-      y = Math.log(0.5 * x) * i1(x) + DoubleArithmetic.chbevl(y, A_k1, 11) / x
-      y * Math.exp(x)
+      y = math.log(0.5 * x) * i1(x) + DoubleArithmetic.chbevl(y, A_k1, 11) / x
+      y * math.exp(x)
     }
     else
-      DoubleArithmetic.chbevl(8.0 / x - 2.0, B_k1, 25) / Math.sqrt(x)
+      DoubleArithmetic.chbevl(8.0 / x - 2.0, B_k1, 25) / math.sqrt(x)
   }
 
   /**
@@ -440,19 +440,19 @@ object Bessel {
             zn *= z
             t = nk1f * zn / kf
             s += t
-            if ((MAXNUM - Math.abs(t)) < Math.abs(s)) throw new ArithmeticException("Overflow")
+            if ((MAXNUM - math.abs(t)) < math.abs(s)) throw new ArithmeticException("Overflow")
             if ((tox > 1.0) && ((MAXNUM / tox) < zmn)) throw new ArithmeticException("Overflow")
             zmn *= tox
             i += 1
           }
           s *= 0.5
-          t = Math.abs(s)
+          t = math.abs(s)
           if ((zmn > 1.0) && ((MAXNUM / zmn) < t)) throw new ArithmeticException("Overflow")
           if ((t > 1.0) && ((MAXNUM / t) < zmn)) throw new ArithmeticException("Overflow")
           ans = s * zmn
         }
       }
-      tlg = 2.0 * Math.log(0.5 * x)
+      tlg = 2.0 * math.log(0.5 * x)
       pk = -EUL
       if (n == 0) {
         pn = pk
@@ -469,7 +469,7 @@ object Bessel {
         pn += 1.0 / (k + n)
         s += (pk + pn - tlg) * t
         k += 1.0
-      } while (Math.abs(t / s) > DoubleConstants.MACHEP)
+      } while (math.abs(t / s) > DoubleConstants.MACHEP)
       s = 0.5 * s / zmn
       if ((n & 1) > 0) s = -s
       ans += s
@@ -488,17 +488,17 @@ object Bessel {
     do {
       z = pn - pk * pk
       t = t * z / (fn * z0)
-      nk1f = Math.abs(t)
+      nk1f = math.abs(t)
       if ((i >= n) && (nk1f > nkf)) {
-        return Math.exp(-x) * Math.sqrt(Math.PI / (2.0 * x)) * s
+        return math.exp(-x) * math.sqrt(math.Pi / (2.0 * x)) * s
       }
       nkf = nk1f
       s += t
       fn += 1.0
       pk += 2.0
       i += 1
-    } while (Math.abs(t / s) > DoubleConstants.MACHEP)
-    Math.exp(-x) * Math.sqrt(Math.PI / (2.0 * x)) * s
+    } while (math.abs(t / s) > DoubleConstants.MACHEP)
+    math.exp(-x) * math.sqrt(math.Pi / (2.0 * x)) * s
   }
 
   /**
@@ -523,7 +523,7 @@ object Bessel {
         (745249964.8 +
         y *
         (7189466.438 + y * (47447.26470 + y * (226.1030244 + y * 1.0))))
-      (ans1 / ans2) + 0.636619772 * j0(x) * Math.log(x)
+      (ans1 / ans2) + 0.636619772 * j0(x) * math.log(x)
     } else {
       val z = 8.0 / x
       val y = z * z
@@ -538,7 +538,7 @@ object Bessel {
         (0.1430488765e-3 +
         y *
         (-0.6911147651e-5 + y * (0.7621095161e-6 + y * (-0.934945152e-7))))
-      Math.sqrt(0.636619772 / x) * (Math.sin(xx) * ans1 + z * Math.cos(xx) * ans2)
+      math.sqrt(0.636619772 / x) * (math.sin(xx) * ans1 + z * math.cos(xx) * ans2)
     }
   }
 
@@ -567,7 +567,7 @@ object Bessel {
         (0.3733650367e10 +
         y *
         (0.2245904002e8 + y * (0.1020426050e6 + y * (0.3549632885e3 + y)))))
-      (ans1 / ans2) + 0.636619772 * (j1(x) * Math.log(x) - 1.0 / x)
+      (ans1 / ans2) + 0.636619772 * (j1(x) * math.log(x) - 1.0 / x)
     } else {
       val z = 8.0 / x
       val y = z * z
@@ -582,7 +582,7 @@ object Bessel {
         (-0.2002690873e-3 +
         y *
         (0.8449199096e-5 + y * (-0.88228987e-6 + y * 0.105787412e-6)))
-      Math.sqrt(0.636619772 / x) * (Math.sin(xx) * ans1 + z * Math.cos(xx) * ans2)
+      math.sqrt(0.636619772 / x) * (math.sin(xx) * ans1 + z * math.cos(xx) * ans2)
     }
   }
 

@@ -11,7 +11,7 @@ import cern.jet.math.tdouble.DoubleConstants._
  * HREF="http://www.sci.usq.edu.au/staff/leighb/graph/Top.html">Java 2D Graph
  * Package 2.4</A>, which in turn is a port from the <A
  * HREF="http://people.ne.mediaone.net/moshier/index.html#Cephes">Cephes 2.2</A>
- * Math Library (C). Most Cephes code (missing from the 2D Graph Package)
+ * math Library (C). Most Cephes code (missing from the 2D Graph Package)
  * directly ported.
  *
  * @author peter.gedeck@pharma.Novartis.com
@@ -94,7 +94,7 @@ object Probability {
     if ((p < 0.0) || (p > 1.0)) throw new IllegalArgumentException()
     if ((k < 0) || (n < k)) throw new IllegalArgumentException()
     if (k == n) return 1.0
-    if (k == 0) return Math.pow(1.0 - p, n - k)
+    if (k == 0) return math.pow(1.0 - p, n - k)
     Gamma.incompleteBeta(n - k, k + 1, 1.0 - p)
   }
 
@@ -128,7 +128,7 @@ object Probability {
     if ((p < 0.0) || (p > 1.0)) throw new IllegalArgumentException()
     if ((k < 0) || (n < k)) throw new IllegalArgumentException()
     if (k == n) return 0.0
-    if (k == 0) return 1.0 - Math.pow(1.0 - p, n - k)
+    if (k == 0) return 1.0 - math.pow(1.0 - p, n - k)
     Gamma.incompleteBeta(k + 1, n - k, p)
   }
 
@@ -220,7 +220,7 @@ object Probability {
    * HREF="http://www.sci.usq.edu.au/staff/leighb/graph/Top.html">Java 2D
    * Graph Package 2.4</A>, which in turn is a port from the <A
    * HREF="http://people.ne.mediaone.net/moshier/index.html#Cephes">Cephes
-   * 2.2</A> Math Library (C).
+   * 2.2</A> math Library (C).
    *
    * @param x
    *            the argument to the function.
@@ -230,7 +230,7 @@ object Probability {
     var z: Double = 0.0
     val T = Array(9.60497373987051638749E0, 9.00260197203842689217E1, 2.23200534594684319226E3, 7.00332514112805075473E3, 5.55923013010394962768E4)
     val U = Array(3.35617141647503099647E1, 5.21357949780152679795E2, 4.59432382970980127987E3, 2.26290000613890934246E4, 4.92673942608635921086E4)
-    if (Math.abs(x) > 1.0) return 1.0 - errorFunctionComplemented(x)
+    if (math.abs(x) > 1.0) return 1.0 - errorFunctionComplemented(x)
     z = x * x
     y = x * Polynomial.polevl(z, T, 4) / Polynomial.p1evl(z, U, 5)
     y
@@ -259,7 +259,7 @@ object Probability {
    * HREF="http://www.sci.usq.edu.au/staff/leighb/graph/Top.html">Java 2D
    * Graph Package 2.4</A>, which in turn is a port from the <A
    * HREF="http://people.ne.mediaone.net/moshier/index.html#Cephes">Cephes
-   * 2.2</A> Math Library (C).
+   * 2.2</A> math Library (C).
    *
    * @param a
    *            the argument to the function.
@@ -280,7 +280,7 @@ object Probability {
     if (z < -MAXLOG) {
       if (a < 0) return 2.0 else return 0.0
     }
-    z = Math.exp(z)
+    z = math.exp(z)
     if (x < 8.0) {
       p = Polynomial.polevl(x, P, 8)
       q = Polynomial.p1evl(x, Q, 8)
@@ -451,7 +451,7 @@ object Probability {
     var y: Double = 0.0
     var z: Double = 0.0
     x = a * SQRTH
-    z = Math.abs(x)
+    z = math.abs(x)
     if (z < SQRTH) y = 0.5 + 0.5 * errorFunction(x) else {
       y = 0.5 * errorFunctionComplemented(z)
       if (x > 0) y = 1.0 - y
@@ -488,9 +488,9 @@ object Probability {
   def normal(mean: Double, variance: Double, x: Double): Double = {
     if (x > 0) 0.5 +
       0.5 *
-      errorFunction((x - mean) / Math.sqrt(2.0 * variance)) else 0.5 -
+      errorFunction((x - mean) / math.sqrt(2.0 * variance)) else 0.5 -
       0.5 *
-      errorFunction((-(x - mean)) / Math.sqrt(2.0 * variance))
+      errorFunction((-(x - mean)) / math.sqrt(2.0 * variance))
   }
 
   /**
@@ -516,7 +516,7 @@ object Probability {
     var x0: Double = 0.0
     var x1: Double = 0.0
     var code: Int = 0
-    val s2pi = Math.sqrt(2.0 * Math.PI)
+    val s2pi = math.sqrt(2.0 * math.Pi)
     if (y0 <= 0.0) throw new IllegalArgumentException()
     if (y0 >= 1.0) throw new IllegalArgumentException()
     code = 1
@@ -534,8 +534,8 @@ object Probability {
       x = x * s2pi
       return x
     }
-    x = Math.sqrt(-2.0 * Math.log(y))
-    x0 = x - Math.log(x) / x
+    x = math.sqrt(-2.0 * math.log(y))
+    x0 = x - math.log(x) / x
     z = 1.0 / x
     x1 = if (x < 8.0) z * Polynomial.polevl(z, P1, 8) / Polynomial.p1evl(z, Q1, 8) else z * Polynomial.polevl(z,
       P2, 8) / Polynomial.p1evl(z, Q2, 8)
@@ -687,7 +687,7 @@ object Probability {
       s12 = (f2 - f1) / (x2 - x1)
       x3 = x2 - f2 / s12
       f3 = studentT(size, x3) - cumProb
-      if (Math.abs(f3) < 1e-8) {
+      if (math.abs(f3) < 1e-8) {
         return x3
       }
       if (f3 * f2 < 0) {
@@ -701,8 +701,8 @@ object Probability {
         x2 = x3
         f2 = f3
       }
-    } while (Math.abs(x2 - x1) > 0.001)
-    if (Math.abs(f2) <= Math.abs(f1)) {
+    } while (math.abs(x2 - x1) > 0.001)
+    if (math.abs(f2) <= math.abs(f1)) {
       x2
     } else {
       x1

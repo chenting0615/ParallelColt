@@ -24,7 +24,7 @@ import cern.colt.matrix.{Matrix, Matrix1D}
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
  */
 @SerialVersionUID(1L)
-abstract class StrideMatrix1D[@specialized T: Manifest: Numeric] extends AbstractMatrix1D[T] {
+trait StrideMatrix1D[@specialized T] extends AbstractMatrix1D[T] {
 
   /**
    the index of the first element
@@ -210,6 +210,7 @@ abstract class StrideMatrix1D[@specialized T: Manifest: Numeric] extends Abstrac
    *             if <tt>!(0 <= indexes[i] < size())</tt> for any
    *             <tt>i=0..indexes.length()-1</tt>.
    */
+/*
   def viewSelection(indexes: Array[Int]): Matrix1D[T] = {
     if (indexes == null)
       return this
@@ -219,6 +220,7 @@ abstract class StrideMatrix1D[@specialized T: Manifest: Numeric] extends Abstrac
       override def remapIndex(index: Int) = indexes(index)
     }
   }
+*/
 
   /**
    * Constructs and returns a new <i>stride view</i> which is a sub matrix

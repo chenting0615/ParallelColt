@@ -74,6 +74,8 @@ import cern.colt.function.Matrix1DProcedure
 @SerialVersionUID(1L)
 class DenseMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p: Int, elements_p: Array[T], rowZero_p: Int, columnZero_p: Int, rowStride_p: Int, columnStride_p: Int, isView: Boolean) extends StrideMatrix2D[T] {
 
+  def numeric = implicitly[Numeric[T]]
+
   protected var elementsVar: Array[T] = if (elements_p != null) elements_p else {
     if (isView || rowZero_p != 0 || columnZero_p != 0)
       throw new IllegalArgumentException("Non-standard matrix setup, but no elements given")
@@ -193,7 +195,7 @@ class DenseMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p: I
     var cardinality = 0
     for (r <- 0 until rowsVar) {
       for (c <- 0 until columnsVar) {
-        if (elementsVar(toRawIndex(r, c)) != zero) cardinality += 1
+        if (elementsVar(toRawIndex(r, c)) != numeric.zero) cardinality += 1
       }
     }
     cardinality
@@ -409,5 +411,16 @@ class DenseMatrix2D[@specialized T: Manifest: Numeric](rows_p: Int, columns_p: I
     for (i <- 0 until columnsVar) if (condition.apply(viewColumn(i))) matches.add(i)
     matches.trimToSize()
     viewSelection(null, matches.elements())
+  }
+
+  def viewSelection(rowIndexes: Array[Int], columnIndexes: Array[Int]): AbstractMatrix2D[T] = {
+    val viewRows = if (rowIndexes == null) rowsVar else rowIndexes.length
+    val viewColumns = if (columnIndexes == null) columnsVar else columnIndexes.length
+    val view = new WrapperMatrix2D[T](this, viewRows, viewColumns) {
+      override def remapIndexes(row: Int, column: Int) = {
+        (if (rowIndexes == null) row else rowIndexes(row), if (columnIndexes == null) column else columnIndexes(column))
+      }
+    }
+    view
   }
 }

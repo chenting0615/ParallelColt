@@ -2,7 +2,7 @@ package cern.colt.matrix
 
 import edu.emory.mathcs.utils.ConcurrencyUtils
 import scala.collection.mutable
-import java.util.concurrent.{Future, Callable}
+import java.util.concurrent._
 import java.util.logging.Logger
 import cern.colt.matrix.impl.{SparseCCMatrix2D, SparseHashMatrix1D, SparseRCMatrix2D, SparseHashMatrix2D}
 
@@ -142,6 +142,38 @@ object ConcurrencyParams {
     getNumberOfThreads > 1 && X.columns*Y.columns >= ConcurrencyParams.getThreadsBeginN_RowsTimesColumns
   }
 
+  private var THREAD_POOL: ExecutorService = Executors.newCachedThreadPool(new CustomThreadFactory(new CustomExceptionHandler()))
+
+  private class CustomExceptionHandler extends Thread.UncaughtExceptionHandler {
+
+    def uncaughtException(t: Thread, e: Throwable) {
+      e.printStackTrace()
+    }
+  }
+
+  object CustomThreadFactory {
+
+    private val defaultFactory = Executors.defaultThreadFactory()
+  }
+
+  private class CustomThreadFactory(val handler: Thread.UncaughtExceptionHandler)
+      extends ThreadFactory {
+
+    def newThread(r: Runnable): Thread = {
+      val t = CustomThreadFactory.defaultFactory.newThread(r)
+      t.setUncaughtExceptionHandler(handler)
+      t.setDaemon(true)
+      t
+    }
+  }
+
+  /**
+   * Shutdowns the thread pool.
+   */
+  def shutdown() {
+    THREAD_POOL.shutdown()
+  }
+
   /**
    * Submits a value-returning task for execution and returns a Future
    * representing the pending results of the task.
@@ -151,7 +183,10 @@ object ConcurrencyParams {
    * @return a handle to the task submitted for execution
    */
   def submit[T](task: Callable[T]): Future[T] = {
-    ConcurrencyUtils.submit(task)
+    if (THREAD_POOL.isShutdown || THREAD_POOL.isTerminated) {
+      THREAD_POOL = Executors.newCachedThreadPool(new CustomThreadFactory(new CustomExceptionHandler()))
+    }
+    THREAD_POOL.submit(task)
   }
 
   /**
@@ -163,7 +198,10 @@ object ConcurrencyParams {
    * @return a handle to the task submitted for execution
    */
   def submit(task: Runnable): Future[_] = {
-    ConcurrencyUtils.submit(task)
+    if (THREAD_POOL.isShutdown || THREAD_POOL.isTerminated) {
+      THREAD_POOL = Executors.newCachedThreadPool(new CustomThreadFactory(new CustomExceptionHandler()))
+    }
+    THREAD_POOL.submit(task)
   }
 
   /**
@@ -173,7 +211,15 @@ object ConcurrencyParams {
    *            handles to running threads
    */
   def waitForCompletion(futures: Array[Future[_]]) {
-    ConcurrencyUtils.waitForCompletion(futures)
+    val size = futures.length
+    try {
+      for (j <- 0 until size) {
+        futures(j).get
+      }
+    } catch {
+      case ex: ExecutionException => ex.printStackTrace()
+      case e: InterruptedException => e.printStackTrace()
+    }
   }
 
   /**
@@ -185,8 +231,23 @@ object ConcurrencyParams {
    *            an aggregation function
    * @return the result of aggregation
    */
-  def waitForCompletion(futures: Array[Future[_]], aggr: Function2[Double, Double, Double]): Double = {
-    ConcurrencyUtils.waitForCompletion(futures, aggr)
+  def waitForCompletion[T: Manifest: Numeric](futures: Array[Future[T]], aggr: Function2[T, T, T]): T = {
+    val size = futures.length
+    val results = Array.ofDim[T](size)
+    var a: T = implicitly[Numeric[T]].zero
+    try {
+      for (j <- 0 until size) {
+        results(j) = futures(j).get
+      }
+      a = results(0)
+      for (j <- 1 until size) {
+        a = aggr.apply(a, results(j))
+      }
+    } catch {
+      case ex: ExecutionException => ex.printStackTrace()
+      case e: InterruptedException => e.printStackTrace()
+    }
+    a
   }
 
 }

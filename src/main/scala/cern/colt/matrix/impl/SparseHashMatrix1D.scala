@@ -1,6 +1,6 @@
 package cern.colt.matrix.impl
 
-import cern.colt.matrix.Matrix2D
+import cern.colt.matrix.{Matrix1D, Matrix2D}
 import cern.colt.map.impl.OpenHashMap
 import cern.colt.function.Procedure2
 
@@ -93,7 +93,7 @@ class SparseHashMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, initial
    * @return <tt>this</tt> (for convenience only).
    */
   override def assignConstant(value: T): SparseHashMatrix1D[T] = {
-    if (this.isNoView && value == zero)
+    if (this.isNoView && value == numeric.zero)
       this.elements.clear()
     else {
       // Can't call super.assignConstant(value).  It causes infinite recursion in scala.  Compiler bug.
@@ -153,7 +153,7 @@ class SparseHashMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, initial
         val extIndex = toExternalIndex(rawIndex.toInt)
         val newValue = f.apply(extIndex.toInt, oldValue)
         if (newValue != oldValue) {
-          if (newValue != zero)
+          if (newValue != numeric.zero)
             elements.put(rawIndex, newValue)
           else
             elements.remove(rawIndex)
@@ -204,11 +204,18 @@ class SparseHashMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, initial
     for (c <- 0 until columns; r <- 0 until rows) {
       val elem = getQuick(idx)
       idx += 1
-      if (elem != zero) {
+      if (elem != numeric.zero) {
         M.setQuick(r, c, elem)
       }
     }
     M
+  }
+
+  def numeric = implicitly[Numeric[T]]
+
+  def toArray: Array[T] = {
+    val values = Array.ofDim[T](size.toInt)
+    toArray(values)
   }
 
   /**
@@ -226,7 +233,7 @@ class SparseHashMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, initial
    *            the value to be filled into the specified cell.
    */
   def setQuick(index: Int, value: T) {
-    if (value == zero)
+    if (value == numeric.zero)
       this.elements.remove(toRawIndex(index))
     else
       this.elements.put(toRawIndex(index), value)
@@ -239,7 +246,7 @@ class SparseHashMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, initial
       .append('\n')
     for (i <- 0 until size.toInt) {
       val elem = getQuick(i)
-      if (elem != zero) {
+      if (elem != numeric.zero) {
         builder.append('(').append(i).append(')').append('\t')
           .append(elem)
           .append('\n')
@@ -250,5 +257,15 @@ class SparseHashMatrix1D[@specialized T: Manifest: Numeric](size_p: Int, initial
 
   override def trimToSize() {
     this.elements.trimToSize()
+  }
+
+  def viewSelection(indexes: Array[Int]): Matrix1D[T] = {
+    if (indexes == null)
+      return this
+    checkIndexes(indexes)
+    new WrapperMatrix1D[T](this) {
+      sizeVar = indexes.size
+      override def remapIndex(index: Int) = indexes(index)
+    }
   }
 }

@@ -24,7 +24,7 @@ import cern.colt.matrix.Matrix
  *
  */
 @SerialVersionUID(1L)
-abstract class StrideMatrix2D[@specialized T: Manifest: Numeric] extends AbstractMatrix2D[T] {
+trait StrideMatrix2D[@specialized T] extends AbstractMatrix2D[T] {
 
   /**
    * the number of elements between two rows, i.e.
@@ -330,6 +330,7 @@ abstract class StrideMatrix2D[@specialized T: Manifest: Numeric] extends Abstrac
    *             if <tt>!(0 <= rowIndexes[i] < rows)</tt> for any
    *             <tt>i=0..rowIndexes.length()-1</tt>.
    */
+/*
   def viewSelection(rowIndexes: Array[Int], columnIndexes: Array[Int]): AbstractMatrix2D[T] = {
     val viewRows = if (rowIndexes == null) rowsVar else rowIndexes.length
     val viewColumns = if (columnIndexes == null) columnsVar else columnIndexes.length
@@ -340,6 +341,7 @@ abstract class StrideMatrix2D[@specialized T: Manifest: Numeric] extends Abstrac
     }
     view
   }
+*/
 
   /**
    * Constructs and returns a new <i>stride view</i> which is a sub matrix

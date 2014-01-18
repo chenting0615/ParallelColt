@@ -82,7 +82,7 @@ object Units {
 
   val milliradian = 1.e-3 * radian
 
-  val degree = (Math.PI / 180.0) * radian
+  val degree = (math.Pi / 180.0) * radian
 
   val steradian = 1.0
 

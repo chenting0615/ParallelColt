@@ -186,7 +186,7 @@ trait Matrix[T] extends PersistentObject {
   def everyCellEquals(value: T, tolerance: Double): Boolean
 
   /**
-   * Returns a string representation of the receiver's shape.
+   * Returns a string representation of the matrix's shape.
    */
   def toShapeString: String
 

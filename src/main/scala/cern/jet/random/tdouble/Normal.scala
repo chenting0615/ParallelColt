@@ -107,7 +107,7 @@ class Normal(mean: Double, standardDeviation: Double, randomGenerator: DoubleRan
       y = 2.0 * randomGenerator.raw() - 1.0
       r = x * x + y * y
     } while (r >= 1.0)
-    z = Math.sqrt(-2.0 * Math.log(r) / r)
+    z = math.sqrt(-2.0 * math.log(r) / r)
     if (this.mean == mean && this.standardDeviation == standardDeviation) {
       cache = mean + standardDeviation * x * z
       cacheFilled = true
@@ -120,7 +120,7 @@ class Normal(mean: Double, standardDeviation: Double, randomGenerator: DoubleRan
    */
   def pdf(x: Double): Double = {
     val diff = x - mean
-    SQRT_INV * Math.exp(-(diff * diff) / (2.0 * variance))
+    SQRT_INV * math.exp(-(diff * diff) / (2.0 * variance))
   }
 
   /**
@@ -140,7 +140,7 @@ class Normal(mean: Double, standardDeviation: Double, randomGenerator: DoubleRan
       this.standardDeviationVar = standardDeviation
       this.variance = standardDeviation * standardDeviation
       this.cacheFilled = false
-      this.SQRT_INV = 1.0 / Math.sqrt(2.0 * Math.PI * variance)
+      this.SQRT_INV = 1.0 / math.sqrt(2.0 * math.Pi * variance)
     }
   }
 

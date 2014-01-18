@@ -43,7 +43,7 @@ package cern.colt.matrix.impl
  *
  */
 @SerialVersionUID(1L)
-class DenseColumnMatrix2D[@specialized T: Manifest: Numeric](rows: Int, columns: Int) extends DenseMatrix2D[T](rows, columns, elements_p=null, rowZero_p=0, columnZero_p=0, rowStride_p=1, columnStride_p=rows, isView=false) {
+class DenseColumnMatrix2D[T: Manifest: Numeric](rows: Int, columns: Int) extends DenseMatrix2D[T](rows, columns, elements_p=null, rowZero_p=0, columnZero_p=0, rowStride_p=1, columnStride_p=rows, isView=false) {
 
   /**
    * Constructs a matrix with a copy of the given values. <tt>values</tt> is

@@ -8,6 +8,10 @@ package cern.colt.function
 object ProcedureTypes {
   type DoubleProcedure = Procedure1[Double]
 
+  type FloatProcedure = Procedure1[Float]
+
+  type FloatFloatProcedure = Procedure2[Float, Float]
+
   type IntDoubleProcedure = Procedure2[Int, Double]
 
   type IntIntDoubleProcedure = Procedure3[Int, Int, Double]

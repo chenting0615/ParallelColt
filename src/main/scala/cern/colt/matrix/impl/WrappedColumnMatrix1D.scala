@@ -79,6 +79,13 @@ class WrappedColumnMatrix1D[@specialized T: Manifest: Numeric](protected val con
     new WrappedColumnMatrix1D[T](content2D.viewStrides(stride, 1), column)
   }
 
+  def numeric = implicitly[Numeric[T]]
+
+  def toArray: Array[T] = {
+    val values = Array.ofDim[T](size.toInt)
+    toArray(values)
+  }
+
   /**
    * Constructs and returns a new <i>selection view</i> that is a matrix
    * holding the indicated cells. There holds

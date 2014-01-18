@@ -1,8 +1,7 @@
 package cern.colt.list
 
-@specialized
 @SerialVersionUID(1L)
-abstract class AbstractCollection[T] extends cern.colt.PersistentObject {
+trait AbstractCollection[@specialized T] extends cern.colt.PersistentObject {
 
   /**
    * Removes all elements from the receiver. The receiver will be empty after

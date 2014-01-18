@@ -12,7 +12,7 @@ package cern.clhep
  */
 object PhysicalConstants {
 
-  val pi = Math.PI
+  val pi = math.Pi
 
   val twopi = 2 * pi
 
