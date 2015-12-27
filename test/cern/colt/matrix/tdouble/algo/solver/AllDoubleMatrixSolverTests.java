@@ -75,6 +75,8 @@ public class AllDoubleMatrixSolverTests {
         suite.addTestSuite(DoubleIRAMGTest.class);
         suite.addTestSuite(DoubleIRILUTTest.class);
 
+        suite.addTestSuite(DoubleGLSQRTest.class);
+
         return suite;
     }
 }
